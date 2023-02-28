@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Run app" type="CompoundRunConfigurationType">
+    <toRun name="runserver" type="Python.DjangoServer" />
+    <toRun name="dev" type="js.build_tools.npm" />
+    <toRun name="celery" type="PythonConfigurationType" />
+    <toRun name="keydb" type="ShConfigurationType" />
+    <method v="2" />
+  </configuration>
+</component>

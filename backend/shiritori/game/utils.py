@@ -1,0 +1,49 @@
+# The modifiers are applied in order, so the first one that matches is used.
+# The duration is in seconds. The score is multiplied by the modifier.
+import random
+import string
+
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+
+LENGTH_MODIFIER = 1.25
+DURATION_MODIFIERS = {
+    5: 1.8,
+    10: 1.5,
+    15: 1.2
+}
+
+
+def calculate_score(word: str, duration: int | float) -> float:
+    """
+    Calculate the score for a word.
+    The score is based on the length of the word
+    and the duration it took to enter.
+    :param word: str - The word to calculate the score for.
+    :param duration: int - The duration it took to enter the word.
+    :return: float - The score for the word.
+    """
+    score = len(word) * LENGTH_MODIFIER
+    for time, modifier in DURATION_MODIFIERS.items():
+        if duration <= time:
+            score *= modifier
+            break
+    return score
+
+
+def generate_random_letter():
+    """
+    Generate a random letter.
+    :return: str - A random letter.
+    """
+    return random.choice(string.ascii_lowercase)
+
+
+def send_message_to_layer(channel_name: str, message: dict):
+    """
+    Send a message to a channel layer.
+    :param channel_name: str - The channel name to send the message to.
+    :param message: dict - The message to send.
+    """
+    if channel_layer := get_channel_layer():
+        async_to_sync(channel_layer.group_send)(channel_name, message)
