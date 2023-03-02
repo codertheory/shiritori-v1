@@ -1,29 +1,47 @@
 import { useFetch } from "#imports";
 import { components, paths } from "~/schema";
+import { NitroFetchOptions } from "nitropack";
 
-const BASE_URL = "http://localhost:8000";
+const BASE_URL = "http://0.0.0.0:8000";
 
 type ApiPostOptions<T> = Parameters<typeof useFetch<T>>[1];
 
 type useApiPost<T = unknown> = (
   url: keyof paths,
-  options: ApiPostOptions<T>
+  options?: Omit<ApiPostOptions<T>, "method">,
+  method?: NitroFetchOptions<string>["method"]
 ) => ReturnType<typeof useFetch>;
 
 export const useApi = () => {
-  const post: useApiPost = <R extends keyof paths, O>(
+  const api: useApiPost = <R extends keyof paths, O>(
     url: R,
-    options: ApiPostOptions<O>
+    options: ApiPostOptions<O> = {},
+    method: NitroFetchOptions<string>["method"] = "POST"
   ) => {
     return useFetch(url as unknown as string, {
       ...options,
       baseURL: BASE_URL,
-      method: "POST",
+      method,
+      onRequestError({ request, options, error }) {
+        // Handle the request errors
+        console.log("onRequestError", request, options, error);
+      },
     });
   };
 
+  const getGame = (gameId: string) =>
+    api(
+      `/api/game/${gameId}/`,
+      {
+        query: {
+          format: "json",
+        },
+      },
+      "GET"
+    );
+
   const createGame = (body: components["schemas"]["CreateGame"]) =>
-    post("/api/game/", {
+    api("/api/game/", {
       body,
     });
 
@@ -31,7 +49,7 @@ export const useApi = () => {
     gameId: string,
     body: components["schemas"]["ShiritoriTurn"]
   ) =>
-    post(`/api/game/${gameId}/turn/`, {
+    api(`/api/game/${gameId}/turn/`, {
       body,
     });
 
@@ -39,13 +57,13 @@ export const useApi = () => {
     gameId: string,
     body: Pick<components["schemas"]["ShiritoriPlayer"], "name">
   ) =>
-    post(`/api/game/${gameId}/join/`, {
+    api(`/api/game/${gameId}/join/`, {
       body,
     });
 
-  const leaveGame = (gameId: string) => post(`/api/game/${gameId}/leave/`, {});
+  const leaveGame = (gameId: string) => api(`/api/game/${gameId}/leave/`, {});
 
-  const startGame = (gameId: string) => post(`/api/game/${gameId}/start/`, {});
+  const startGame = (gameId: string) => api(`/api/game/${gameId}/start/`, {});
 
-  return { createGame, takeTurn, joinGame, leaveGame, startGame };
+  return { getGame, createGame, takeTurn, joinGame, leaveGame, startGame };
 };

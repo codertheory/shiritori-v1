@@ -13,21 +13,41 @@ type OneOf<T extends any[]> = T extends [infer Only]
   : T extends [infer A, infer B, ...infer Rest]
   ? OneOf<[XOR<A, B>, ...Rest]>
   : never;
+export interface a {
+  [key: `test/${string}`]: {
+    test: string;
+  };
+}
 
 export interface paths {
   "/api/game/": {
     get: operations["api_game_list"];
     post: operations["api_game_create"];
   };
+  [key: `/api/game/${string}/`]: {
+    get: operations["api_game_retrieve"];
+  };
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   [key: `/api/game/${string}/join/`]: {
     post: operations["api_game_join_create"];
   };
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   [key: `/api/game/${string}/leave/`]: {
     post: operations["api_game_leave_create"];
   };
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   [key: `/api/game/${string}/start/`]: {
     post: operations["api_game_start_create"];
   };
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   [key: `/api/game/${string}/turn/`]: {
     post: operations["api_game_turn_create"];
   };
