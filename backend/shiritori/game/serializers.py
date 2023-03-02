@@ -3,13 +3,23 @@ from rest_framework import serializers
 from shiritori.game.models import Game, Player, GameSettings, GameWord
 
 __all__ = (
+    "ShiritoriGameWordSerializer",
     "ShiritoriGameSettingsSerializer",
     "ShiritoriPlayerSerializer",
     "ShiritoriGameSerializer",
     "ShiritoriTurnSerializer",
-    "ShiritoriGameWordSerializer",
     "CreateGameSerializer",
 )
+
+
+class ShiritoriGameWordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GameWord
+        fields = (
+            "word",
+            "score",
+            "duration",
+        )
 
 
 class ShiritoriGameSettingsSerializer(serializers.ModelSerializer):
@@ -42,6 +52,8 @@ class ShiritoriGameSerializer(serializers.ModelSerializer):
     winner = ShiritoriPlayerSerializer(read_only=True)
     current_player = ShiritoriPlayerSerializer(read_only=True)
     turn_time_left = serializers.IntegerField(read_only=True)
+    words = ShiritoriGameWordSerializer(many=True, read_only=True)
+    players = ShiritoriPlayerSerializer(many=True, read_only=True)
 
     class Meta:
         model = Game
@@ -57,16 +69,6 @@ class ShiritoriTurnSerializer(serializers.Serializer):
 
     def update(self, instance, validated_data):
         pass  # Need to override because parent class is abstract
-
-
-class ShiritoriGameWordSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = GameWord
-        fields = (
-            "word",
-            "score",
-            "duration",
-        )
 
 
 class CreateGameSerializer(serializers.Serializer):

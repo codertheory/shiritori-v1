@@ -6,7 +6,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "generate-schema": "npx openapi-typescript ../backend/schema.yaml --output schema.ts"
+    "generate-schema": "npx openapi-typescript ../backend/schema.yaml --output schema.ts --path-params-as-types"
   },
   "lint-staged": {
     "*.{ts,vue}": [
@@ -15,7 +15,7 @@
   },
   "devDependencies": {
     "nuxt": "^3.2.3",
-    "@nuxt/devtools": "^0.2.3",
+    "@nuxt/devtools": "^0.2.5",
     "eslint": "latest",
     "eslint-plugin-prettier": "latest",
     "eslint-config-prettier": "latest",
@@ -28,8 +28,8 @@
     "primeicons": "^6.0.1",
     "primeflex": "^3.3.0",
     "@sfxcode/nuxt-primevue": "^1.0.0",
-    "vitest": "^0.29.1",
-    "@nuxt/test-utils": "^3.2.2",
-    "nuxt-typed-router": "^3.0.1"
+    "vitest": "^0.29.2",
+    "@nuxt/test-utils": "^3.2.3",
+    "nuxt-typed-router": "^3.0.2"
   }
 }

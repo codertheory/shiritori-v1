@@ -3,24 +3,32 @@
  * Do not make direct changes to the file.
  */
 
+/** Type helpers */
+type Without<T, U> = { [P in Exclude<keyof T, keyof U>]?: never };
+type XOR<T, U> = T | U extends object
+  ? (Without<T, U> & U) | (Without<U, T> & T)
+  : T | U;
+type OneOf<T extends any[]> = T extends [infer Only]
+  ? Only
+  : T extends [infer A, infer B, ...infer Rest]
+  ? OneOf<[XOR<A, B>, ...Rest]>
+  : never;
+
 export interface paths {
   "/api/game/": {
     get: operations["api_game_list"];
     post: operations["api_game_create"];
   };
-  "/api/game/{id}/": {
-    get: operations["api_game_retrieve"];
-  };
-  "/api/game/{id}/join/": {
+  [key: `/api/game/${string}/join/`]: {
     post: operations["api_game_join_create"];
   };
-  "/api/game/{id}/leave/": {
+  [key: `/api/game/${string}/leave/`]: {
     post: operations["api_game_leave_create"];
   };
-  "/api/game/{id}/start/": {
+  [key: `/api/game/${string}/start/`]: {
     post: operations["api_game_start_create"];
   };
-  "/api/game/{id}/turn/": {
+  [key: `/api/game/${string}/turn/`]: {
     post: operations["api_game_turn_create"];
   };
   "/api/schema/": {
@@ -32,44 +40,15 @@ export interface paths {
      */
     get: operations["api_schema_retrieve"];
   };
-  "/api/users/": {
-    get: operations["api_users_list"];
-  };
-  "/api/users/{username}/": {
-    get: operations["api_users_retrieve"];
-    put: operations["api_users_update"];
-    patch: operations["api_users_partial_update"];
-  };
-  "/api/users/me/": {
-    get: operations["api_users_me_retrieve"];
-  };
-  "/auth-token/": {
-    post: operations["auth_token_create"];
-  };
 }
-
-export type webhooks = Record<string, never>;
 
 export interface components {
   schemas: {
-    AuthToken: {
-      username: string;
-      password: string;
-      token: string;
-    };
     CreateGame: {
       settings: components["schemas"]["ShiritoriGameSettings"];
     };
     /** @enum {string} */
     LocaleEnum: "en";
-    PatchedUser: {
-      /** @description Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only. */
-      username?: string;
-      /** Name of User */
-      name?: string;
-      /** Format: uri */
-      url?: string;
-    };
     ShiritoriGame: {
       id: string;
       settings: components["schemas"]["ShiritoriGameSettings"];
@@ -79,19 +58,28 @@ export interface components {
       winner: components["schemas"]["ShiritoriPlayer"];
       current_player: components["schemas"]["ShiritoriPlayer"];
       turn_time_left: number;
+      words: readonly components["schemas"]["ShiritoriGameWord"][];
+      players: readonly components["schemas"]["ShiritoriPlayer"][];
       /** Format: date-time */
       created_at: string;
       /** Format: date-time */
       updated_at: string;
       status?: components["schemas"]["StatusEnum"];
       current_turn?: number;
-      last_word?: string | null;
+      last_word?: string;
     };
     ShiritoriGameSettings: {
       locale?: components["schemas"]["LocaleEnum"];
       word_length?: number;
       turn_time?: number;
       max_turns?: number;
+    };
+    ShiritoriGameWord: {
+      word?: string;
+      /** Format: double */
+      score?: number;
+      /** Format: double */
+      duration?: number;
     };
     ShiritoriPlayer: {
       id: string;
@@ -104,14 +92,6 @@ export interface components {
     };
     /** @enum {string} */
     StatusEnum: "WAITING" | "PLAYING" | "FINISHED";
-    User: {
-      /** @description Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only. */
-      username: string;
-      /** Name of User */
-      name?: string;
-      /** Format: uri */
-      url: string;
-    };
   };
   responses: never;
   parameters: never;
@@ -258,8 +238,8 @@ export interface operations {
      * - YAML: application/vnd.oai.openapi
      * - JSON: application/vnd.oai.openapi+json
      */
-    parameters: {
-      query: {
+    parameters?: {
+      query?: {
         format?: "json" | "yaml";
         lang?:
           | "af"
@@ -365,107 +345,17 @@ export interface operations {
       200: {
         content: {
           "application/vnd.oai.openapi": {
-            [key: string]: unknown | undefined;
+            [key: string]: Record<string, never> | undefined;
           };
           "application/yaml": {
-            [key: string]: unknown | undefined;
+            [key: string]: Record<string, never> | undefined;
           };
           "application/vnd.oai.openapi+json": {
-            [key: string]: unknown | undefined;
+            [key: string]: Record<string, never> | undefined;
           };
           "application/json": {
-            [key: string]: unknown | undefined;
+            [key: string]: Record<string, never> | undefined;
           };
-        };
-      };
-    };
-  };
-  api_users_list: {
-    responses: {
-      200: {
-        content: {
-          "application/json": components["schemas"]["User"][];
-        };
-      };
-    };
-  };
-  api_users_retrieve: {
-    parameters: {
-      path: {
-        username: string;
-      };
-    };
-    responses: {
-      200: {
-        content: {
-          "application/json": components["schemas"]["User"];
-        };
-      };
-    };
-  };
-  api_users_update: {
-    parameters: {
-      path: {
-        username: string;
-      };
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["User"];
-        "application/x-www-form-urlencoded": components["schemas"]["User"];
-        "multipart/form-data": components["schemas"]["User"];
-      };
-    };
-    responses: {
-      200: {
-        content: {
-          "application/json": components["schemas"]["User"];
-        };
-      };
-    };
-  };
-  api_users_partial_update: {
-    parameters: {
-      path: {
-        username: string;
-      };
-    };
-    requestBody?: {
-      content: {
-        "application/json": components["schemas"]["PatchedUser"];
-        "application/x-www-form-urlencoded": components["schemas"]["PatchedUser"];
-        "multipart/form-data": components["schemas"]["PatchedUser"];
-      };
-    };
-    responses: {
-      200: {
-        content: {
-          "application/json": components["schemas"]["User"];
-        };
-      };
-    };
-  };
-  api_users_me_retrieve: {
-    responses: {
-      200: {
-        content: {
-          "application/json": components["schemas"]["User"];
-        };
-      };
-    };
-  };
-  auth_token_create: {
-    requestBody: {
-      content: {
-        "application/x-www-form-urlencoded": components["schemas"]["AuthToken"];
-        "multipart/form-data": components["schemas"]["AuthToken"];
-        "application/json": components["schemas"]["AuthToken"];
-      };
-    };
-    responses: {
-      200: {
-        content: {
-          "application/json": components["schemas"]["AuthToken"];
         };
       };
     };
