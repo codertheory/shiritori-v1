@@ -17,7 +17,8 @@ export const useCreateGameForm = () => {
   const validationSchema = toFormValidator(createGameSchema);
   const initialValues = gameSettingsSchema.parse({});
   const onSubmit = async (values: createGameSchema) => {
-    console.log("onSubmit", values);
+    const { username, ...rest } = values;
+    console.log("onSubmit", { username, settings: rest });
   };
 
   return { validationSchema, initialValues, onSubmit };

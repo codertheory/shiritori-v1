@@ -6,27 +6,30 @@
     @submit="onSubmit"
   >
     <div class="flex justify-content-center">
-      <Card class="card">
+      <Card>
         <template #title>Create Game</template>
         <template #content>
-          <InputUsername />
+          <InputFieldUsername />
           <Divider />
           <h1>Settings</h1>
-          <InputSlider
+          <InputFieldSlider
             field-name="word_length"
             field-label="Word Length"
+            tooltip="The length of the words to guess."
             :min="3"
             :max="5"
           />
-          <InputSlider
+          <InputFieldSlider
             field-name="turn_time"
             field-label="Turn Time (seconds)"
+            tooltip="The time each player has to play a word."
             :min="30"
             :max="120"
           />
-          <InputSlider
+          <InputFieldSlider
             field-name="max_turns"
             field-label="Max Turns"
+            tooltip="The maximum number of rounds per game."
             :min="5"
             :max="20"
           />

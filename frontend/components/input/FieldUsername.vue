@@ -1,7 +1,7 @@
 <template>
   <Field name="username" v-slot="{ field, errorMessage }">
     <div class="field">
-      <div class="col-12 md:col-4">
+      <div class="col-12">
         <div class="p-inputgroup">
           <span class="p-inputgroup-addon">
             <i class="pi pi-user"></i>
