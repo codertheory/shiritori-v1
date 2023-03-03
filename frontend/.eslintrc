@@ -4,16 +4,19 @@
     "@typescript-eslint",
     "prettier"
   ],
+  "env": {
+    "node": true,
+    "browser": true
+  },
   "parserOptions": {
     "parser": "@typescript-eslint/parser",
     "ecmaVersion": 2020,
     "sourceType": "module"
   },
   "extends": [
+    "plugin:vue/vue3-strongly-recommended",
     "eslint:recommended",
-    "plugin:prettier/recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:vue/vue3-strongly-recommended"
+    "plugin:prettier/recommended"
   ],
   "rules": {
     "@typescript-eslint/no-redeclare": "off",
@@ -36,6 +39,7 @@
         ]
       }
     ],
-    "semi": "off"
+    "semi": "off",
+    "no-redeclare": "off"
   }
 }

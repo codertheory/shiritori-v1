@@ -1,6 +1,6 @@
 <template>
   <h1>Hello World</h1>
-  <CreateGameBtn />
+  <FormCreateGame />
 </template>
 
 <script lang="ts" setup></script>

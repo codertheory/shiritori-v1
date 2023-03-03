@@ -30,6 +30,9 @@
     "@sfxcode/nuxt-primevue": "^1.0.0",
     "vitest": "^0.29.2",
     "@nuxt/test-utils": "^3.2.3",
-    "nuxt-typed-router": "^3.0.2"
+    "nuxt-typed-router": "^3.0.2",
+    "zod": "^3.20.6",
+    "vee-validate": "^4.7.4",
+    "@vee-validate/zod": "^4.7.4"
   }
 }

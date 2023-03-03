@@ -25,7 +25,7 @@
     </EXTENSION>
     <option name="launchJavascriptDebuger" value="false" />
     <option name="host" value="" />
-    <option name="additionalOptions" value="--file schema.yaml --validate --fail-on-warn" />
+    <option name="additionalOptions" value="--file schema.json --validate --fail-on-warn --format openapi-json" />
     <option name="browserUrl" value="" />
     <option name="runTestServer" value="false" />
     <option name="runNoReload" value="false" />
