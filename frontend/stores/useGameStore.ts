@@ -81,8 +81,14 @@ export const useGameStore = defineStore("game", () => {
     };
 
     const onSocketEvent = (e: MessageEvent) => {
-        const data = JSON.parse(e.data);
-        console.error(data);
+        const eventData = JSON.parse(e.data);
+        switch (eventData.type) {
+            case "game_updated":
+                setGame(eventData.data);
+                break;
+            default:
+                break;
+        }
     };
 
     watchSocket((s) => {
