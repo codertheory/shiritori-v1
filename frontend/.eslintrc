@@ -9,37 +9,58 @@
     "browser": true
   },
   "parserOptions": {
-    "parser": "@typescript-eslint/parser",
-    "ecmaVersion": 2020,
-    "sourceType": "module"
+      "parser": "@typescript-eslint/parser",
+      "ecmaVersion": 2020,
+      "sourceType": "module"
   },
-  "extends": [
-    "plugin:vue/vue3-strongly-recommended",
-    "eslint:recommended",
-    "plugin:prettier/recommended"
-  ],
-  "rules": {
-    "@typescript-eslint/no-redeclare": "off",
-    "vue/multi-word-component-names": "off",
-    "prettier/prettier": "error",
-    "quotes": [
-      "error",
-      "double",
-      {
-        "avoidEscape": true,
-        "allowTemplateLiterals": true
-      }
+    "extends": [
+        "plugin:vue/vue3-strongly-recommended",
+        "eslint:recommended",
+        "plugin:prettier/recommended"
     ],
-    "no-console": [
-      "error",
-      {
-        "allow": [
-          "warn",
-          "error"
-        ]
-      }
-    ],
-    "semi": "off",
-    "no-redeclare": "off"
-  }
+    "rules": {
+        "indent": [
+            "error",
+            4
+        ],
+        "vue/script-indent": [
+            "error",
+            4,
+            {
+                "baseIndent": 1
+            }
+        ],
+        "@typescript-eslint/no-redeclare": "off",
+        "vue/multi-word-component-names": "off",
+        "prettier/prettier": "error",
+        "quotes": [
+            "error",
+            "double",
+            {
+                "avoidEscape": true,
+                "allowTemplateLiterals": true
+            }
+        ],
+        "no-console": [
+            "error",
+            {
+                "allow": [
+                    "warn",
+                    "error"
+                ]
+            }
+        ],
+        "semi": "off",
+        "no-redeclare": "off"
+    },
+    "overrides": [
+        {
+            "files": [
+                "*.vue"
+            ],
+            "rules": {
+                "indent": "off"
+            }
+        }
+    ]
 }
