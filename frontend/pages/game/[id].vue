@@ -1,9 +1,22 @@
 <template>
-    <h1>Game {{ $route.params.id }}</h1>
+    <div>
+        <NuxtLayout />
+    </div>
 </template>
 
 <script setup lang="ts">
-    definePageMeta({ middleware: ["game-exists"] });
+    import { useGameStore } from "~/stores/useGameStore";
+
+    definePageMeta({
+        middleware: ["game-exists"],
+        layout: "lobby",
+    });
+
+    const { joinGameWS } = useGameStore();
+
+    onMounted(() => {
+        joinGameWS();
+    });
 </script>
 
 <style scoped></style>

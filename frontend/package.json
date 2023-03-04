@@ -6,7 +6,8 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "generate-schema": "npx openapi-typescript ../backend/schema.yaml --output schema.ts --path-params-as-types"
+    "generate-schema": "npx openapi-typescript ../backend/schema.yaml --output schema.ts --path-params-as-types",
+    "lint": "eslint  --fix --ext .js,.ts,.vue ."
   },
   "lint-staged": {
     "*.{ts,vue}": [

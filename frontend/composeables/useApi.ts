@@ -7,63 +7,72 @@ const BASE_URL = "http://0.0.0.0:8000";
 type ApiPostOptions<T> = Parameters<typeof useFetch<T>>[1];
 
 type useApiPost<T = unknown> = (
-  url: keyof paths,
-  options?: Omit<ApiPostOptions<T>, "method">,
-  method?: NitroFetchOptions<string>["method"]
+    url: keyof paths,
+    options?: Omit<ApiPostOptions<T>, "method">,
+    method?: NitroFetchOptions<string>["method"]
 ) => ReturnType<typeof useFetch>;
 
 export const useApi = () => {
-  const api: useApiPost = <R extends keyof paths, O>(
-    url: R,
-    options: ApiPostOptions<O> = {},
-    method: NitroFetchOptions<string>["method"] = "POST"
-  ) => {
-    return useFetch(url as unknown as string, {
-      ...options,
-      baseURL: BASE_URL,
-      method,
-      onRequestError({ request, options, error }) {
-        // Handle the request errors
-        console.log("onRequestError", request, options, error);
-      },
-    });
-  };
+    const api: useApiPost = <R extends keyof paths, O>(
+        url: R,
+        options: ApiPostOptions<O> = {},
+        method: NitroFetchOptions<string>["method"] = "POST"
+    ) => {
+        return useFetch(url as unknown as string, {
+            ...options,
+            baseURL: BASE_URL,
+            method,
+            onRequestError({ request, options, error }) {
+                // Handle the request errors
+                console.log("onRequestError", request, options, error);
+            },
+        });
+    };
 
-  const getGame = (gameId: string) =>
-    api(
-      `/api/game/${gameId}/`,
-      {
-        query: {
-          format: "json",
-        },
-      },
-      "GET"
-    );
+    const apiGetGame = (gameId: string) =>
+        api(
+            `/api/game/${gameId}/`,
+            {
+                query: {
+                    format: "json",
+                },
+            },
+            "GET"
+        );
 
-  const createGame = (body: components["schemas"]["CreateGame"]) =>
-    api("/api/game/", {
-      body,
-    });
+    const apiCreateGame = (body: components["schemas"]["CreateGame"]) =>
+        api("/api/game/", {
+            body,
+        });
 
-  const takeTurn = (
-    gameId: string,
-    body: components["schemas"]["ShiritoriTurn"]
-  ) =>
-    api(`/api/game/${gameId}/turn/`, {
-      body,
-    });
+    const apiTakeTurn = (
+        gameId: string,
+        body: components["schemas"]["ShiritoriTurn"]
+    ) =>
+        api(`/api/game/${gameId}/turn/`, {
+            body,
+        });
 
-  const joinGame = (
-    gameId: string,
-    body: Pick<components["schemas"]["ShiritoriPlayer"], "name">
-  ) =>
-    api(`/api/game/${gameId}/join/`, {
-      body,
-    });
+    const apiJoinGame = (
+        gameId: string,
+        body: Pick<components["schemas"]["ShiritoriPlayer"], "name">
+    ) =>
+        api(`/api/game/${gameId}/join/`, {
+            body,
+        });
 
-  const leaveGame = (gameId: string) => api(`/api/game/${gameId}/leave/`, {});
+    const apiLeaveGame = (gameId: string) =>
+        api(`/api/game/${gameId}/leave/`, {});
 
-  const startGame = (gameId: string) => api(`/api/game/${gameId}/start/`, {});
+    const apiStartGame = (gameId: string) =>
+        api(`/api/game/${gameId}/start/`, {});
 
-  return { getGame, createGame, takeTurn, joinGame, leaveGame, startGame };
+    return {
+        apiGetGame,
+        apiCreateGame,
+        apiTakeTurn,
+        apiJoinGame,
+        apiLeaveGame,
+        apiStartGame,
+    };
 };
