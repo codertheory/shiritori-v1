@@ -1,4 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import path from "path";
+import fs from "fs";
 export default defineNuxtConfig({
     modules: [
         "@sfxcode/nuxt-primevue",
@@ -20,4 +22,9 @@ export default defineNuxtConfig({
             ripple: true,
         },
     },
+    typescript: {
+        strict: true,
+        typeCheck: true,
+    },
+    test: true,
 });

@@ -3,7 +3,7 @@
         :validation-schema="validationSchema"
         :initial-values="initialValues"
         :validate-on-mount="false"
-        @submit="onSubmit"
+        @submit.prevent="onSubmit"
     >
         <div class="flex justify-content-center">
             <Card>
