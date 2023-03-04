@@ -1,6 +1,5 @@
 <template>
     <div>
-        <h1>Players</h1>
         <ul>
             <li v-for="player in gameStore.players" :key="player.id">
                 <ListItemLobbyPlayer :player="player" />

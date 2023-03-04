@@ -23,6 +23,10 @@ export const useGameStore = defineStore("game", () => {
         return undefined;
     });
 
+    const settings = computed(() => {
+        return game.value?.settings ?? {};
+    });
+
     const createGame = async (
         settings: components["schemas"]["ShiritoriGameSettings"]
     ) => {
@@ -103,6 +107,7 @@ export const useGameStore = defineStore("game", () => {
         players,
         words,
         isMyTurn,
+        settings,
         createGame,
         joinGame,
         startGame,

@@ -3,10 +3,25 @@
         <h1>Game {{ $route.params.id }}</h1>
         <div class="grid">
             <div class="col">
-                <h1>Settings</h1>
+                <Card>
+                    <template #title>Settings</template>
+                    <template #content>
+                        <FormSettingsGame />
+                    </template>
+                    <template #footer>
+                        <div class="flex flex-end justify-content-end">
+                            <ButtonStartGame />
+                        </div>
+                    </template>
+                </Card>
             </div>
             <div class="col">
-                <ListLobbyPlayers />
+                <Card>
+                    <template #title>Players</template>
+                    <template #content>
+                        <ListLobbyPlayers />
+                    </template>
+                </Card>
             </div>
         </div>
     </div>
