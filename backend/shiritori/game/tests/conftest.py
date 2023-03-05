@@ -1,6 +1,7 @@
 import pytest
 import pytest_asyncio
 from channels.testing import WebsocketCommunicator
+from django.db.models.signals import post_save, post_delete
 from rest_framework.test import APIClient
 
 from shiritori.game.consumers import GameLobbyConsumer
@@ -98,3 +99,9 @@ async def game_lobby_consumer():
     await consumer.connect()
     yield consumer
     await consumer.disconnect()
+
+
+@pytest.fixture(autouse=True)  # Automatically use in tests.
+def mute_signals(request):
+    post_save.receivers = []
+    post_delete.receivers = []

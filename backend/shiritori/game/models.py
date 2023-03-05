@@ -152,6 +152,8 @@ class Game(AbstractModel):  # pylint: disable=too-many-public-methods
 
     def join(self, player: Union['Player', str]) -> 'Player':
         """Add a player to the game."""
+        if self.is_started or self.is_finished:
+            raise ValidationError('Game has already started or is finished.')
         if isinstance(player, str):
             player = Player(name=player, game=self, type=PlayerType.HUMAN if self.player_count > 0 else PlayerType.HOST)
         else:

@@ -42,6 +42,12 @@ def test_join_game_with_str(game):
     assert player.name == 'John'
 
 
+def test_join_started_game(started_game, player):
+    started_game, _, _ = started_game
+    with pytest.raises(ValidationError):
+        started_game.join(player)
+
+
 def test_leave_game(game, player):
     game.join(player)
     game.leave(player)
