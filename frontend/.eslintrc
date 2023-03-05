@@ -30,7 +30,8 @@
             "error",
             4,
             {
-                "baseIndent": 1
+                "baseIndent": 1,
+                "switchCase": 1
             }
         ],
         "@typescript-eslint/no-redeclare": "off",

@@ -1,21 +1,32 @@
 <template>
     <div>
-        <NuxtLayout />
+        <NuxtLayout :name="currentLayout" />
     </div>
 </template>
 
 <script setup lang="ts">
     import { useGameStore } from "~/stores/useGameStore";
 
-    definePageMeta({
-        middleware: ["game-exists"],
-        layout: "lobby",
+    const gameStore = useGameStore();
+
+    const currentLayout = computed<string>(() => {
+        switch (gameStore.game?.status) {
+            case "WAITING":
+                return "lobby";
+            case "PLAYING":
+                return "playing";
+            default:
+                return "lobby";
+        }
     });
 
-    const { joinGameWS } = useGameStore();
+    definePageMeta({
+        middleware: ["game-exists"],
+        layout: false,
+    });
 
     onMounted(() => {
-        joinGameWS();
+        gameStore.joinGameWS();
     });
 </script>
 
