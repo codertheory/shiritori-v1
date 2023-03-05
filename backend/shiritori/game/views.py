@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
+from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
@@ -44,14 +45,14 @@ class GameViewSet(ReadOnlyModelViewSet):
         game = serializer.save()
         return Response(status=status.HTTP_201_CREATED, data=ShiritoriGameSerializer(game).data)
 
-    @action(detail=True, methods=["post"], authentication_classes=[RequiresSessionAuth])
+    @action(detail=True, methods=["post"], authentication_classes=[SessionAuthentication])
     def start(self, request, pk=None):  # pylint: disable=unused-argument
         game = self.get_object()
         session_key = request.session.session_key
         try:
             game.start(session_key)
-        except ValidationError:
-            return Response(status=status.HTTP_400_BAD_REQUEST, data={"detail": "Invalid start"})
+        except ValidationError as error:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={"detail": "Invalid start", "errors": error})
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=["post"])

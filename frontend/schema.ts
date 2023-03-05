@@ -32,6 +32,12 @@ export interface paths {
     [key: `/api/game/${string}/turn/`]: {
         post: operations["api_game_turn_create"];
     };
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    "/api/set-csrf-cookie/": {
+        get: operations["api_set_csrf_cookie_list"];
+    };
 }
 
 export interface components {
@@ -219,6 +225,15 @@ export interface operations {
             200: {
                 content: {
                     "application/json": components["schemas"]["ShiritoriTurn"];
+                };
+            };
+        };
+    };
+    api_set_csrf_cookie_list: {
+        responses: {
+            200: {
+                content: {
+                    "application/json": { details: string };
                 };
             };
         };

@@ -1,8 +1,8 @@
-import { useFetch } from "#imports";
+import { useFetch, useCookie } from "#imports";
 import { components, paths } from "~/schema";
 import { NitroFetchOptions } from "nitropack";
 
-const BASE_URL = "http://0.0.0.0:8000";
+const BASE_URL = "http://127.0.0.1:8000";
 
 type ApiPostOptions<T> = Parameters<typeof useFetch<T>>[1];
 
@@ -24,9 +24,20 @@ export const useApi = () => {
             method,
             onRequestError({ request, options, error }) {
                 // Handle the request errors
-                console.log("onRequestError", request, options, error);
+                console.error("onRequestError", request, options, error);
+            },
+            onRequest({ options }) {
+                // Set the request headers
+                const cookie = useCookie("csrftoken");
+                if (cookie.value) {
+                    options.headers = { "X-CSRFToken": cookie.value };
+                }
             },
         });
+    };
+
+    const apiSetCsrfToken = async () => {
+        await api("/api/set-csrf-cookie/", {}, "GET");
     };
 
     const apiGetGame = (gameId: string) =>
@@ -68,6 +79,7 @@ export const useApi = () => {
         api(`/api/game/${gameId}/start/`, {});
 
     return {
+        apiSetCsrfToken,
         apiGetGame,
         apiCreateGame,
         apiTakeTurn,

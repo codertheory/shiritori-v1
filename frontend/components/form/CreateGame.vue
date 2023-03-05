@@ -12,7 +12,7 @@
                     <InputFieldUsername />
                     <Divider />
                     <h1>Settings</h1>
-                    <FormSettingsGame />
+                    <FieldsetSettingsGame />
                 </template>
                 <template #footer>
                     <ButtonCreateGame />

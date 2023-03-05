@@ -10,7 +10,7 @@ export const useSocketStore = defineStore("socket", () => {
 
     const connectToGameSocket = (gameId: string) => {
         if (!socket.value)
-            setSocket(new WebSocket(`ws://localhost:8000/ws/game/${gameId}/`));
+            setSocket(new WebSocket(`ws://127.0.0.1:8000/ws/game/${gameId}/`));
     };
 
     const disconnectFromGameSocket = () => {
