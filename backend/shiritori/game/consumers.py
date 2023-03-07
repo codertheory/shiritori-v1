@@ -6,6 +6,10 @@ from shiritori.game.models import Game, GameStatus
 from shiritori.game.serializers import ShiritoriGameSerializer
 
 
+def convert_game_to_json(game: Game):
+    return ShiritoriGameSerializer(game).data
+
+
 class GameLobbyConsumer(AsyncJsonWebsocketConsumer):
 
     @staticmethod
@@ -45,13 +49,20 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
         self.game_group_name = f"{game_id}"
         self.groups = [self.game_group_name]
 
-        if await Game.objects.filter(id=game_id).exclude(status=GameStatus.FINISHED).aexists():
+        if game := await Game.objects.filter(id=game_id).exclude(status=GameStatus.FINISHED).afirst():
 
             await self.accept()
 
             await sync_to_async(self.scope['session'].save)()
 
             await self.channel_layer.group_add(self.game_group_name, self.channel_name)
+
+            game_data = await sync_to_async(convert_game_to_json)(game)
+
+            await self.send_json({
+                "type": "connected",
+                "data": game_data
+            })
         else:
             raise DenyConnection("Game does not exist")
 

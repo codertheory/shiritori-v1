@@ -5,6 +5,7 @@ export interface paths {
         get: operations["api_game_list"];
         post: operations["api_game_create"];
     };
+
     [key: `/api/game/${string}/`]: {
         get: operations["api_game_retrieve"];
     };
@@ -156,7 +157,7 @@ export interface operations {
             };
         };
         responses: {
-            200: {
+            201: {
                 content: {
                     "application/json": components["schemas"]["ShiritoriPlayer"];
                 };
@@ -247,8 +248,18 @@ export const gameSettingsSchema = z.object({
     max_turns: z.number().min(5).max(20).default(10),
 });
 
+export const usernameSchema = z
+    .string()
+    .min(3, "Username must be at least 3 characters long");
+
 export const createGameSchema = gameSettingsSchema.extend({
-    username: z.string().min(3, "Username must be at least 3 characters long"),
+    username: usernameSchema,
+});
+
+export const joinGameSchema = z.object({
+    username: usernameSchema,
 });
 
 export type createGameSchema = z.infer<typeof createGameSchema>;
+export type gameSettingsSchema = z.infer<typeof gameSettingsSchema>;
+export type usernameSchema = z.infer<typeof usernameSchema>;

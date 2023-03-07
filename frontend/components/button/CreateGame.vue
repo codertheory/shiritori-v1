@@ -1,8 +1,8 @@
 <template>
     <Button
         icon="pi pi-check"
-        type="submit"
         label="Create Game"
+        type="submit"
         :disabled="!formIsValid"
         :loading="loading"
     />

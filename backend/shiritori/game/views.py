@@ -11,6 +11,7 @@ from shiritori.game.auth import RequiresSessionAuth
 from shiritori.game.models import Game
 from shiritori.game.serializers import ShiritoriTurnSerializer, ShiritoriPlayerSerializer, ShiritoriGameSerializer, \
     CreateGameSerializer
+from shiritori.game.tasks import game_worker_task
 
 
 class GameViewSet(ReadOnlyModelViewSet):
@@ -51,10 +52,12 @@ class GameViewSet(ReadOnlyModelViewSet):
         session_key = request.session.session_key
         try:
             game.start(session_key)
+            game_worker_task.delay(game.id)
         except ValidationError as error:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={"detail": "Invalid start", "errors": error})
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @extend_schema(responses={201: ShiritoriPlayerSerializer})
     @action(detail=True, methods=["post"])
     def join(self, request, pk=None):  # pylint: disable=unused-argument
         if not request.session or not request.session.session_key:
@@ -69,6 +72,7 @@ class GameViewSet(ReadOnlyModelViewSet):
 
         headers = self.get_success_headers(serializer.validated_data)
         return Response(
+            data=serializer.validated_data,
             status=status.HTTP_201_CREATED,
             headers=headers,
         )
