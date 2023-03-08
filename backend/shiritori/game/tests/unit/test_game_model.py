@@ -96,6 +96,12 @@ def test_start_game_with_two_players(game, player, player2):
     assert game.last_word is not None
 
 
+def test_start_started_game(started_game):
+    game, _, _ = started_game
+    with pytest.raises(ValidationError):
+        game.start()
+
+
 def test_calculate_current_player(game, player, player2):
     game.join(player)
     game.join(player2)
