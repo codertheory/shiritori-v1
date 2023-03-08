@@ -2,7 +2,7 @@ from asgiref.sync import sync_to_async
 from channels.exceptions import DenyConnection
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
-from shiritori.game.models import Game, GameStatus
+from shiritori.game.models import Game, GameStatus, Player
 from shiritori.game.serializers import ShiritoriGameSerializer
 
 
@@ -49,22 +49,32 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
         self.game_group_name = f"{game_id}"
         self.groups = [self.game_group_name]
 
-        if game := await Game.objects.filter(id=game_id).exclude(status=GameStatus.FINISHED).afirst():
-
-            await self.accept()
-
-            await sync_to_async(self.scope['session'].save)()
-
-            await self.channel_layer.group_add(self.game_group_name, self.channel_name)
-
-            game_data = await sync_to_async(convert_game_to_json)(game)
-
-            await self.send_json({
-                "type": "connected",
-                "data": game_data
-            })
-        else:
+        if not (
+            game := await Game.objects.filter(id=game_id)
+                .exclude(status=GameStatus.FINISHED)
+                .afirst()
+        ):
             raise DenyConnection("Game does not exist")
+        await self.accept()
+
+        await sync_to_async(self.scope['session'].save)()
+
+        self_player = (
+            await sync_to_async(Player.get_by_session_key)(game_id, session_id)
+            if (session_id := self.scope['session'].session_key)
+            else None
+        )
+        await self.channel_layer.group_add(self.game_group_name, self.channel_name)
+
+        game_data = await sync_to_async(convert_game_to_json)(game)
+
+        await self.send_json({
+            "type": "connected",
+            "data": {
+                "game": game_data,
+                "self_player": self_player
+            }
+        })
 
     async def disconnect(self, code):
         await self.channel_layer.group_discard(self.game_group_name, self.channel_name)

@@ -57,7 +57,7 @@ class GameViewSet(ReadOnlyModelViewSet):
             return Response(status=status.HTTP_400_BAD_REQUEST, data={"detail": "Invalid start", "errors": error})
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @extend_schema(responses={201: ShiritoriPlayerSerializer})
+    @extend_schema(responses={201: {'id': {"type": "string", "description": "The player's id"}}})
     @action(detail=True, methods=["post"])
     def join(self, request, pk=None):  # pylint: disable=unused-argument
         if not request.session or not request.session.session_key:
@@ -72,7 +72,7 @@ class GameViewSet(ReadOnlyModelViewSet):
 
         headers = self.get_success_headers(serializer.validated_data)
         return Response(
-            data=serializer.validated_data,
+            data={"id": player.id},
             status=status.HTTP_201_CREATED,
             headers=headers,
         )

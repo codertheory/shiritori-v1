@@ -41,6 +41,7 @@ class ShiritoriPlayerSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "score",
+            "type",
         )
 
 
@@ -49,8 +50,8 @@ class ShiritoriGameSerializer(serializers.ModelSerializer):
     player_count = serializers.IntegerField(read_only=True)
     word_count = serializers.IntegerField(read_only=True)
     is_finished = serializers.BooleanField(read_only=True)
-    winner = ShiritoriPlayerSerializer(read_only=True)
-    current_player = ShiritoriPlayerSerializer(read_only=True)
+    winner = serializers.StringRelatedField(read_only=True, source="winner_id")
+    current_player = serializers.StringRelatedField(read_only=True, source="current_player_id")
     turn_time_left = serializers.IntegerField(read_only=True)
     words = ShiritoriGameWordSerializer(many=True, read_only=True)
     players = ShiritoriPlayerSerializer(many=True, read_only=True)

@@ -371,6 +371,16 @@ class Player(AbstractModel, NanoIdModel):
     def words(self) -> 'QuerySet[GameWord]':
         return self.gameword_set.all()
 
+    @classmethod
+    def get_by_session_key(cls, game_id: str, session_key: str) -> Optional['Player']:
+        """
+        Get a player by their session key.
+        :param game_id: The game id of the player.
+        :param session_key: The session key of the player.
+        :return: Optional[Player] - The player with the session key.
+        """
+        return cls.objects.filter(game_id=game_id, session_key=session_key).first()
+
 
 class GameWord(NanoIdModel):
     word = models.CharField(max_length=255, null=True, blank=True)

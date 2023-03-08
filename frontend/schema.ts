@@ -84,6 +84,7 @@ export interface components {
             id: string;
             name: string;
             score: number;
+            type?: components["schemas"]["TypeEnum"];
         };
         ShiritoriTurn: {
             word: string;
@@ -91,6 +92,7 @@ export interface components {
         };
         /** @enum {string} */
         StatusEnum: "WAITING" | "PLAYING" | "FINISHED";
+        TypeEnum: "HOST" | "HUMAN" | "BOT" | "SPECTATOR";
     };
     responses: never;
     parameters: never;
@@ -151,7 +153,10 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ShiritoriPlayer"];
+                "application/json": Pick<
+                    components["schemas"]["ShiritoriPlayer"],
+                    "id"
+                >;
                 "application/x-www-form-urlencoded": components["schemas"]["ShiritoriPlayer"];
                 "multipart/form-data": components["schemas"]["ShiritoriPlayer"];
             };

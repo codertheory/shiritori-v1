@@ -3,15 +3,18 @@ import { defineStore } from "pinia";
 import { components, createGameSchema } from "~/schema";
 import { useSocketStore } from "~/stores/useSocketStore";
 import { useApi } from "~/composeables/useApi";
-import { undefined } from "zod";
 
 export const useGameStore = defineStore("game", () => {
     const { watchSocket } = useSocketStore();
     const { apiCreateGame, apiJoinGame, apiStartGame, apiSetCsrfToken } =
         useApi();
     const game = ref<components["schemas"]["ShiritoriGame"]>();
-    const me = ref<components["schemas"]["ShiritoriPlayer"]>();
+    const myId = ref<string>();
     const isJoining = ref<boolean>(false);
+
+    const me = computed(() => {
+        return game.value?.players.find((p) => p.id === myId.value);
+    });
 
     const players = computed(() => {
         return game.value?.players ?? [];
@@ -22,8 +25,7 @@ export const useGameStore = defineStore("game", () => {
     });
 
     const isMyTurn = computed(() => {
-        // TODO: Implement this
-        return undefined;
+        return game.value?.current_player === myId.value;
     });
 
     const settings = computed(() => {
@@ -40,6 +42,10 @@ export const useGameStore = defineStore("game", () => {
 
     const gameTurnDuration = computed(() => {
         return game.value?.settings.turn_time ?? 0;
+    });
+
+    const isHost = computed(() => {
+        return me.value?.type === "HOST";
     });
 
     const createGame = async (
@@ -63,7 +69,7 @@ export const useGameStore = defineStore("game", () => {
         await apiSetCsrfToken();
         setIsJoining(false);
         joinGameWS(gameId);
-        setMe(data.value);
+        setMe(data.value.id);
         return data;
     };
 
@@ -93,8 +99,8 @@ export const useGameStore = defineStore("game", () => {
         game.value = g;
     };
 
-    const setMe = (m: components["schemas"]["ShiritoriPlayer"]) => {
-        me.value = m;
+    const setMe = (m: string) => {
+        myId.value = m;
     };
 
     const setIsJoining = (i: boolean) => {
@@ -105,8 +111,11 @@ export const useGameStore = defineStore("game", () => {
         const eventData = JSON.parse(e.data);
         switch (eventData.type) {
             case "game_updated":
-            case "connected":
                 setGame(eventData.data);
+                break;
+            case "connected":
+                setGame(eventData.data.game);
+                setMe(eventData.data.self_player);
                 break;
             default:
                 break;
@@ -121,6 +130,7 @@ export const useGameStore = defineStore("game", () => {
 
     return {
         game,
+        myId,
         me,
         isJoining,
         players,
@@ -130,6 +140,7 @@ export const useGameStore = defineStore("game", () => {
         turnTimeLeft,
         lastWord,
         gameTurnDuration,
+        isHost,
         createGame,
         joinGame,
         startGame,

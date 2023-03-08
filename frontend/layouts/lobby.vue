@@ -6,7 +6,7 @@
                 <Card>
                     <template #title>Settings</template>
                     <template #content>
-                        <FormSettingsGame />
+                        <FormSettingsGame :disabled="!gameStore.isHost" />
                     </template>
                     <template #footer>
                         <div class="flex flex-end justify-content-end">
@@ -27,6 +27,10 @@
     </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+    import { useGameStore } from "~/stores/useGameStore";
+
+    const gameStore = useGameStore();
+</script>
 
 <style scoped></style>

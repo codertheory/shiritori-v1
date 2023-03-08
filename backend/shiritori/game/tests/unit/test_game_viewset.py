@@ -1,9 +1,17 @@
+from unittest.mock import patch
+
 import pytest
 from rest_framework.test import APIClient
 
 from shiritori.game.models import Game, Player, GameStatus
 
 pytestmark = pytest.mark.django_db
+
+
+@pytest.fixture(scope='module', autouse=True)
+def mock_game_worker_task():
+    with patch('shiritori.game.tasks.game_worker_task') as mock:
+        yield mock
 
 
 def test_game_create_view(drf: APIClient, default_game_settings):
@@ -19,6 +27,7 @@ def test_join_game_view(drf: APIClient, game: Game):
     assert response.status_code == 201
 
     player = game.players.first()
+    assert response.data["id"] == player.id
 
     sessionid = response.cookies.get("sessionid")
     assert sessionid is not None
