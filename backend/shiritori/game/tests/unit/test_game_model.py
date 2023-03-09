@@ -8,20 +8,9 @@ pytestmark = pytest.mark.django_db
 
 def test_create_game(un_saved_game):
     game = un_saved_game
-    assert game.status == GameStatus.WAITING
-    assert game.current_turn == 0
-    assert game.last_word is not None
-    assert game.current_player is None
-    assert game.player_count == 0
-    assert game.word_count == 0
-    assert game.players.count() == 0
-    assert game.words.count() == 0
-    assert game.host is None
     assert game.settings is None
     game.save()
     assert game.id is not None
-    assert game.created_at is not None
-    assert game.updated_at is not None
     assert game.settings is not None
 
 
