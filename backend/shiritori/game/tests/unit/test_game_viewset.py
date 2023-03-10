@@ -49,7 +49,9 @@ def test_leave_game_view(drf: APIClient, game: Game, player: Player):
 
 
 def test_take_turn_game_view(drf: APIClient, started_game: Game, sample_words: list[str]):
-    game, player, player2 = started_game
+    game = started_game
+    player = game.players.first()
+    player2 = game.players.last()
     player.session_key = drf.session.session_key
     player.save()
     assert game.current_player == player
@@ -80,7 +82,8 @@ def test_take_turn_game_view(drf: APIClient, started_game: Game, sample_words: l
 
 
 def test_start_game_view_as_host(drf: APIClient, unstarted_game: Game):
-    game, player, _ = unstarted_game
+    game = unstarted_game
+    player = game.players.first()
     player.session_key = drf.session.session_key
     player.save()
 
@@ -95,7 +98,8 @@ def test_start_game_view_as_host(drf: APIClient, unstarted_game: Game):
 
 
 def test_start_game_view_as_non_host(drf: APIClient, unstarted_game: Game):
-    game, player, _ = unstarted_game
+    game = unstarted_game
+    player = game.players.first()
     drf.session._set_session_key(player.session_key)  # pylint: disable=protected-access
     response = drf.post(f"/api/game/{game.id}/start/")
     assert response.status_code == 400

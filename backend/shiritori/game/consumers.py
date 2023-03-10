@@ -57,7 +57,8 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
             raise DenyConnection("Game does not exist")
         await self.accept()
 
-        await sync_to_async(self.scope['session'].save)()
+        if not self.scope['session'].session_key:
+            await sync_to_async(self.scope['session'].save)()
 
         self_player = (
             await sync_to_async(Player.get_by_session_key)(game_id, session_id)
@@ -72,7 +73,8 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
             "type": "connected",
             "data": {
                 "game": game_data,
-                "self_player": self_player
+                "self_player": self_player,
+                # "sessionid": self.scope['session'].session_key,
             }
         })
 

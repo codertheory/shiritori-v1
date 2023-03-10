@@ -46,4 +46,7 @@ def send_message_to_layer(channel_name: str, message: dict):
     :param message: dict - The message to send.
     """
     if channel_layer := get_channel_layer():
-        async_to_sync(channel_layer.group_send)(channel_name, message)
+        try:
+            async_to_sync(channel_layer.group_send)(channel_name, message)
+        except Exception as error:
+            print(f"Error sending message to channel layer: {error}")

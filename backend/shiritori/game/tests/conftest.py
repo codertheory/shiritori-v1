@@ -2,11 +2,26 @@ import pytest
 import pytest_asyncio
 from channels.testing import WebsocketCommunicator
 from django.db.models.signals import post_save, post_delete
+from pytest_factoryboy import register
 from rest_framework.test import APIClient
 
 from shiritori.game.consumers import GameLobbyConsumer
-from shiritori.game.models import Game, GameSettings
+from shiritori.game.models import Game, GameStatus, GameSettings
 from shiritori.game.tests.factories import GameFactory, PlayerFactory, WordFactory
+
+# Game Factory fixtures
+register(GameFactory)
+register(GameFactory, _name='unstarted_game', status=GameStatus.WAITING, with_players=2)
+register(GameFactory, _name='started_game', status=GameStatus.PLAYING, with_players=2)
+register(GameFactory, _name='finished_game', status=GameStatus.FINISHED, with_players=2)
+
+# Player Factory Fixtures
+register(PlayerFactory, human=True)
+register(PlayerFactory, _name='human_player', human=True)
+register(PlayerFactory, _name='human_player_2', human=True)
+register(PlayerFactory, _name='bot_player', bot=True)
+register(PlayerFactory, _name='spectator_player', spectator=True)
+register(PlayerFactory, _name='host_player', host=True)
 
 
 @pytest.fixture
@@ -17,52 +32,6 @@ def drf():
 @pytest.fixture
 def un_saved_game():
     instance = GameFactory.build()
-    yield instance
-    if instance.id:
-        instance.delete()
-
-
-@pytest.fixture
-def game():
-    instance = GameFactory(last_word='t', turn_time_left=5)
-    yield instance
-    instance.delete()
-
-
-@pytest.fixture
-def started_game():
-    new_game = GameFactory(last_word='t', turn_time_left=5)
-    player_1 = PlayerFactory()
-    player_2 = PlayerFactory()
-    new_game.join(player_1)
-    new_game.join(player_2)
-    new_game.start()
-    yield new_game, player_1, player_2
-    new_game.delete()
-
-
-@pytest.fixture
-def unstarted_game():
-    new_game = GameFactory(last_word='t', turn_time_left=5)
-    player_1 = PlayerFactory()
-    player_2 = PlayerFactory()
-    new_game.join(player_1)
-    new_game.join(player_2)
-    yield new_game, player_1, player_2
-    new_game.delete()
-
-
-@pytest.fixture()
-def player():
-    instance = PlayerFactory()
-    yield instance
-    if instance.id:
-        instance.delete()
-
-
-@pytest.fixture()
-def player2():
-    instance = PlayerFactory()
     yield instance
     if instance.id:
         instance.delete()

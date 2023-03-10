@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.core.handlers.asgi import ASGIRequest
 from django.http import JsonResponse
 from django.urls import include, path
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -16,10 +17,12 @@ if settings.DEBUG:
 
 
 @ensure_csrf_cookie
-def set_csrf_token(request):
+def set_csrf_token(request: ASGIRequest):
     """
     This will be `/api/set-csrf-cookie/` on `urls.py`
     """
+    if not request.session.session_key:
+        request.session.save(must_create=True)
     return JsonResponse({"details": "CSRF cookie set"}, status=status.HTTP_200_OK)
 
 

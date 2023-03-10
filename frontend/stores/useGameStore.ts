@@ -6,8 +6,13 @@ import { useApi } from "~/composeables/useApi";
 
 export const useGameStore = defineStore("game", () => {
     const { watchSocket } = useSocketStore();
-    const { apiCreateGame, apiJoinGame, apiStartGame, apiSetCsrfToken } =
-        useApi();
+    const {
+        apiCreateGame,
+        apiJoinGame,
+        apiStartGame,
+        apiSetCsrfToken,
+        setCookie,
+    } = useApi();
     const game = ref<components["schemas"]["ShiritoriGame"]>();
     const myId = ref<string>();
     const isJoining = ref<boolean>(false);
@@ -116,6 +121,7 @@ export const useGameStore = defineStore("game", () => {
             case "connected":
                 setGame(eventData.data.game);
                 setMe(eventData.data.self_player);
+                setCookie("sessionid", eventData.data.sessionid, 30);
                 break;
             default:
                 break;

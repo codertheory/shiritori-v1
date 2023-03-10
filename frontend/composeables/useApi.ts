@@ -78,6 +78,19 @@ export const useApi = () => {
     const apiStartGame = (gameId: string) =>
         api(`/api/game/${gameId}/start/`, {});
 
+    const setCookie = (name: string, value: string, days: number) => {
+        const date = new Date();
+        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+        const cookie = useCookie(name, {
+            expires: date,
+            httpOnly: false,
+            path: "/",
+            domain: "127.0.0.1",
+            sameSite: "lax",
+        });
+        cookie.value = value;
+    };
+
     return {
         apiSetCsrfToken,
         apiGetGame,
@@ -86,5 +99,6 @@ export const useApi = () => {
         apiJoinGame,
         apiLeaveGame,
         apiStartGame,
+        setCookie,
     };
 };

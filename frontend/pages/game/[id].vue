@@ -9,7 +9,7 @@
     import { useGameStore } from "~/stores/useGameStore";
 
     const gameStore = useGameStore();
-    const cookie = useCookie("csrftoken");
+    const cookie = useCookie("sessionid");
     gameStore.setIsJoining(cookie.value === undefined);
     const route = useRoute();
 
