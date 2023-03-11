@@ -1,8 +1,8 @@
-import { useFetch, useCookie } from "#imports";
-import { components, paths } from "~/schema";
+import { useFetch, useRequestHeaders } from "#imports";
+import { components, DOMAIN, paths } from "~/schema";
 import { NitroFetchOptions } from "nitropack";
 
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = `http://${DOMAIN}:8000`;
 
 type ApiPostOptions<T> = Parameters<typeof useFetch<T>>[1];
 
@@ -20,25 +20,18 @@ export const useApi = () => {
     ) => {
         return useFetch(url as unknown as string, {
             ...options,
-            baseURL: BASE_URL,
             method,
-            onRequestError({ request, options, error }) {
+            baseURL: BASE_URL,
+            credentials: "include",
+            headers: useRequestHeaders(["cookie"]) as HeadersInit,
+            onRequestError({ error }) {
                 // Handle the request errors
-                console.error("onRequestError", request, options, error);
-            },
-            onRequest({ options }) {
-                // Set the request headers
-                const cookie = useCookie("csrftoken");
-                if (cookie.value) {
-                    options.headers = { "X-CSRFToken": cookie.value };
-                }
+                console.error("onRequestError", error);
             },
         });
     };
 
-    const apiSetCsrfToken = async () => {
-        await api("/api/set-csrf-cookie/", {}, "GET");
-    };
+    const apiSetCsrfToken = async () => api("/api/set-csrf-cookie/", {}, "GET");
 
     const apiGetGame = (gameId: string) =>
         api(
@@ -78,19 +71,6 @@ export const useApi = () => {
     const apiStartGame = (gameId: string) =>
         api(`/api/game/${gameId}/start/`, {});
 
-    const setCookie = (name: string, value: string, days: number) => {
-        const date = new Date();
-        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-        const cookie = useCookie(name, {
-            expires: date,
-            httpOnly: false,
-            path: "/",
-            domain: "127.0.0.1",
-            sameSite: "lax",
-        });
-        cookie.value = value;
-    };
-
     return {
         apiSetCsrfToken,
         apiGetGame,
@@ -99,6 +79,5 @@ export const useApi = () => {
         apiJoinGame,
         apiLeaveGame,
         apiStartGame,
-        setCookie,
     };
 };

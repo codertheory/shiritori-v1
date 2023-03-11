@@ -9,8 +9,8 @@
     import { useGameStore } from "~/stores/useGameStore";
 
     const gameStore = useGameStore();
-    const cookie = useCookie("sessionid");
-    gameStore.setIsJoining(cookie.value === undefined);
+    const result = await useFetch("/api/isJoining");
+    gameStore.setIsJoining(result.data?.value?.result);
     const route = useRoute();
 
     const currentLayout = computed<string>(() => {

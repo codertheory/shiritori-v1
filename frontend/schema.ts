@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+export const DOMAIN = "dev.shiritoriwithfriends.com";
+
 export interface paths {
     "/api/game/": {
         get: operations["api_game_list"];
@@ -85,6 +87,8 @@ export interface components {
             name: string;
             score: number;
             type?: components["schemas"]["TypeEnum"];
+            is_current: boolean;
+            is_host: boolean;
         };
         ShiritoriTurn: {
             word: string;
