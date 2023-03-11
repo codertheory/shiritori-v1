@@ -1,5 +1,6 @@
 import pytest
 import pytest_asyncio
+from asgiref.sync import sync_to_async
 from channels.testing import WebsocketCommunicator
 from django.db.models.signals import post_save, post_delete
 from pytest_factoryboy import register
@@ -68,6 +69,16 @@ async def game_lobby_consumer():
     await consumer.connect()
     yield consumer
     await consumer.disconnect()
+
+
+@pytest_asyncio.fixture(name="game_consumer")
+async def game_consumer():
+    game = await sync_to_async(GameFactory.create)()
+    consumer = WebsocketCommunicator(GameLobbyConsumer.as_asgi(), f"/ws/game/{game.id}/")
+    await consumer.connect()
+    yield consumer, game
+    await consumer.disconnect()
+    await sync_to_async(game.delete)()
 
 
 @pytest.fixture(autouse=True)  # Automatically use in tests.
