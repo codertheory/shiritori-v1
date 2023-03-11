@@ -41,14 +41,6 @@ EMAIL_BACKEND = env(
     "DJANGO_EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
 )
 
-# https://django-debug-toolbar.readthedocs.io/en/latest/installation.html#internal-ips
-INTERNAL_IPS = ["127.0.0.1", "10.0.2.2"]
-if env("USE_DOCKER", default="no") == "yes":
-    import socket
-
-    hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
-    INTERNAL_IPS += [".".join(ip.split(".")[:-1] + ["1"]) for ip in ips]
-
 # django-extensions
 # ------------------------------------------------------------------------------
 # https://django-extensions.readthedocs.io/en/latest/installation_instructions.html#configuration
@@ -74,4 +66,10 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8000",
     "http://localhost:3000",
     "http://localhost:8000",
+    "http://dev.shiritoriwithfriends.com:3000",
+    "http://dev.shiritoriwithfriends.com:8000",
+    "http://dev.shiritoriwithfriends.com",
 ]
+
+SESSION_COOKIE_DOMAIN = "dev.shiritoriwithfriends.com"
+CORS_ALLOW_CREDENTIALS = True

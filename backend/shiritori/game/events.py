@@ -12,11 +12,12 @@ __all__ = (
 
 
 def send_lobby_update(game: typing.Union["Game", dict], *, update_type: str = "game_created"):
+    from shiritori.game.serializers import ShiritoriGameSerializer
+    from shiritori.game.models import Game
     if game is None:
         return
 
     if isinstance(game, Game):
-        from shiritori.game.serializers import ShiritoriGameSerializer
         game = ShiritoriGameSerializer(game).data
     send_message_to_layer(
         "lobby",

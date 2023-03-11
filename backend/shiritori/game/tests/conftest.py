@@ -5,8 +5,9 @@ from channels.testing import WebsocketCommunicator
 from django.db.models.signals import post_save, post_delete
 from pytest_factoryboy import register
 from rest_framework.test import APIClient
+from pytest_mock import MockerFixture
 
-from shiritori.game.consumers import GameLobbyConsumer
+from shiritori.game.consumers import GameLobbyConsumer, GameConsumer
 from shiritori.game.models import Game, GameStatus, GameSettings
 from shiritori.game.tests.factories import GameFactory, PlayerFactory, WordFactory
 
@@ -72,11 +73,19 @@ async def game_lobby_consumer():
 
 
 @pytest_asyncio.fixture(name="game_consumer")
-async def game_consumer():
-    game = await sync_to_async(GameFactory.create)()
-    consumer = WebsocketCommunicator(GameLobbyConsumer.as_asgi(), f"/ws/game/{game.id}/")
-    await consumer.connect()
-    yield consumer, game
+async def game_consumer(mocker: MockerFixture):
+    game = await sync_to_async(GameFactory)(with_players=2)
+    player_1 = await game.players.afirst()
+    consumer = WebsocketCommunicator(
+        GameConsumer.as_asgi(),
+        f"/ws/game/{game.id}/",
+    )
+    consumer.scope['url_route'] = {'kwargs': {'game_id': game.id}}
+    consumer.scope['cookies'] = {'sessionid': player_1.session_key}
+    mock_session = mocker.Mock()
+    mock_session.session_key = player_1.session_key
+    consumer.scope['session'] = mock_session
+    yield consumer, game, player_1
     await consumer.disconnect()
     await sync_to_async(game.delete)()
 

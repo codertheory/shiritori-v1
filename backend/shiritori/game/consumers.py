@@ -2,12 +2,14 @@ from asgiref.sync import sync_to_async
 from channels.exceptions import DenyConnection
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
-from shiritori.game.models import Game, GameStatus, Player
+from shiritori.game.helpers import get_player_from_cookie, convert_player_to_json, convert_game_to_json
+from shiritori.game.models import Game, GameStatus
 from shiritori.game.serializers import ShiritoriGameSerializer
 
-
-def convert_game_to_json(game: Game):
-    return ShiritoriGameSerializer(game).data
+__all__ = (
+    "GameLobbyConsumer",
+    "GameConsumer",
+)
 
 
 class GameLobbyConsumer(AsyncJsonWebsocketConsumer):
@@ -61,20 +63,20 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
             await sync_to_async(self.scope['session'].save)()
 
         self_player = (
-            await sync_to_async(Player.get_by_session_key)(game_id, session_id)
+            await get_player_from_cookie(game_id, session_id)
             if (session_id := self.scope['session'].session_key)
             else None
         )
+        self_player = await convert_player_to_json(self_player) if self_player else None
         await self.channel_layer.group_add(self.game_group_name, self.channel_name)
 
-        game_data = await sync_to_async(convert_game_to_json)(game)
+        game_data = await convert_game_to_json(game)
 
         await self.send_json({
             "type": "connected",
             "data": {
                 "game": game_data,
                 "self_player": self_player,
-                # "sessionid": self.scope['session'].session_key,
             }
         })
 
