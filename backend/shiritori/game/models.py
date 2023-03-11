@@ -2,10 +2,11 @@ from typing import Iterable, Optional, Union
 
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.db import models
-from django.db.models import QuerySet, Sum, Q, Count
+from django.db import models, transaction
+from django.db.models import QuerySet, Sum, Q, Count, F
 
-from shiritori.game.utils import calculate_score, generate_random_letter
+from shiritori.game.events import send_game_updated
+from shiritori.game.utils import calculate_score, generate_random_letter, wait
 from shiritori.utils import NanoIdField
 from shiritori.utils.abstract_model import AbstractModel, NanoIdModel
 
@@ -264,44 +265,48 @@ class Game(AbstractModel):  # pylint: disable=too-many-public-methods
         if not timeout and self.turn_time_left <= 0:
             raise ValidationError('Turn time has expired.')
 
-    def take_turn(self, session_key: str, word: str | None, duration: int, *, save: bool = True) -> None:
+    def take_turn(self, session_key: str, word: str | None, *, save: bool = True) -> None:
         """
         Take a turn in the game.
         :param session_key: The session key of the player requesting to take a turn.
         :param word: The word the player submitted.
-        :param duration: The duration of the turn.
         :param save: bool - Whether to save the game after taking the turn.
         :return: None
         :raises ValidationError: If the player cannot take a turn.
         """
+        # Select the game row for update and lock until the transaction is committed.
         timed_out = self.turn_time_left <= 0
         self.can_take_turn(session_key, timeout=timed_out)
-        game_word = GameWord(
-            game=self,
-            player=self.current_player,
-            word=word,
-            duration=duration,
-        )
-        game_word.save()
-        if word:
-            self.last_word = word
-        if self.current_turn + 1 > self.settings.max_turns:
-            self.status = GameStatus.FINISHED
-            self.save(update_fields=['status', 'last_word', 'current_turn'])
-            return
-        self.current_turn += 1
-        self.calculate_current_player(save=False)
-        self.turn_time_left = self.settings.turn_time
-        if save:
-            self.save(
-                update_fields=[
-                    'current_turn',
-                    'last_word',
-                    'turn_time_left',
-                ]
+        game_qs = Game.objects.select_for_update().prefetch_related("settings").filter(pk=self.pk)
+        with transaction.atomic():
+            game = game_qs.first()
+            duration = game.settings.turn_time - game.turn_time_left
+            game_word = GameWord(
+                game=self,
+                player=self.current_player,
+                word=word,
+                duration=duration,
             )
+            game_word.save()
+            if word:
+                self.last_word = word
+            if self.current_turn + 1 > self.settings.max_turns:
+                self.status = GameStatus.FINISHED
+                self.save(update_fields=['status', 'last_word', 'current_turn'])
+                return
+            self.current_turn += 1
+            self.calculate_current_player(save=False)
+            self.turn_time_left = self.settings.turn_time
+            if save:
+                self.save(
+                    update_fields=[
+                        'current_turn',
+                        'last_word',
+                        'turn_time_left',
+                    ]
+                )
 
-    def end_turn(self, duration: int = None) -> None:
+    def end_turn(self) -> None:
         """
         End the current turn. and start the next turn.
         This is usually called when the turn time has expired.
@@ -309,11 +314,9 @@ class Game(AbstractModel):  # pylint: disable=too-many-public-methods
         This will submit an empty word with a duration given.
         Resulting in a negative score.
 
-        :param duration: The duration of the turn. Defaults to the turn time of the game.
         :return: None
         """
-        duration = duration or self.settings.turn_time
-        self.take_turn(self.current_player.session_key, None, duration)
+        self.take_turn(self.current_player.session_key, None)
 
     def get_winner(self) -> Optional['Player']:
         """
@@ -330,6 +333,29 @@ class Game(AbstractModel):  # pylint: disable=too-many-public-methods
             raise ValidationError('Cannot get winner of a game that has not started.')
 
         return self.leaderboard.first()
+
+    @staticmethod
+    def run_turn_loop(game_id):
+        """
+        Runs the turn loop for a game.
+
+        This will be run from a celery task.
+
+        :param game_id: The id of the game to run the turn loop for.
+
+        """
+        qs = Game.objects.select_for_update(nowait=True).filter(id=game_id)
+        with transaction.atomic():
+            while not qs.filter(status=GameStatus.FINISHED).exists():
+                if qs.filter(turn_time_left__gt=0).exists():
+                    qs.update(turn_time_left=F("turn_time_left") - 1)
+                    send_game_updated(qs.first())
+                    wait()  # sleep for 1.25 seconds to allow for any networking issues
+                else:
+                    # if the game timer is 0, end the turn
+                    # and start the next turn
+                    qs.first().end_turn()
+                    send_game_updated(qs.first())
 
 
 class Player(AbstractModel, NanoIdModel):
@@ -375,7 +401,8 @@ class Player(AbstractModel, NanoIdModel):
 
     @property
     def score(self):
-        return self.gameword_set.aggregate(models.Sum('score')).get('score__sum') or 0
+        result = self.gameword_set.aggregate(models.Sum('score')).get('score__sum') or 0
+        return int(round(result, 0))
 
     @property
     def words(self) -> 'QuerySet[GameWord]':

@@ -1,25 +1,18 @@
-import contextlib
 import time
+from unittest.mock import MagicMock
 
 import pytest
-from celery.result import AsyncResult
 
 from shiritori.game.models import Game
-from shiritori.game.tasks import game_worker_task
 
 
-@pytest.mark.celery(result_backend='redis://')
 @pytest.mark.django_db
-def test_game_task(mocker, started_game, sample_words, celery_worker):  # pylint: disable=unused-argument
-    game: Game = started_game[0]
+def test_game_turn_loop(mocker, started_game, sample_words):  # pylint: disable=unused-argument
+    game: Game = started_game
     game.save(force_update=True)
-    sleep_mock = mocker.patch("shiritori.game.tasks.wait", return_value=None)
-    task: AsyncResult = game_worker_task.delay(game.id)
-    time.sleep(1)
+    sleep_mock: MagicMock = mocker.patch("shiritori.game.models.wait", return_value=None)
+    mocker.patch("shiritori.game.models.send_game_updated", return_value=None)
+    game.run_turn_loop(game_id=game.id)
     game.is_finished = False
     game.save(update_fields=["status"])
-    with contextlib.suppress(Exception):
-        result = task.get(timeout=1)
-    sleep_mock.assert_called_with(1.25)
-    sleep_mock.assert_called_once()
-    assert result is None
+    assert sleep_mock.call_count == game.settings.turn_time * game.settings.max_turns

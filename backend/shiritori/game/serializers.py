@@ -63,7 +63,6 @@ class ShiritoriGameSerializer(serializers.ModelSerializer):
 
 class ShiritoriTurnSerializer(serializers.Serializer):
     word = serializers.CharField(max_length=50)
-    duration = serializers.IntegerField()
 
     def create(self, validated_data):
         pass  # Need to override because parent class is abstract

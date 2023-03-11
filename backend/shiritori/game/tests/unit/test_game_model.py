@@ -157,7 +157,7 @@ def test_can_current_player_take_turn_when_game_status_is_not_playing(game, play
 
 def test_end_turn_updates_current_player_and_turn(started_game):
     first_player, next_player = started_game.players
-    started_game.end_turn(duration=5)
-    assert first_player.score == -1.25
+    started_game.end_turn()
+    assert first_player.score == -15
     assert started_game.current_player == next_player
     assert started_game.current_turn == 1

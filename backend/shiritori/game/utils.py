@@ -2,6 +2,7 @@
 # The duration is in seconds. The score is multiplied by the modifier.
 import random
 import string
+import time
 
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
@@ -50,3 +51,7 @@ def send_message_to_layer(channel_name: str, message: dict):
             async_to_sync(channel_layer.group_send)(channel_name, message)
         except Exception as error:
             print(f"Error sending message to channel layer: {error}")
+
+
+def wait():
+    time.sleep(1.25)

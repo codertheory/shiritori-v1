@@ -50,6 +50,8 @@ def test_leave_game_view(drf: APIClient, game: Game, player: Player):
 
 def test_take_turn_game_view(drf: APIClient, started_game: Game, sample_words: list[str]):
     game = started_game
+    game.turn_time_left = game.settings.turn_time - 5
+    game.save()
     player = game.players.first()
     player2 = game.players.last()
     player.session_key = drf.session.session_key
@@ -59,7 +61,7 @@ def test_take_turn_game_view(drf: APIClient, started_game: Game, sample_words: l
     assert game.word_count == 0
     response = drf.post(
         f"/api/game/{game.id}/turn/",
-        {"word": sample_words[0], "duration": 5},
+        {"word": sample_words[0]},
         format="json",
     )
     game.refresh_from_db()
