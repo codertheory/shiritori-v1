@@ -266,6 +266,14 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_RENDERER_CLASSES": (
+        'djangorestframework_camel_case.render.CamelCaseJSONRenderer',
+        'djangorestframework_camel_case.render.CamelCaseBrowsableAPIRenderer',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'djangorestframework_camel_case.parser.CamelCaseJSONParser',
+        # Any other parsers
+    ),
 }
 
 # django-cors-headers - https://github.com/adamchainz/django-cors-headers#setup
@@ -278,6 +286,11 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "Documentation of API endpoints of the shiritori API",
     "VERSION": "1.0.0",
     "SERVE_PERMISSIONS": ["rest_framework.permissions.AllowAny"],
+    "CAMELIZE_NAMES": True,
+    "POSTPROCESSING_HOOKS": [
+        "drf_spectacular.contrib.djangorestframework_camel_case.camelize_serializer_fields"
+    ]
 }
 # Your stuff...
 # ------------------------------------------------------------------------------
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True

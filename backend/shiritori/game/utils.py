@@ -25,8 +25,8 @@ def calculate_score(word: str, duration: int | float) -> float:
     :return: float - The score for the word.
     """
     score = len(word) * LENGTH_MODIFIER
-    for time, modifier in DURATION_MODIFIERS.items():
-        if duration <= time:
+    for bucket, modifier in DURATION_MODIFIERS.items():
+        if duration <= bucket:
             score *= modifier
             break
     return score

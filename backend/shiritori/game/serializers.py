@@ -6,6 +6,7 @@ __all__ = (
     "ShiritoriGameWordSerializer",
     "ShiritoriGameSettingsSerializer",
     "ShiritoriPlayerSerializer",
+    "JoinGameSerializer",
     "ShiritoriGameSerializer",
     "ShiritoriTurnSerializer",
     "CreateGameSerializer",
@@ -42,6 +43,16 @@ class ShiritoriPlayerSerializer(serializers.ModelSerializer):
             "name",
             "score",
             "type",
+            "is_current",
+            "is_host",
+        )
+
+
+class JoinGameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Player
+        fields = (
+            "name",
         )
 
 

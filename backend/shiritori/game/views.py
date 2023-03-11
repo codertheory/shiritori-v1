@@ -1,8 +1,9 @@
 from django.core.exceptions import ValidationError
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, inline_serializer
 from rest_framework import status
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action
+from rest_framework.fields import CharField
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.viewsets import ReadOnlyModelViewSet
@@ -10,7 +11,7 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from shiritori.game.auth import RequiresSessionAuth
 from shiritori.game.models import Game
 from shiritori.game.serializers import ShiritoriTurnSerializer, ShiritoriPlayerSerializer, ShiritoriGameSerializer, \
-    CreateGameSerializer
+    CreateGameSerializer, JoinGameSerializer
 from shiritori.game.tasks import game_worker_task
 
 
@@ -32,7 +33,7 @@ class GameViewSet(ReadOnlyModelViewSet):
             "create": CreateGameSerializer,
             "start": ShiritoriTurnSerializer,
             "turn": ShiritoriTurnSerializer,
-            "join": ShiritoriPlayerSerializer,
+            "join": JoinGameSerializer,
             "leave": None,
         }
         if serializer := action_serializer_classes.get(self.action):
@@ -57,7 +58,7 @@ class GameViewSet(ReadOnlyModelViewSet):
             return Response(status=status.HTTP_400_BAD_REQUEST, data={"detail": "Invalid start", "errors": error})
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @extend_schema(responses={201: {'id': {"type": "string", "description": "The player's id"}}})
+    @extend_schema(responses={201: inline_serializer("Player", {"id": CharField(read_only=True)})})
     @action(detail=True, methods=["post"])
     def join(self, request, pk=None):  # pylint: disable=unused-argument
         if not request.session or not request.session.session_key:
@@ -90,7 +91,8 @@ class GameViewSet(ReadOnlyModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=["post"],
-            authentication_classes=[RequiresSessionAuth])
+            authentication_classes=[RequiresSessionAuth], serializer_class=None)
+    @extend_schema(responses={204: {}})
     def leave(self, request, pk=None):  # pylint: disable=unused-argument
         session_key = request.session.session_key
         game = self.get_object()

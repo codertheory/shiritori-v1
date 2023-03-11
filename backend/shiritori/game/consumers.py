@@ -67,7 +67,6 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
             if (session_id := self.scope['session'].session_key)
             else None
         )
-        self_player = await convert_player_to_json(self_player) if self_player else None
         await self.channel_layer.group_add(self.game_group_name, self.channel_name)
 
         game_data = await convert_game_to_json(game)
@@ -76,7 +75,7 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
             "type": "connected",
             "data": {
                 "game": game_data,
-                "self_player": self_player,
+                "self_player": self_player.id if self_player else None,
             }
         })
 
