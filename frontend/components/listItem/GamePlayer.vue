@@ -8,12 +8,13 @@
             />
         </template>
         <template #content>
-            <InputFieldWord />
+            <InputFieldWord v-if="player.is_current" :player-id="player.id" />
         </template>
     </Card>
 </template>
 
 <script setup lang="ts">
+    import { defineProps } from "vue";
     import { components } from "~/schema";
     import type { PropType } from "vue";
 

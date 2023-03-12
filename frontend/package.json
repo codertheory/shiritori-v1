@@ -18,7 +18,7 @@
         "nuxt": "^3.2.3",
         "@nuxt/devtools": "^0.2.5",
         "@pinia/nuxt": "^0.4.7",
-        "pinia": "^2.0.32",
+        "pinia": "^2.0.33",
         "eslint": "latest",
         "eslint-plugin-prettier": "latest",
         "eslint-config-prettier": "latest",
@@ -30,14 +30,14 @@
         "primevue": "3.24.0",
         "primeicons": "^6.0.1",
         "primeflex": "^3.3.0",
-        "@sfxcode/nuxt-primevue": "^1.0.1",
+        "@sfxcode/nuxt-primevue": "^1.0.3",
         "vitest": "^0.29.2",
         "@nuxt/test-utils": "^3.2.3",
         "nuxt-typed-router": "^3.0.6",
         "zod": "^3.21.4",
         "vee-validate": "^4.7.4",
         "@vee-validate/zod": "^4.7.4",
-        "@types/node": "^18.14.6",
+        "@types/node": "^18.15.0",
         "vue-tsc": "^1.2.0"
     }
 }

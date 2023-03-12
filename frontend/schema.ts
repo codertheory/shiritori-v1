@@ -92,7 +92,6 @@ export interface components {
         };
         ShiritoriTurn: {
             word: string;
-            duration: number;
         };
         /** @enum {string} */
         StatusEnum: "WAITING" | "PLAYING" | "FINISHED";

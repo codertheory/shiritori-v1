@@ -6,8 +6,13 @@ import { useApi } from "~/composeables/useApi";
 
 export const useGameStore = defineStore("game", () => {
     const { watchSocket } = useSocketStore();
-    const { apiCreateGame, apiJoinGame, apiStartGame, apiSetCsrfToken } =
-        useApi();
+    const {
+        apiCreateGame,
+        apiJoinGame,
+        apiStartGame,
+        apiSetCsrfToken,
+        apiTakeTurn,
+    } = useApi();
     const game = ref<components["schemas"]["ShiritoriGame"]>();
     const myId = ref<string>();
     const isJoining = ref<boolean | undefined>();
@@ -98,6 +103,14 @@ export const useGameStore = defineStore("game", () => {
         }
     };
 
+    const handleTakeTurn = async (word: string) => {
+        const { data, error } = await apiTakeTurn(game.value!.id, { word });
+        if (error.value) {
+            throw error.value;
+        }
+        return data.value;
+    };
+
     const joinGameWS = (gameId: string | undefined) => {
         const { connectToGameSocket } = useSocketStore();
         connectToGameSocket(gameId ?? game.value!.id);
@@ -155,6 +168,7 @@ export const useGameStore = defineStore("game", () => {
         joinGame,
         startGame,
         handleCreateGame,
+        handleTakeTurn,
         joinGameWS,
         setGame,
         setMe,
