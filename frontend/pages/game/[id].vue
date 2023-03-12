@@ -22,6 +22,8 @@
                 return "lobby";
             case "PLAYING":
                 return "playing";
+            case "FINISHED":
+                return "finished";
             default:
                 return "lobby";
         }
