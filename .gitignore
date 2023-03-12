@@ -338,6 +338,7 @@ backend/.pytest_cache/
 .envs/*
 !.envs/.local/
 /backend/*.sqlite3
+/backend/*.sqlite3-journal
 schema.yaml
 schema.yml
 
