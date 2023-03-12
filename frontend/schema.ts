@@ -59,7 +59,7 @@ export interface components {
             winner: components["schemas"]["ShiritoriPlayer"];
             current_player: components["schemas"]["ShiritoriPlayer"];
             turn_time_left: number;
-            words: readonly components["schemas"]["ShiritoriGameWord"][];
+            words: components["schemas"]["ShiritoriGameWord"][];
             players: readonly components["schemas"]["ShiritoriPlayer"][];
             /** Format: date-time */
             created_at: string;

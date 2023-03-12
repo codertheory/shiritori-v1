@@ -25,7 +25,11 @@ export const useGameStore = defineStore("game", () => {
     });
 
     const isMyTurn = computed(() => {
-        return game.value?.current_player === myId.value;
+        return me.value?.is_current ?? false;
+    });
+
+    const currentPlayer = computed(() => {
+        return game.value?.players.find((p) => p.is_current);
     });
 
     const settings = computed(() => {
@@ -45,8 +49,12 @@ export const useGameStore = defineStore("game", () => {
     });
 
     const isHost = computed(() => {
-        return me.value?.type === "HOST";
+        return me.value?.is_host ?? false;
     });
+
+    const isPlayerCurrent = (playerId: string) => {
+        return playerId === currentPlayer.value?.id;
+    };
 
     const createGame = async (
         settings: components["schemas"]["ShiritoriGameSettings"]
@@ -136,11 +144,13 @@ export const useGameStore = defineStore("game", () => {
         players,
         words,
         isMyTurn,
+        currentPlayer,
         settings,
         turnTimeLeft,
         lastWord,
         gameTurnDuration,
         isHost,
+        isPlayerCurrent,
         createGame,
         joinGame,
         startGame,
