@@ -85,8 +85,8 @@ class GameViewSet(ReadOnlyModelViewSet):
         serializer.is_valid(raise_exception=True)
         try:
             game.take_turn(request.session.session_key, **serializer.validated_data)
-        except ValidationError:
-            return Response(status=status.HTTP_400_BAD_REQUEST, data={"detail": "Invalid turn"})
+        except ValidationError as error:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={"detail": error.message})
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 

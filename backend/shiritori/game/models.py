@@ -274,7 +274,6 @@ class Game(AbstractModel):  # pylint: disable=too-many-public-methods
         :return: None
         :raises ValidationError: If the player cannot take a turn.
         """
-        # Select the game row for update and lock until the transaction is committed.
         timed_out = self.turn_time_left <= 0
         self.can_take_turn(session_key, timeout=timed_out)
         game_qs = Game.objects.select_for_update().prefetch_related("settings").filter(pk=self.pk)
@@ -284,9 +283,11 @@ class Game(AbstractModel):  # pylint: disable=too-many-public-methods
             game_word = GameWord(
                 game=self,
                 player=self.current_player,
-                word=word,
+                word=word.lower() if isinstance(word, str) else None,
                 duration=duration,
             )
+            if not timed_out:
+                game_word.validate(raise_exception=True)
             game_word.save()
             if word:
                 self.last_word = word
@@ -460,30 +461,34 @@ class GameWord(NanoIdModel):
     ) -> None:
         if self.word:
             self.word = self.word.lower()  # Normalize the word.
-            if not self.validate():
-                raise ValidationError(f'Word "{self.word}" is not valid for locale "{self.game.settings.locale}"')
             self.score = self.calculated_score
         else:
             self.score = -.25 * self.duration
         super().save(force_insert, force_update, using, update_fields)
 
-    def validate(self) -> bool:
+    def validate(self, *, raise_exception: bool = False) -> bool:
         """
         Validates that the word meets the following criteria:
 
         1. The word starts with the last word's last letter.
         2. The word is not already in the game.
-        3. The word is in the dictionary for the game's locale.
+        3. The word length is greater than or equal to the game's word length.
+        4. The word is in the dictionary for the game's locale.
 
         :return: bool - Whether the word is valid.
         """
+        error_message = None
         if self.game.last_word and self.word[0] != self.game.last_word[-1]:
-            return False
+            error_message = 'Word must start with the last letter of the previous word.'
         if self.game.gameword_set.filter(word=self.word).exists():
-            return False
+            error_message = 'Word already used.'
         if len(self.word) < self.game.settings.word_length:
-            return False
-        return Word.validate(self.word, self.game.settings.locale)
+            error_message = f'Word must be at least {self.game.settings.word_length} characters long.'
+        if not Word.validate(self.word, self.game.settings.locale):
+            error_message = 'Word not found in dictionary.'
+        if error_message and raise_exception:
+            raise ValidationError(error_message)
+        return error_message is None
 
 
 class GameSettings(NanoIdModel):
