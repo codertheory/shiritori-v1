@@ -39,7 +39,7 @@ export const useGameTurnForm = () => {
 
     const onSubmit: SubmissionHandler<schema> = async (
         values: schema,
-        { setFieldError }
+        { setFieldError, setFieldValue }
     ) => {
         if (!values.word) return;
         isLoading.value = true;
@@ -51,6 +51,7 @@ export const useGameTurnForm = () => {
                 return;
             }
             await gameStore.handleTakeTurn(values.word);
+            setFieldValue("word", "");
         } catch (e: FetchError | unknown) {
             if (e instanceof FetchError) {
                 if (e?.data?.detail) {

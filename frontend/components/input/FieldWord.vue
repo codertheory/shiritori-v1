@@ -17,7 +17,7 @@
                         v-bind="field"
                         aria-describedby="word-help"
                         :class="{ 'p-invalid': errorMessage }"
-                        :placeholder="gameStore.lastWord"
+                        :placeholder="gameStore.lastLetter"
                         :disabled="!isCurrentPlayerMe"
                     />
                 </div>

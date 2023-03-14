@@ -52,6 +52,13 @@ export const useGameStore = defineStore("game", () => {
         return game.value?.lastWord ?? "";
     });
 
+    const lastLetter = computed(() => {
+        if (!lastWord.value) {
+            return "";
+        }
+        return lastWord.value[lastWord.value.length - 1];
+    });
+
     const gameTurnDuration = computed(() => {
         return game.value?.settings.turnTime ?? 0;
     });
@@ -139,7 +146,7 @@ export const useGameStore = defineStore("game", () => {
                 break;
             case "connected":
                 setGame(eventData.data.game);
-                setMe(eventData.data.self_player);
+                setMe(eventData.data.selfPlayer);
                 break;
             default:
                 break;
@@ -164,6 +171,7 @@ export const useGameStore = defineStore("game", () => {
         settings,
         turnTimeLeft,
         lastWord,
+        lastLetter,
         gameTurnDuration,
         isHost,
         isPlayerCurrent,
