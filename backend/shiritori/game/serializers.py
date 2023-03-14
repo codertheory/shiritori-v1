@@ -3,6 +3,7 @@ from rest_framework import serializers
 from shiritori.game.models import Game, Player, GameSettings, GameWord
 
 __all__ = (
+    "EmptySerializer",
     "ShiritoriGameWordSerializer",
     "ShiritoriGameSettingsSerializer",
     "ShiritoriPlayerSerializer",
@@ -11,6 +12,14 @@ __all__ = (
     "ShiritoriTurnSerializer",
     "CreateGameSerializer",
 )
+
+
+class EmptySerializer(serializers.Serializer):
+    def create(self, validated_data):
+        pass  # Need to override because parent class is abstract
+
+    def update(self, instance, validated_data):
+        pass  # Need to override because parent class is abstract
 
 
 class ShiritoriGameWordSerializer(serializers.ModelSerializer):

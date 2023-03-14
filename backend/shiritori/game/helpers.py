@@ -1,15 +1,24 @@
+from typing import Any
+
 from asgiref.sync import sync_to_async
+from djangorestframework_camel_case.settings import api_settings
+from djangorestframework_camel_case.util import camelize
 from rest_framework.utils.serializer_helpers import ReturnDict
 
 from shiritori.game.models import Player, Game
 from shiritori.game.serializers import ShiritoriGameSerializer, ShiritoriPlayerSerializer
 
 __all__ = (
+    "convert_to_camel",
     "convert_game_to_json",
     "convert_games_to_json",
     "convert_player_to_json",
     "get_player_from_cookie",
 )
+
+
+def convert_to_camel(data: ReturnDict[Any]):
+    return camelize(data, **api_settings.JSON_UNDERSCOREIZE)
 
 
 @sync_to_async

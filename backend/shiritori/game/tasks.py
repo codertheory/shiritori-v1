@@ -38,7 +38,9 @@ def game_worker_task(self: Task, game_id):
     try:
         Game.run_turn_loop(game_id)
     except OperationalError as error:
-        raise self.retry(exc=error) from error
+        self.retry(exc=error, args=(game_id,))
+    except Exception as error:
+        print(error)
 
 
 @shared_task(

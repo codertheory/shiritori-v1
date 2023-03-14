@@ -1,8 +1,10 @@
 from asgiref.sync import sync_to_async
 from channels.exceptions import DenyConnection
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
+from djangorestframework_camel_case.settings import api_settings
+from djangorestframework_camel_case.util import camelize
 
-from shiritori.game.helpers import get_player_from_cookie, convert_player_to_json, convert_game_to_json
+from shiritori.game.helpers import get_player_from_cookie, convert_game_to_json
 from shiritori.game.models import Game, GameStatus
 from shiritori.game.serializers import ShiritoriGameSerializer
 
@@ -12,7 +14,13 @@ __all__ = (
 )
 
 
-class GameLobbyConsumer(AsyncJsonWebsocketConsumer):
+class CamelizedWebSocketConsumer(AsyncJsonWebsocketConsumer):
+
+    async def send_json(self, content, close=False):
+        return await super().send_json(camelize(content, **api_settings.JSON_UNDERSCOREIZE), close)
+
+
+class GameLobbyConsumer(CamelizedWebSocketConsumer):
 
     @staticmethod
     def get_all_waiting_games():
@@ -40,7 +48,7 @@ class GameLobbyConsumer(AsyncJsonWebsocketConsumer):
         await self.send_json(event)
 
 
-class GameConsumer(AsyncJsonWebsocketConsumer):
+class GameConsumer(CamelizedWebSocketConsumer):
 
     def __init__(self, *args, **kwargs):
         super().__init__(args, kwargs)
@@ -78,9 +86,6 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
                 "self_player": self_player.id if self_player else None,
             }
         })
-
-    async def disconnect(self, code):
-        await self.channel_layer.group_discard(self.game_group_name, self.channel_name)
 
     async def game_updated(self, event):
         await self.send_json(event)
