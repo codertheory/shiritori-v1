@@ -1,5 +1,7 @@
+import asyncio
 from typing import Iterable, Optional, Union
 
+from asgiref.sync import sync_to_async
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models, transaction
@@ -276,7 +278,7 @@ class Game(AbstractModel):  # pylint: disable=too-many-public-methods
         """
         timed_out = self.turn_time_left <= 0
         self.can_take_turn(session_key, timeout=timed_out)
-        game_qs = Game.objects.select_for_update().prefetch_related("settings").filter(pk=self.pk)
+        game_qs = Game.objects.prefetch_related("settings").filter(pk=self.pk)
         with transaction.atomic():
             game = game_qs.first()
             duration = game.settings.turn_time - game.turn_time_left
@@ -345,18 +347,16 @@ class Game(AbstractModel):  # pylint: disable=too-many-public-methods
         :param game_id: The id of the game to run the turn loop for.
 
         """
-        qs = Game.objects.select_for_update(nowait=True).filter(id=game_id)
-        with transaction.atomic():
-            while not qs.filter(status=GameStatus.FINISHED).exists():
-                if qs.filter(turn_time_left__gt=0).exists():
-                    qs.update(turn_time_left=F("turn_time_left") - 1)
-                    send_game_updated(qs.first())
-                    wait()  # sleep for 1.25 seconds to allow for any networking issues
-                else:
-                    # if the game timer is 0, end the turn
-                    # and start the next turn
-                    qs.first().end_turn()
-                    send_game_updated(qs.first())
+        qs = Game.objects.filter(id=game_id)
+        while not qs.filter(status=GameStatus.FINISHED).exists():
+            if qs.filter(turn_time_left__gt=0).exists():
+                qs.update(turn_time_left=F("turn_time_left") - 1)
+                wait()  # sleep for 1.25 seconds to allow for any networking issues
+            else:
+                # if the game timer is 0, end the turn
+                # and start the next turn
+                qs.first().end_turn()
+            send_game_updated(qs.first())
 
 
 class Player(AbstractModel, NanoIdModel):
