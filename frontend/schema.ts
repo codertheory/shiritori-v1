@@ -4,42 +4,42 @@ export const DOMAIN = "dev.shiritoriwithfriends.com";
 
 export interface paths {
     "/api/game/": {
-        get: operations["api_game_list"];
-        post: operations["api_game_create"];
+        get: operations["apiGameList"];
+        post: operations["apiGameCreate"];
     };
 
     [key: `/api/game/${string}/`]: {
-        get: operations["api_game_retrieve"];
+        get: operations["apiGameRetrieve"];
     };
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     [key: `/api/game/${string}/join/`]: {
-        post: operations["api_game_join_create"];
+        post: operations["apiGameJoinCreate"];
     };
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     [key: `/api/game/${string}/leave/`]: {
-        post: operations["api_game_leave_create"];
+        post: operations["apiGameLeaveCreate"];
     };
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     [key: `/api/game/${string}/start/`]: {
-        post: operations["api_game_start_create"];
+        post: operations["apiGameStartCreate"];
     };
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     [key: `/api/game/${string}/turn/`]: {
-        post: operations["api_game_turn_create"];
+        post: operations["apiGameTurnCreate"];
     };
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     "/api/set-csrf-cookie/": {
-        get: operations["api_set_csrf_cookie_list"];
+        get: operations["apiCsrfCookieCreate"];
     };
 }
 
@@ -48,35 +48,49 @@ export interface components {
         CreateGame: {
             settings: components["schemas"]["ShiritoriGameSettings"];
         };
-        /** @enum {string} */
-        LocaleEnum: "en";
+        JoinGame: {
+            name: string;
+        };
+        Player: {
+            id: string;
+        };
         ShiritoriGame: {
             id: string;
             settings: components["schemas"]["ShiritoriGameSettings"];
-            player_count: number;
-            word_count: number;
-            is_finished: boolean;
-            winner: components["schemas"]["ShiritoriPlayer"];
-            current_player: components["schemas"]["ShiritoriPlayer"];
-            turn_time_left: number;
-            words: components["schemas"]["ShiritoriGameWord"][];
+            playerCount: number;
+            wordCount: number;
+            isFinished: boolean;
+            winner: string;
+            currentPlayer: string;
+            turnTimeLeft: number;
+            words: readonly components["schemas"]["ShiritoriGameWord"][];
             players: readonly components["schemas"]["ShiritoriPlayer"][];
             /** Format: date-time */
-            created_at: string;
+            createdAt: string;
             /** Format: date-time */
-            updated_at: string;
-            status?: components["schemas"]["StatusEnum"];
-            current_turn?: number;
-            last_word?: string;
+            updatedAt: string;
+            /**
+             * @description * `WAITING` - Waiting
+             * * `PLAYING` - Playing
+             * * `FINISHED` - Finished
+             * @enum {string}
+             */
+            status?: "WAITING" | "PLAYING" | "FINISHED";
+            currentTurn?: number;
+            lastWord?: string | null;
         };
         ShiritoriGameSettings: {
-            locale?: components["schemas"]["LocaleEnum"];
-            word_length?: number;
-            turn_time?: number;
-            max_turns?: number;
+            /**
+             * @description * `en` - English
+             * @enum {string}
+             */
+            locale?: "en";
+            wordLength?: number;
+            turnTime?: number;
+            maxTurns?: number;
         };
         ShiritoriGameWord: {
-            word?: string;
+            word?: string | null;
             /** Format: double */
             score?: number;
             /** Format: double */
@@ -86,16 +100,20 @@ export interface components {
             id: string;
             name: string;
             score: number;
-            type?: components["schemas"]["TypeEnum"];
-            is_current: boolean;
-            is_host: boolean;
+            /**
+             * @description * `HUMAN` - human
+             * * `BOT` - bot
+             * * `SPECTATOR` - spectator
+             * * `WINNER` - winner
+             * @enum {string}
+             */
+            type?: "HUMAN" | "BOT" | "SPECTATOR" | "WINNER";
+            isCurrent?: boolean;
+            isHost?: boolean;
         };
         ShiritoriTurn: {
             word: string;
         };
-        /** @enum {string} */
-        StatusEnum: "WAITING" | "PLAYING" | "FINISHED";
-        TypeEnum: "HOST" | "HUMAN" | "BOT" | "SPECTATOR";
     };
     responses: never;
     parameters: never;
@@ -107,7 +125,7 @@ export interface components {
 // export type external = Record<string, never>;
 
 export interface operations {
-    api_game_list: {
+    apiGameList: {
         responses: {
             200: {
                 content: {
@@ -116,12 +134,10 @@ export interface operations {
             };
         };
     };
-    api_game_create: {
+    apiGameCreate: {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["CreateGame"];
-                "application/x-www-form-urlencoded": components["schemas"]["CreateGame"];
-                "multipart/form-data": components["schemas"]["CreateGame"];
             };
         };
         responses: {
@@ -132,7 +148,7 @@ export interface operations {
             };
         };
     };
-    api_game_retrieve: {
+    apiGameRetrieve: {
         parameters: {
             /** @description A unique value identifying this game. */
             path: {
@@ -147,7 +163,7 @@ export interface operations {
             };
         };
     };
-    api_game_join_create: {
+    apiGameJoinCreate: {
         parameters: {
             /** @description A unique value identifying this game. */
             path: {
@@ -156,45 +172,30 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": Pick<
-                    components["schemas"]["ShiritoriPlayer"],
-                    "id"
-                >;
-                "application/x-www-form-urlencoded": components["schemas"]["ShiritoriPlayer"];
-                "multipart/form-data": components["schemas"]["ShiritoriPlayer"];
+                "application/json": components["schemas"]["JoinGame"];
             };
         };
         responses: {
             201: {
                 content: {
-                    "application/json": components["schemas"]["ShiritoriPlayer"];
+                    "application/json": components["schemas"]["Player"];
                 };
             };
         };
     };
-    api_game_leave_create: {
+    apiGameLeaveCreate: {
         parameters: {
             /** @description A unique value identifying this game. */
             path: {
                 id: string;
             };
         };
-        requestBody?: {
-            content: {
-                "application/json": components["schemas"]["ShiritoriGame"];
-                "application/x-www-form-urlencoded": components["schemas"]["ShiritoriGame"];
-                "multipart/form-data": components["schemas"]["ShiritoriGame"];
-            };
-        };
         responses: {
-            200: {
-                content: {
-                    "application/json": components["schemas"]["ShiritoriGame"];
-                };
-            };
+            /** @description No response body */
+            200: never;
         };
     };
-    api_game_start_create: {
+    apiGameStartCreate: {
         parameters: {
             /** @description A unique value identifying this game. */
             path: {
@@ -204,8 +205,6 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["ShiritoriTurn"];
-                "application/x-www-form-urlencoded": components["schemas"]["ShiritoriTurn"];
-                "multipart/form-data": components["schemas"]["ShiritoriTurn"];
             };
         };
         responses: {
@@ -216,7 +215,7 @@ export interface operations {
             };
         };
     };
-    api_game_turn_create: {
+    apiGameTurnCreate: {
         parameters: {
             /** @description A unique value identifying this game. */
             path: {
@@ -226,8 +225,6 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["ShiritoriTurn"];
-                "application/x-www-form-urlencoded": components["schemas"]["ShiritoriTurn"];
-                "multipart/form-data": components["schemas"]["ShiritoriTurn"];
             };
         };
         responses: {
@@ -238,7 +235,7 @@ export interface operations {
             };
         };
     };
-    api_set_csrf_cookie_list: {
+    apiCsrfCookieCreate: {
         responses: {
             200: {
                 content: {

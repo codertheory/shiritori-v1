@@ -1,5 +1,5 @@
 <template>
-    <Sidebar v-model:visible="globalStore.showSidebar" position="right">
+    <Sidebar v-model="globalStore.showSidebar" position="right" :modal="false">
         <h2>Words Used</h2>
         <ListItemGameWord />
     </Sidebar>

@@ -11,13 +11,6 @@
     import { useGameStore } from "~/stores/useGameStore";
 
     const gameStore = useGameStore();
-
-    defineProps({
-        isCurrent: {
-            type: Boolean,
-            required: true,
-        },
-    });
 </script>
 
 <style scoped></style>

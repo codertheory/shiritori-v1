@@ -11,6 +11,7 @@
                         aria-describedby="username-help"
                         :class="{ 'p-invalid': errorMessage }"
                         placeholder="username"
+                        autofocus
                     />
                 </div>
             </div>

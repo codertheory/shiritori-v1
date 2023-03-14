@@ -7,7 +7,7 @@ import { ref } from "vue";
 export const useGameTurnForm = () => {
     const isLoading = ref(false);
     const gameStore = useGameStore();
-    const minWordLength = gameStore?.game?.settings?.word_length || 3;
+    const minWordLength = gameStore?.game?.settings?.wordLength || 3;
     const schema = z.object({
         word: z.string().min(minWordLength),
     });

@@ -3,7 +3,7 @@ import { ref } from "vue";
 
 export const useGlobalStore = defineStore("global", () => {
     const loading = ref(false);
-    const showSidebar = ref(false);
+    const showSidebar = ref(true);
     const setLoading = (l: boolean) => {
         loading.value = l;
     };

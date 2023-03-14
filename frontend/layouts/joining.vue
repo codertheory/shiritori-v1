@@ -12,6 +12,7 @@
             :closable="false"
             :keep-in-view-port="true"
             :visible="true"
+            :draggable="false"
         >
             <template #default>
                 <InputFieldUsername />

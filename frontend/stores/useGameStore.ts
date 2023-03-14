@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import { components, createGameSchema } from "~/schema";
 import { useSocketStore } from "~/stores/useSocketStore";
 import { useApi } from "~/composeables/useApi";
+import { Writeable } from "zod";
 
 export const useGameStore = defineStore("game", () => {
     const { watchSocket } = useSocketStore();
@@ -25,16 +26,18 @@ export const useGameStore = defineStore("game", () => {
         return game.value?.players ?? [];
     });
 
-    const words = computed(() => {
-        return game.value?.words ?? [];
-    });
+    const words = computed(
+        (): Writeable<components["schemas"]["ShiritoriGameWord"][]> => {
+            return Object.assign([], game.value?.words ?? []);
+        }
+    );
 
     const isMyTurn = computed(() => {
-        return me.value?.is_current ?? false;
+        return me.value?.isCurrent ?? false;
     });
 
     const currentPlayer = computed(() => {
-        return game.value?.players.find((p) => p.is_current);
+        return game.value?.players.find((p) => p.isCurrent);
     });
 
     const settings = computed(() => {
@@ -42,19 +45,19 @@ export const useGameStore = defineStore("game", () => {
     });
 
     const turnTimeLeft = computed(() => {
-        return game.value?.turn_time_left ?? 0;
+        return game.value?.turnTimeLeft ?? 0;
     });
 
     const lastWord = computed(() => {
-        return game.value?.last_word ?? "";
+        return game.value?.lastWord ?? "";
     });
 
     const gameTurnDuration = computed(() => {
-        return game.value?.settings.turn_time ?? 0;
+        return game.value?.settings.turnTime ?? 0;
     });
 
     const isHost = computed(() => {
-        return me.value?.is_host ?? false;
+        return me.value?.isHost ?? false;
     });
 
     const isPlayerCurrent = (playerId: string) => {
