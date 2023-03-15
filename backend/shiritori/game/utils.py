@@ -24,6 +24,10 @@ def calculate_score(word: str, duration: int | float) -> float:
     :param duration: int - The duration it took to enter the word.
     :return: float - The score for the word.
     """
+    if not isinstance(duration, (int, float)):
+        raise TypeError("Duration must be an integer or float.")
+    if duration < 0:
+        raise ValueError("Duration must be a positive number.")
     score = len(word) * LENGTH_MODIFIER
     for bucket, modifier in DURATION_MODIFIERS.items():
         if duration <= bucket:
@@ -59,7 +63,7 @@ async def asend_message_to_layer(channel_name: str, message: dict):
         try:
             await channel_layer.group_send(channel_name, message)
             # await channel_layer.close_pools()
-        except Exception as error:
+        except Exception as error:  # pylint: disable=broad-except
             print(f"Error sending message to channel layer: {error}")
 
 
