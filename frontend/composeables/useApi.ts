@@ -1,18 +1,22 @@
 import { useFetch, useRequestHeaders } from "#imports";
-import { components, DOMAIN, paths } from "~/schema";
+import { components, paths } from "~/schema";
 import { NitroFetchOptions } from "nitropack";
-
-const BASE_URL = `http://${DOMAIN}:8000`;
+import { useConfig } from "~/composeables/useConfig";
 
 type ApiPostOptions<T> = Parameters<typeof useFetch<T>>[1];
 
 type useApiPost<T = unknown> = (
+    // eslint-disable-next-line no-unused-vars
     url: keyof paths,
+    // eslint-disable-next-line no-unused-vars
     options?: Omit<ApiPostOptions<T>, "method">,
+    // eslint-disable-next-line no-unused-vars
     method?: NitroFetchOptions<string>["method"]
 ) => ReturnType<typeof useFetch>;
 
 export const useApi = () => {
+    const { baseURL } = useConfig();
+
     const api: useApiPost = <R extends keyof paths, O>(
         url: R,
         options: ApiPostOptions<O> = {},
@@ -21,8 +25,9 @@ export const useApi = () => {
         return useFetch(url as unknown as string, {
             ...options,
             method,
-            baseURL: BASE_URL,
+            baseURL,
             credentials: "include",
+            // eslint-disable-next-line no-undef
             headers: useRequestHeaders(["cookie"]) as HeadersInit,
             onRequestError({ error }) {
                 // Handle the request errors

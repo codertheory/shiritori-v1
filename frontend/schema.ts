@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-export const DOMAIN = "dev.shiritoriwithfriends.com";
-
 export interface paths {
     "/api/game/": {
         get: operations["apiGameList"];

@@ -25,4 +25,10 @@ export default defineNuxtConfig({
         typeCheck: true,
     },
     test: true,
+    runtimeConfig: {
+        public: {
+            env: "dev",
+            apiHost: "dev.shiritoriwithfriends.com",
+        },
+    },
 });

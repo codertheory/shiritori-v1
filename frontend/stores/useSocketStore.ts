@@ -1,9 +1,10 @@
 import { defineStore } from "pinia";
 import { ref, watch, WatchCallback } from "vue";
-import { DOMAIN } from "~/schema";
+import { useConfig } from "~/composeables/useConfig";
 
 export const useSocketStore = defineStore("socket", () => {
     const socket = ref<WebSocket | undefined>();
+    const { wsURL } = useConfig();
 
     const isConnected = computed(() => {
         return socket.value?.readyState === WebSocket.OPEN;
@@ -18,10 +19,10 @@ export const useSocketStore = defineStore("socket", () => {
         reconnect: boolean = false
     ) => {
         if (!socket.value && !isConnected.value && gameId && !reconnect)
-            setSocket(new WebSocket(`ws://${DOMAIN}:8000/ws/game/${gameId}/`));
+            setSocket(new WebSocket(`${wsURL.value}/ws/game/${gameId}/`));
         if (reconnect && socket.value && !isConnected.value) {
             socket.value?.close(1000);
-            setSocket(new WebSocket(`ws://${DOMAIN}:8000/ws/game/${gameId}/`));
+            setSocket(new WebSocket(`${wsURL.value}/ws/game/${gameId}/`));
         }
     };
 
