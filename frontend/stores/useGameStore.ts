@@ -67,8 +67,20 @@ export const useGameStore = defineStore("game", () => {
         return me.value?.isHost ?? false;
     });
 
+    const canStart = computed(() => {
+        return isHost.value && players.value.length >= 2;
+    });
+
+    const winner = computed(() => {
+        return players.value.find((p) => p.type === "WINNER");
+    });
+
     const isPlayerCurrent = (playerId: string) => {
         return playerId === currentPlayer.value?.id;
+    };
+
+    const getPlayer = (playerId: string) => {
+        return players.value.find((p) => p.id === playerId);
     };
 
     const createGame = async (
@@ -174,7 +186,10 @@ export const useGameStore = defineStore("game", () => {
         lastLetter,
         gameTurnDuration,
         isHost,
+        canStart,
+        winner,
         isPlayerCurrent,
+        getPlayer,
         createGame,
         joinGame,
         startGame,

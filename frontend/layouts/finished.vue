@@ -4,11 +4,18 @@
             <h1>Finished</h1>
         </template>
         <template #content>
-            <p>Finished</p>
+            <h1>Winner: {{ winnerName }} with {{ winnerScore }} Points</h1>
         </template>
     </Card>
 </template>
 
-<script setup lang="ts"></script>
+<script lang="ts" setup>
+    import { useGameStore } from "~/stores/useGameStore";
+
+    const gameStore = useGameStore();
+
+    const winnerName = computed(() => gameStore?.winner?.name ?? "");
+    const winnerScore = computed(() => gameStore?.winner?.score ?? 0);
+</script>
 
 <style scoped></style>

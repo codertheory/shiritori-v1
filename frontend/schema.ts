@@ -92,9 +92,10 @@ export interface components {
         ShiritoriGameWord: {
             word?: string | null;
             /** Format: double */
-            score?: number;
+            score: number;
             /** Format: double */
-            duration?: number;
+            duration: number;
+            playerId: string;
         };
         ShiritoriPlayer: {
             id: string;

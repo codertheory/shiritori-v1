@@ -1,5 +1,10 @@
 <template>
-    <Sidebar v-model="globalStore.showSidebar" position="right" :modal="false">
+    <Sidebar
+        v-model="globalStore.showSidebar"
+        :modal="false"
+        :visible="globalStore.showSidebar"
+        position="right"
+    >
         <h2>Words Used</h2>
         <ListItemGameWord />
     </Sidebar>

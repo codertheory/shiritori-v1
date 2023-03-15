@@ -19,6 +19,7 @@
                         :class="{ 'p-invalid': errorMessage }"
                         :placeholder="gameStore.lastLetter"
                         :disabled="!isCurrentPlayerMe"
+                        autocomplete="off"
                     />
                 </div>
             </div>
