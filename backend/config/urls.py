@@ -26,9 +26,17 @@ def set_csrf_token(request: ASGIRequest):
     return JsonResponse({"details": "CSRF cookie set"}, status=status.HTTP_200_OK)
 
 
+def health_check(request: ASGIRequest):
+    """
+    This will be `/health/` on `urls.py`
+    """
+    return JsonResponse({"status": "ok"}, status=status.HTTP_200_OK)
+
+
 # API URLS
 urlpatterns += [
     # API base url
+    path("health/", health_check, name="health-check"),
     path("api/", include("config.api_router")),
     path("api/set-csrf-cookie/", set_csrf_token, name="set-csrf-cookie"),
     # DRF auth token
