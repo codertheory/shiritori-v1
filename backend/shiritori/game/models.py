@@ -1,7 +1,5 @@
-import asyncio
 from typing import Iterable, Optional, Union
 
-from asgiref.sync import sync_to_async
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models, transaction
@@ -295,6 +293,7 @@ class Game(AbstractModel):  # pylint: disable=too-many-public-methods
                 self.last_word = word
             if self.current_turn + 1 > self.settings.max_turns:
                 self.status = GameStatus.FINISHED
+                self.winner = self.leaderboard.first()
                 self.save(update_fields=['status', 'last_word', 'current_turn'])
                 return
             self.current_turn += 1

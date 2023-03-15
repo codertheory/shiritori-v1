@@ -62,6 +62,7 @@ class GameConsumer(CamelizedWebSocketConsumer):
         if not (
             game := await Game.objects.filter(id=game_id)
                 .exclude(status=GameStatus.FINISHED)
+                .prefetch_related('player_set', 'gameword_set')
                 .afirst()
         ):
             raise DenyConnection("Game does not exist")

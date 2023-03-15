@@ -29,6 +29,7 @@ class ShiritoriGameWordSerializer(serializers.ModelSerializer):
             "word",
             "score",
             "duration",
+            "player_id",
         )
 
 

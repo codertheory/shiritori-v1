@@ -33,7 +33,7 @@ def calculate_score(word: str, duration: int | float) -> float:
         if duration <= bucket:
             score *= modifier
             break
-    return score
+    return int(round(score, 2))
 
 
 def generate_random_letter():
