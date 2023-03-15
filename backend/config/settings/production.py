@@ -25,7 +25,6 @@ DATABASES = {
         conn_health_checks=True,
     )
 }
-DATABASES["default"]["CONN_MAX_AGE"] = env.int("CONN_MAX_AGE", default=60)  # noqa F405
 
 # CACHES
 # ------------------------------------------------------------------------------
@@ -149,6 +148,18 @@ CHANNEL_LAYERS = {
     },
 }
 
+# Cookies
+# ------------------------------------------------------------------------------
+SESSION_COOKIE_DOMAIN = ".shiritoriwithfriends.com"
+
+# CORS
+# ------------------------------------------------------------------------------
+CORS_ALLOWED_ORIGINS = [
+    "https://shiritoriwithfriends.com",
+    "https://www.shiritoriwithfriends.com",
+]
+CORS_ALLOW_CREDENTIALS = True
+
 # Render stuff
 # ------------------------------------------------------------------------------
 if RENDER_EXTERNAL_HOSTNAME := env("RENDER_EXTERNAL_HOSTNAME", default=""):
@@ -157,3 +168,4 @@ if RENDER_EXTERNAL_HOSTNAME := env("RENDER_EXTERNAL_HOSTNAME", default=""):
     SPECTACULAR_SETTINGS["SERVERS"].append(
         {"url": f"https://{RENDER_EXTERNAL_HOSTNAME}", "description": "Render server"}
     )
+    CORS_ALLOWED_ORIGINS.append(f"https://{RENDER_EXTERNAL_HOSTNAME}")
