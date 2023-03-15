@@ -17,8 +17,11 @@ from channels.security.websocket import AllowedHostsOriginValidator
 from channels.sessions import SessionMiddlewareStack
 from django.core.asgi import get_asgi_application
 
+django_app = get_asgi_application()
+
 # Routing
-from shiritori.game.routing import websocket_patterns as game_websocket_patterns
+from shiritori.game.routing import \
+    websocket_patterns as game_websocket_patterns  # pylint: disable=wrong-import-position
 
 # This allows easy placement of apps within the interior
 # backend directory.
@@ -33,7 +36,7 @@ websocket_patterns = [
 ]
 
 application = ProtocolTypeRouter({
-    "http": get_asgi_application(),
+    "http": django_app,
     "websocket": AllowedHostsOriginValidator(
         AuthMiddlewareStack(
             SessionMiddlewareStack(
