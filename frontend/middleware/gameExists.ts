@@ -1,19 +1,15 @@
 import { useGameStore } from "~/stores/useGameStore";
-import { useFetch } from "#app";
 import { components } from "~/schema";
-import { useConfig } from "~/composeables/useConfig";
+import { useApi } from "~/composeables/useApi";
 
 export default defineNuxtRouteMiddleware(async (to) => {
     const { id } = to.params;
     const { setGame, game } = useGameStore();
-    const { baseURL } = useConfig();
+    const { apiGetGame } = useApi();
 
     if (game?.id === id) return true;
 
-    const { data, error } = await useFetch(`/api/game/${id}`, {
-        method: "GET",
-        baseURL,
-    });
+    const { data, error } = await apiGetGame(id as string);
     if (!data.value || error.value) {
         return abortNavigation();
     }

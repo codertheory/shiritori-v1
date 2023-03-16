@@ -2,7 +2,7 @@
     <Form
         :validation-schema="validationSchema"
         :validate-on-mount="false"
-        @submit="onSubmit"
+        @submit.prevent="onSubmit"
     >
         <Dialog
             :header="`Joining game ${$route.params.id}`"

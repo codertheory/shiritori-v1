@@ -2,18 +2,20 @@
     <div v-tooltip.top="tooltipMessage" style="display: inline-block">
         <Button
             :disabled="!gameStore.canStart"
+            :loading="isSubmitting"
             icon="pi pi-check"
             label="Start Game"
-            type="button"
-            @click="gameStore.startGame"
+            type="submit"
         />
     </div>
 </template>
 
 <script setup lang="ts">
     import { useGameStore } from "~/stores/useGameStore";
+    import { useIsSubmitting } from "vee-validate";
 
     const gameStore = useGameStore();
+    const isSubmitting = useIsSubmitting();
 
     const tooltipMessage = computed(() => {
         if (!gameStore.isHost) {

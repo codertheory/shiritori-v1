@@ -9,10 +9,12 @@
             <Card>
                 <template #title>Create Game</template>
                 <template #content>
-                    <InputFieldUsername />
-                    <Divider />
-                    <h1>Settings</h1>
-                    <FieldsetSettingsGame />
+                    <UtilityFormUIBlock>
+                        <InputFieldUsername />
+                        <Divider />
+                        <h1>Settings</h1>
+                        <FieldsetSettingsGame />
+                    </UtilityFormUIBlock>
                 </template>
                 <template #footer>
                     <ButtonCreateGame />
@@ -25,6 +27,7 @@
 <script setup lang="ts">
     import { Form } from "vee-validate";
     import { useCreateGameForm } from "~/composeables/useCreateGameForm";
+
     const { validationSchema, initialValues, onSubmit } = useCreateGameForm();
 </script>
 

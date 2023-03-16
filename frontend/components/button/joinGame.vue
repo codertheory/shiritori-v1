@@ -1,20 +1,26 @@
 <template>
     <Button
+        :loading="isSubmitting"
         icon="pi pi-check"
         label="Join Game"
         :disabled="!formIsValid"
-        autofocus
+        type="submit"
         @click="submitForm"
     />
 </template>
 
 <script setup lang="ts">
-    import { useIsFormValid, useSubmitForm } from "vee-validate";
+    import {
+        useIsFormValid,
+        useIsSubmitting,
+        useSubmitForm,
+    } from "vee-validate";
     import { useJoinGameForm } from "~/composeables/useJoinGameForm";
 
     const formIsValid = useIsFormValid();
 
     const { onSubmit } = useJoinGameForm();
+    const isSubmitting = useIsSubmitting();
 
     const submitForm = useSubmitForm(onSubmit);
 </script>

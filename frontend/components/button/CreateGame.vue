@@ -4,16 +4,15 @@
         label="Create Game"
         type="submit"
         :disabled="!formIsValid"
-        :loading="loading"
+        :loading="isSubmitting"
     />
 </template>
 
 <script setup lang="ts">
-    import { useIsFormValid } from "vee-validate";
-    import { useCreateGameForm } from "~/composeables/useCreateGameForm";
+    import { useIsFormValid, useIsSubmitting } from "vee-validate";
 
+    const isSubmitting = useIsSubmitting();
     const formIsValid = useIsFormValid();
-    const { loading } = useCreateGameForm();
 </script>
 
 <style scoped></style>

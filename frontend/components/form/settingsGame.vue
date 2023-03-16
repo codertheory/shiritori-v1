@@ -1,19 +1,9 @@
 <template>
-    <Form
-        :validation-schema="validationSchema"
-        :initial-values="initialValues"
-        :validate-on-mount="false"
-        @submit="onSubmit"
-    >
+    <UtilityFormUIBlock>
         <FieldsetSettingsGame />
-    </Form>
+    </UtilityFormUIBlock>
 </template>
 
-<script setup lang="ts">
-    import { Form } from "vee-validate";
-    import { useGameSettingsForm } from "~/composeables/useGameSettingsForm";
-
-    const { validationSchema, initialValues, onSubmit } = useGameSettingsForm();
-</script>
+<script lang="ts" setup></script>
 
 <style scoped></style>

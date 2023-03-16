@@ -9,6 +9,7 @@ export const useJoinGameForm = () => {
     const gameStore = useGameStore();
 
     const onSubmit = getSubmitFn(joinGameSchema, async (values) => {
+        console.log("onSubmit", values);
         const route = useRoute();
         const id = route.params.id;
         if (!id) throw new Error("No game id found");
