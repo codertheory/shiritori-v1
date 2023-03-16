@@ -14,7 +14,7 @@ class Command(BaseCommand):
         for locale in options['locale']:
             with open(f'dictionaries/{locale}.txt', 'r', encoding='utf-8') as f:
                 words = f.read().splitlines()
-            self.stdout.write(f'Updating {locale} dictionary with {len(words)} words')
+            self.stdout.write(self.style.HTTP_INFO(f'Updating {locale} dictionary with {len(words)} words'))
             results = Word.objects.bulk_create([Word(word=word, locale=locale) for word in words],
                                                ignore_conflicts=True)
             self.stdout.write(self.style.SUCCESS(f'Successfully updated {locale} dictionary with {len(results)} words'))
