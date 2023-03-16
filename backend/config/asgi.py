@@ -13,8 +13,6 @@ from pathlib import Path
 
 from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
-from channels.security.websocket import AllowedHostsOriginValidator
-from channels.sessions import SessionMiddlewareStack
 from django.core.asgi import get_asgi_application
 
 django_app = get_asgi_application()
@@ -37,11 +35,7 @@ websocket_patterns = [
 
 application = ProtocolTypeRouter({
     "http": django_app,
-    "websocket": AllowedHostsOriginValidator(
-        AuthMiddlewareStack(
-            SessionMiddlewareStack(
-                URLRouter(websocket_patterns)
-            )
-        )
+    "websocket": AuthMiddlewareStack(
+        URLRouter(websocket_patterns)
     ),
 })

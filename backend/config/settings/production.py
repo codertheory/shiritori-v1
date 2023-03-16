@@ -168,4 +168,5 @@ if RENDER_EXTERNAL_HOSTNAME := env("RENDER_EXTERNAL_HOSTNAME", default=""):
     SPECTACULAR_SETTINGS["SERVERS"].append(
         {"url": f"https://{RENDER_EXTERNAL_HOSTNAME}", "description": "Render server"}
     )
-    CORS_ALLOWED_ORIGINS.append(f"https://{RENDER_EXTERNAL_HOSTNAME}")
+
+    CORS_ALLOWED_ORIGINS.append(env("RENDER_EXTERNAL_URL", default=""))
