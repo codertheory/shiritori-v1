@@ -108,7 +108,7 @@ export const useGameStore = defineStore("game", () => {
         return data;
     };
 
-    const startGame = async () => {
+    const handleStartGame = async () => {
         const { data, error } = await apiStartGame(game.value!.id);
         if (error.value) {
             throw error.value;
@@ -192,7 +192,7 @@ export const useGameStore = defineStore("game", () => {
         getPlayer,
         createGame,
         joinGame,
-        startGame,
+        handleStartGame,
         handleCreateGame,
         handleTakeTurn,
         joinGameWS,

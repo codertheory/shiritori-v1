@@ -8,7 +8,7 @@ export const useGameSettingsForm = () => {
     const initialValues = gameSettingsSchema.parse(gameStore?.settings ?? {});
 
     const onSubmit = getSubmitFn(gameSettingsSchema, async (values) => {
-        // TODO: Implement this
+        await gameStore.handleStartGame();
     });
 
     return {
