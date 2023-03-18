@@ -12,8 +12,8 @@ __all__ = (
 
 
 def send_lobby_update(game: typing.Union["Game", dict], *, update_type: str = "game_created"):
-    from shiritori.game.serializers import ShiritoriGameSerializer
-    from shiritori.game.models import Game
+    from shiritori.game.serializers import ShiritoriGameSerializer  # pylint: disable=import-outside-toplevel
+    from shiritori.game.models import Game  # pylint: disable=import-outside-toplevel
     if game is None:
         return
 
@@ -29,8 +29,8 @@ def send_lobby_update(game: typing.Union["Game", dict], *, update_type: str = "g
 
 
 def send_game_updated(game: typing.Union["Game", dict], *, update_type: str = "game_updated"):
-    from shiritori.game.serializers import ShiritoriGameSerializer
-    from shiritori.game.models import Game
+    from shiritori.game.serializers import ShiritoriGameSerializer  # pylint: disable=import-outside-toplevel
+    from shiritori.game.models import Game  # pylint: disable=import-outside-toplevel
     if game is None:
         return
 

@@ -2,45 +2,45 @@ name: CI
 
 # Enable Buildkit and let compose use it to speed up image building
 env:
-  DOCKER_BUILDKIT: 1
-  COMPOSE_DOCKER_CLI_BUILD: 1
+    DOCKER_BUILDKIT: 1
+    COMPOSE_DOCKER_CLI_BUILD: 1
 
 on:
-  pull_request:
-    branches: [ "master", "main" ]
-    paths-ignore: [ "docs/**" ]
+    pull_request:
+        branches: [ "master", "main" ]
 
-  push:
-    branches: [ "master", "main" ]
-    paths-ignore: [ "docs/**" ]
+    push:
+        branches: [ "master", "main" ]
 
 concurrency:
-  group: ${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+    group: ${{ github.head_ref || github.run_id }}
+    cancel-in-progress: true
 
 jobs:
-  linter:
-    runs-on: ubuntu-latest
-    steps:
+    linter:
+        runs-on: ubuntu-latest
+        steps:
 
-      - name: Checkout Code Repository
-        uses: actions/checkout@v3
+            -   name: Checkout Code Repository
+                uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-          cache: pip
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -U -r backend/requirements/local.txt
-      - name: Analysing the code with pylint
-        run: |
-          cd backend
-          pylint $(git ls-files '*.py')
+            -   name: Set up Python
+                uses: actions/setup-python@v4
+                with:
+                    python-version: "3.11"
+                    cache: pip
+            -   name: Install dependencies
+                run: |
+                    python -m pip install --upgrade pip
+                    cd backend
+                    python -m pip install -U -r requirements/local.txt
+                    python -m pip install -U -r requirements/production.txt
+            -   name: Analysing the code with pylint
+                run: |
+                    cd backend
+                    pylint $(git ls-files '*.py')
 
-  # With no caching at all the entire ci process takes 4m 30s to complete!
+    # With no caching at all the entire ci process takes 4m 30s to complete!
 #  pytest: # TODO: Refactor to not use docker-compose
 #    runs-on: ubuntu-latest
 #

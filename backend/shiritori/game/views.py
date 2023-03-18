@@ -1,6 +1,6 @@
 from django.core.exceptions import ValidationError
 from drf_spectacular.utils import extend_schema, inline_serializer
-from rest_framework import status, serializers
+from rest_framework import status
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action
 from rest_framework.fields import CharField
