@@ -68,7 +68,7 @@ jobs:
                 run: |
                     python -m pip install --upgrade pip poetry
                     cd backend
-                    poetry install
+                    poetry install --with production
             -   name: Run DB Migrations
                 run: |
                     cd backend
