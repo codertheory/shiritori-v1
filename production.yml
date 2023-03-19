@@ -48,7 +48,7 @@ services:
             - "0.0.0.0:5555:5555"
 
     redis:
-        image: redis:6
+        image: redis:latest
 
     celeryworker:
         <<: *django
