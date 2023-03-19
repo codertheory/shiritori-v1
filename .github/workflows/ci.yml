@@ -4,6 +4,7 @@ name: CI
 env:
     DOCKER_BUILDKIT: 1
     COMPOSE_DOCKER_CLI_BUILD: 1
+    DJANGO_SETTINGS_MODULE: "config.settings.test"
 
 on:
     pull_request:
@@ -33,22 +34,22 @@ jobs:
                     python -m pip install --upgrade pip poetry ruff
                     cd backend
                     poetry install
-            -   name: Analysing the code with ruff
+            -   name: Ruff
                 run: |
                     ruff check $(git ls-files '*.py')
-            -   name: Linting the code with flake8
+            -   name: flake8
                 run: |
                     cd backend
                     poetry run flake8
-            -   name: Linting the code with black
+            -   name: Black
                 run: |
                     cd backend
                     poetry run black --check $(git ls-files '*.py')
-            -   name: Linting the code with isort
+            -   name: Isort
                 run: |
                     cd backend
                     poetry run isort --check-only --profile black $(git ls-files '*.py')
-            -   name: Linting the code with mypy
+            -   name: Mypy
                 run: |
                     cd backend
                     poetry run mypy $(git ls-files '*.py')
@@ -56,7 +57,6 @@ jobs:
     test:
         runs-on: ubuntu-latest
         steps:
-
             -   name: Checkout Code Repository
                 uses: actions/checkout@v3
 
@@ -77,23 +77,3 @@ jobs:
                 run: |
                     cd backend
                     poetry run pytest
-    # With no caching at all the entire ci process takes 4m 30s to complete!
-#  pytest: # TODO: Refactor to not use docker-compose
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#
-#      - name: Checkout Code Repository
-#        uses: actions/checkout@v3
-#
-#      - name: Build the Stack
-#        run: docker-compose -f local.yml build
-#
-#      - name: Run DB Migrations
-#        run: docker-compose -f local.yml run --rm django python manage.py migrate
-#
-#      - name: Run Django Tests
-#        run: docker-compose -f local.yml run django pytest
-#
-#      - name: Tear down the Stack
-#        run: docker-compose -f local.yml down
