@@ -51,6 +51,7 @@ jobs:
     #                    poetry run mypy $(git ls-files '*.py')
 
     test:
+        needs: lint
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout Code Repository
