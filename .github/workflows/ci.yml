@@ -94,7 +94,7 @@ jobs:
                     poetry run pytest
 
 
-    build: # Build docker images and push to docker hub
+    deploy: # Build docker images and push to docker hub
         needs: test
         runs-on: ubuntu-latest
         steps:
