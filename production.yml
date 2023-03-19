@@ -65,3 +65,5 @@ services:
             context: .
             dockerfile: compose/production/nuxt/Dockerfile
         image: lucascluk/shiritori:frontend_local_nuxt
+        env_file:
+            - frontend/.envs/.production/.nuxt

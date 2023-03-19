@@ -1,7 +1,7 @@
 export const useConfig = () => {
     const config = useRuntimeConfig();
 
-    const isProduction = computed(() => config.public.env === "production");
+    const isProduction = computed(() => process.env.NODE_ENV === "production");
 
     const baseURL = computed(() => {
         const schema = isProduction.value ? "https" : "http";
