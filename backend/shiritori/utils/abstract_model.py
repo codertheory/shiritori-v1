@@ -1,4 +1,4 @@
-from django.db import models, InterfaceError
+from django.db import InterfaceError, models
 
 from shiritori.utils import NanoIdField
 

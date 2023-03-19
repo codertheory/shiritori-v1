@@ -1,8 +1,8 @@
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
 from shiritori.game.events import send_game_updated, send_lobby_update
-from shiritori.game.models import Game, Player, GameWord
+from shiritori.game.models import Game, GameWord, Player
 
 
 @receiver(post_save, sender=Game)

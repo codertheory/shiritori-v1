@@ -8,11 +8,7 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
 LENGTH_MODIFIER = 1.25
-DURATION_MODIFIERS = {
-    5: 1.8,
-    10: 1.5,
-    15: 1.2
-}
+DURATION_MODIFIERS = {5: 1.8, 10: 1.5, 15: 1.2}
 
 
 def calculate_score(word: str, duration: int | float) -> float:

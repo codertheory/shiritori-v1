@@ -10,8 +10,14 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from shiritori.game.auth import RequiresSessionAuth
 from shiritori.game.models import Game
-from shiritori.game.serializers import ShiritoriTurnSerializer, ShiritoriPlayerSerializer, ShiritoriGameSerializer, \
-    CreateGameSerializer, JoinGameSerializer, EmptySerializer
+from shiritori.game.serializers import (
+    CreateGameSerializer,
+    EmptySerializer,
+    JoinGameSerializer,
+    ShiritoriGameSerializer,
+    ShiritoriPlayerSerializer,
+    ShiritoriTurnSerializer,
+)
 from shiritori.game.tasks import game_worker_task
 
 
@@ -24,7 +30,7 @@ class GameViewSet(ReadOnlyModelViewSet):
     @staticmethod
     def get_success_headers(data):
         try:
-            return {'Location': str(data[api_settings.URL_FIELD_NAME])}
+            return {"Location": str(data[api_settings.URL_FIELD_NAME])}
         except (TypeError, KeyError):
             return {}
 
@@ -49,19 +55,22 @@ class GameViewSet(ReadOnlyModelViewSet):
         return Response(status=status.HTTP_201_CREATED, data=ShiritoriGameSerializer(game).data)
 
     @action(detail=True, methods=["post"], authentication_classes=[SessionAuthentication])
-    def start(self, request, pk=None):  # pylint: disable=unused-argument
+    def start(self, request, pk=None):
         game = self.get_object()
         session_key = request.session.session_key
         try:
             game.start(session_key)
             game_worker_task.delay(game.id)
         except ValidationError as error:
-            return Response(status=status.HTTP_400_BAD_REQUEST, data={"detail": "Invalid start", "errors": error})
+            return Response(
+                status=status.HTTP_400_BAD_REQUEST,
+                data={"detail": "Invalid start", "errors": error},
+            )
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @extend_schema(responses={201: inline_serializer("Player", {"id": CharField(read_only=True)})})
     @action(detail=True, methods=["post"])
-    def join(self, request, pk=None):  # pylint: disable=unused-argument
+    def join(self, request, pk=None):
         if not request.session or not request.session.session_key:
             request.session.save()
 
@@ -80,7 +89,7 @@ class GameViewSet(ReadOnlyModelViewSet):
         )
 
     @action(detail=True, methods=["post"], authentication_classes=[RequiresSessionAuth])
-    def turn(self, request, pk=None):  # pylint: disable=unused-argument
+    def turn(self, request, pk=None):
         game = self.get_object()
         serializer: ShiritoriTurnSerializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -91,10 +100,9 @@ class GameViewSet(ReadOnlyModelViewSet):
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=True, methods=["post"],
-            authentication_classes=[RequiresSessionAuth])
+    @action(detail=True, methods=["post"], authentication_classes=[RequiresSessionAuth])
     @extend_schema(responses={204: {}})
-    def leave(self, request, pk=None):  # pylint: disable=unused-argument
+    def leave(self, request, pk=None):
         session_key = request.session.session_key
         game = self.get_object()
         game.leave(session_key)

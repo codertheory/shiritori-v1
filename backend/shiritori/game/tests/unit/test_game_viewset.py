@@ -3,14 +3,14 @@ from unittest.mock import patch
 import pytest
 from rest_framework.test import APIClient
 
-from shiritori.game.models import Game, Player, GameStatus
+from shiritori.game.models import Game, GameStatus, Player
 
 pytestmark = pytest.mark.django_db
 
 
-@pytest.fixture(scope='module', autouse=True)
+@pytest.fixture(scope="module", autouse=True)
 def mock_game_worker_task():
-    with patch('shiritori.game.tasks.game_worker_task') as mock:
+    with patch("shiritori.game.tasks.game_worker_task") as mock:
         yield mock
 
 

@@ -18,8 +18,7 @@ from django.core.asgi import get_asgi_application
 django_app = get_asgi_application()
 
 # Routing
-from shiritori.game.routing import \
-    websocket_patterns as game_websocket_patterns  # noqa: E402, E402
+from shiritori.game.routing import websocket_patterns as game_websocket_patterns  # noqa: E402, E402
 
 # This allows easy placement of apps within the interior
 # backend directory.
@@ -33,9 +32,9 @@ websocket_patterns = [
     *game_websocket_patterns,
 ]
 
-application = ProtocolTypeRouter({
-    "http": django_app,
-    "websocket": AuthMiddlewareStack(
-        URLRouter(websocket_patterns)
-    ),
-})
+application = ProtocolTypeRouter(
+    {
+        "http": django_app,
+        "websocket": AuthMiddlewareStack(URLRouter(websocket_patterns)),
+    }
+)

@@ -5,7 +5,7 @@ from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from djangorestframework_camel_case.settings import api_settings
 from djangorestframework_camel_case.util import camelize
 
-from shiritori.game.helpers import get_player_from_cookie, convert_game_to_json
+from shiritori.game.helpers import convert_game_to_json, get_player_from_cookie
 from shiritori.game.models import Game, GameStatus
 from shiritori.game.serializers import ShiritoriGameSerializer
 
@@ -16,18 +16,14 @@ __all__ = (
 
 
 class CamelizedWebSocketConsumer(AsyncJsonWebsocketConsumer):
-
     async def send_json(self, content, close=False):
         return await super().send_json(camelize(content, **api_settings.JSON_UNDERSCOREIZE), close)
 
 
 class GameLobbyConsumer(CamelizedWebSocketConsumer):
-
     @staticmethod
     def get_all_waiting_games():
-        all_waiting_games = Game.objects.filter(
-            status=GameStatus.WAITING
-        )
+        all_waiting_games = Game.objects.filter(status=GameStatus.WAITING)
         return ShiritoriGameSerializer(all_waiting_games, many=True).data
 
     async def connect(self):
@@ -50,45 +46,46 @@ class GameLobbyConsumer(CamelizedWebSocketConsumer):
 
 
 class GameConsumer(CamelizedWebSocketConsumer):
-
     def __init__(self, *args, **kwargs):
         super().__init__(args, kwargs)
         self.game_group_name: str | None = None
 
     async def connect(self):
         try:
-            game_id = self.scope['url_route']['kwargs']['game_id']
+            game_id = self.scope["url_route"]["kwargs"]["game_id"]
             self.game_group_name = f"{game_id}"
             self.groups = [self.game_group_name]
 
             if not (
                 game := await Game.objects.filter(id=game_id)
-                    .exclude(status=GameStatus.FINISHED)
-                    .prefetch_related('player_set', 'gameword_set')
-                    .afirst()
+                .exclude(status=GameStatus.FINISHED)
+                .prefetch_related("player_set", "gameword_set")
+                .afirst()
             ):
                 raise DenyConnection("Game does not exist")
             await self.accept()
 
-            if not self.scope['session'].session_key:
-                await sync_to_async(self.scope['session'].save)()
+            if not self.scope["session"].session_key:
+                await sync_to_async(self.scope["session"].save)()
 
             self_player = (
                 await get_player_from_cookie(game_id, session_id)
-                if (session_id := self.scope['session'].session_key)
+                if (session_id := self.scope["session"].session_key)
                 else None
             )
             await self.channel_layer.group_add(self.game_group_name, self.channel_name)
 
             game_data = await convert_game_to_json(game)
 
-            await self.send_json({
-                "type": "connected",
-                "data": {
-                    "game": game_data,
-                    "self_player": self_player.id if self_player else None,
+            await self.send_json(
+                {
+                    "type": "connected",
+                    "data": {
+                        "game": game_data,
+                        "self_player": self_player.id if self_player else None,
+                    },
                 }
-            })
+            )
         except DenyConnection as e:
             sentry_sdk.capture_exception(e)
             raise e

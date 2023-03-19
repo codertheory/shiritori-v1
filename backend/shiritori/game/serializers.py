@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from shiritori.game.models import Game, Player, GameSettings, GameWord
+from shiritori.game.models import Game, GameSettings, GameWord, Player
 
 __all__ = (
     "EmptySerializer",
@@ -39,7 +39,7 @@ class ShiritoriGameSettingsSerializer(serializers.ModelSerializer):
         exclude = ("id",)
 
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('data', GameSettings.get_default_settings())
+        kwargs.setdefault("data", GameSettings.get_default_settings())
         super().__init__(*args, **kwargs)
 
 
@@ -61,9 +61,7 @@ class ShiritoriPlayerSerializer(serializers.ModelSerializer):
 class JoinGameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
-        fields = (
-            "name",
-        )
+        fields = ("name",)
 
 
 class ShiritoriGameSerializer(serializers.ModelSerializer):

@@ -1,7 +1,7 @@
 import pytest
 from django.core.exceptions import ValidationError
 
-from shiritori.game.models import GameStatus, Game, Word, GameWord
+from shiritori.game.models import Game, GameStatus, GameWord, Word
 
 pytestmark = pytest.mark.django_db
 
@@ -23,17 +23,17 @@ def test_join_game(game, player):
 
 
 def test_join_game_with_str(game):
-    player = game.join('John')
+    player = game.join("John")
     assert game.player_count == 1
     assert game.players.count() == 1
     assert game.host == player
     assert game.players.first() == player
-    assert player.name == 'John'
+    assert player.name == "John"
 
 
 def test_join_started_game(started_game):
     with pytest.raises(ValidationError):
-        started_game.join('John')
+        started_game.join("John")
 
 
 def test_leave_game(game, player):
@@ -155,42 +155,46 @@ def test_can_current_player_take_turn_when_game_status_is_not_playing(game, play
     pytest.raises(ValidationError, game.can_take_turn, human_player_2.session_key)
 
 
-def test_take_turn_with_word_non_existent_word(started_game: Game,
-                                               sample_words: list[str]):  # pylint: disable=unused-argument
+def test_take_turn_with_word_non_existent_word(
+    started_game: Game, sample_words: list[str]
+):  # pylint: disable=unused-argument
     with pytest.raises(ValidationError) as exec_info:
         started_game.turn_time_left = 10
         session_key = started_game.current_player.session_key
-        started_game.take_turn(session_key, 'invalid')
-    assert exec_info.value.message == 'Word not found in dictionary.'
+        started_game.take_turn(session_key, "invalid")
+    assert exec_info.value.message == "Word not found in dictionary."
 
 
-def test_take_turn_with_word_already_used(started_game: Game,
-                                          sample_words: list[str]):  # pylint: disable=unused-argument
+def test_take_turn_with_word_already_used(
+    started_game: Game, sample_words: list[str]
+):  # pylint: disable=unused-argument
     with pytest.raises(ValidationError) as exec_info:
         started_game.turn_time_left = 10
         GameWord.objects.create(word=sample_words[0], game=started_game)
         session_key = started_game.current_player.session_key
         started_game.take_turn(session_key, sample_words[0])
-    assert exec_info.value.message == 'Word already used.'
+    assert exec_info.value.message == "Word already used."
 
 
-def test_take_turn_with_word_not_starting_with_last_word(started_game: Game,
-                                                         sample_words: list[str]):  # pylint: disable=unused-argument
+def test_take_turn_with_word_not_starting_with_last_word(
+    started_game: Game, sample_words: list[str]
+):  # pylint: disable=unused-argument
     with pytest.raises(ValidationError) as exec_info:
         started_game.turn_time_left = 10
         session_key = started_game.current_player.session_key
         started_game.take_turn(session_key, sample_words[2])
-    assert exec_info.value.message == 'Word must start with the last letter of the previous word.'
+    assert exec_info.value.message == "Word must start with the last letter of the previous word."
 
 
-def test_take_turn_with_word_not_long_enough(started_game: Game,
-                                             sample_words: list[str]):  # pylint: disable=unused-argument
+def test_take_turn_with_word_not_long_enough(
+    started_game: Game, sample_words: list[str]
+):  # pylint: disable=unused-argument
     with pytest.raises(ValidationError) as exec_info:
         started_game.turn_time_left = 10
         session_key = started_game.current_player.session_key
-        Word.objects.create(word='to')
+        Word.objects.create(word="to")
         started_game.take_turn(session_key, "to")
-    assert exec_info.value.message == 'Word must be at least 3 characters long.'
+    assert exec_info.value.message == "Word must be at least 3 characters long."
 
 
 def test_end_turn_updates_current_player_and_turn(started_game):

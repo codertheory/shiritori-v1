@@ -21,9 +21,9 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": env("POSTGRES_DB", default="shiritori"),
-        'OPTIONS': {
-            'service': 'my_service',
-            'passfile': '.my_pgpass',
+        "OPTIONS": {
+            "service": "my_service",
+            "passfile": ".my_pgpass",
         },
     }
 }
@@ -41,9 +41,7 @@ CACHES = {
 # EMAIL
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
-EMAIL_BACKEND = env(
-    "DJANGO_EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
-)
+EMAIL_BACKEND = env("DJANGO_EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend")
 
 # django-extensions
 # ------------------------------------------------------------------------------

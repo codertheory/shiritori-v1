@@ -9,8 +9,8 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework import status
 
 urlpatterns = [
-                  # Your stuff: custom urls includes go here
-              ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  # type: ignore
+    # Your stuff: custom urls includes go here
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 if settings.DEBUG:
     # Static file serving when using Gunicorn + Uvicorn for local web socket development
     urlpatterns += staticfiles_urlpatterns()

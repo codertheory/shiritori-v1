@@ -1,15 +1,15 @@
 import factory
 from pytest_factoryboy import register
 
-from shiritori.game.models import Game, GameStatus, Player, PlayerType, GameWord, Word, GameLocales, GameSettings
+from shiritori.game.models import Game, GameLocales, GameSettings, GameStatus, GameWord, Player, PlayerType, Word
 from shiritori.utils import generate_id
 
 __all__ = (
-    'GameSettingsFactory',
-    'PlayerFactory',
-    'GameFactory',
-    'GameWordFactory',
-    'WordFactory',
+    "GameSettingsFactory",
+    "PlayerFactory",
+    "GameFactory",
+    "GameWordFactory",
+    "WordFactory",
 )
 
 
@@ -18,15 +18,15 @@ class GameSettingsFactory(factory.django.DjangoModelFactory):
         model = GameSettings
 
     locale = GameLocales.EN
-    word_length = factory.Faker('pyint', min_value=3, max_value=5)
-    turn_time = factory.Faker('pyint', min_value=30, max_value=120)
-    max_turns = factory.Faker('pyint', min_value=5, max_value=20)
+    word_length = factory.Faker("pyint", min_value=3, max_value=5)
+    turn_time = factory.Faker("pyint", min_value=30, max_value=120)
+    max_turns = factory.Faker("pyint", min_value=5, max_value=20)
 
 
 class PlayerFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Player
-        django_get_or_create = ('id',)
+        django_get_or_create = ("id",)
 
     class Params:  # pylint: disable=too-few-public-methods
         human = factory.Trait(
@@ -43,15 +43,15 @@ class PlayerFactory(factory.django.DjangoModelFactory):
         )
 
     id = factory.LazyFunction(lambda: generate_id(5))
-    name = factory.Faker('name')
-    session_key = factory.Faker('uuid4')
+    name = factory.Faker("name")
+    session_key = factory.Faker("uuid4")
     type = PlayerType.HUMAN
 
 
 class GameFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Game
-        django_get_or_create = ('id',)
+        django_get_or_create = ("id",)
 
     class Params:  # pylint: disable=too-few-public-methods
         waiting = factory.Trait(
@@ -66,7 +66,7 @@ class GameFactory(factory.django.DjangoModelFactory):
 
     id = factory.LazyFunction(lambda: generate_id(5))
     status = GameStatus.WAITING
-    last_word = 't'
+    last_word = "t"
 
     @staticmethod
     @factory.post_generation
@@ -99,16 +99,22 @@ class GameFactory(factory.django.DjangoModelFactory):
 class GameWordFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = GameWord
-        django_get_or_create = ('word', 'game',)
+        django_get_or_create = (
+            "word",
+            "game",
+        )
 
-    word = factory.Faker('word')
+    word = factory.Faker("word")
 
 
 @register
 class WordFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Word
-        django_get_or_create = ('word', 'locale',)
+        django_get_or_create = (
+            "word",
+            "locale",
+        )
 
-    word = factory.Faker('word')
+    word = factory.Faker("word")
     locale = GameLocales.EN

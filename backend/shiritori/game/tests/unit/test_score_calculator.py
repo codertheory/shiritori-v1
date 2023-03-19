@@ -10,7 +10,7 @@ from shiritori.game.utils import calculate_score
         ("test", 10, 7),
         ("test", 15, 6),
         ("test", 20, 5),
-    ]
+    ],
 )
 def test_calculate_score(word, duration, expected_score):
     assert calculate_score(word, duration) == expected_score

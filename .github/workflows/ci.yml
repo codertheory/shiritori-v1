@@ -37,10 +37,6 @@ jobs:
             -   name: Ruff
                 run: |
                     ruff check $(git ls-files '*.py')
-            -   name: flake8
-                run: |
-                    cd backend
-                    poetry run flake8
             -   name: Black
                 run: |
                     cd backend

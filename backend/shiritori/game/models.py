@@ -1,9 +1,9 @@
 from typing import Iterable, Optional, Union
 
 from django.core.exceptions import ValidationError
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models, transaction
-from django.db.models import QuerySet, Sum, Q, Count, F
+from django.db.models import Count, F, Q, QuerySet, Sum
 
 from shiritori.game.events import send_game_updated
 from shiritori.game.utils import calculate_score, generate_random_letter, wait
@@ -12,59 +12,59 @@ from shiritori.utils.abstract_model import AbstractModel, NanoIdModel
 
 
 class GameStatus(models.TextChoices):
-    WAITING = 'WAITING', 'Waiting'
-    PLAYING = 'PLAYING', 'Playing'
-    FINISHED = 'FINISHED', 'Finished'
+    WAITING = "WAITING", "Waiting"
+    PLAYING = "PLAYING", "Playing"
+    FINISHED = "FINISHED", "Finished"
 
 
 class GameLocales(models.TextChoices):
-    EN = 'en', 'English'
+    EN = "en", "English"
 
 
 class PlayerType(models.TextChoices):
-    HUMAN = 'HUMAN', 'human'
-    BOT = 'BOT', 'bot'
-    SPECTATOR = 'SPECTATOR', 'spectator'
-    WINNER = 'WINNER', 'winner'
+    HUMAN = "HUMAN", "human"
+    BOT = "BOT", "bot"
+    SPECTATOR = "SPECTATOR", "spectator"
+    WINNER = "WINNER", "winner"
 
 
-class Game(AbstractModel):  # pylint: disable=too-many-public-methods
-    id: int = NanoIdField(max_length=5)
-    status: str = models.CharField(
+class Game(AbstractModel):
+    id = NanoIdField(max_length=5)
+    status = models.CharField(
         max_length=8,
         choices=GameStatus.choices,
         default=GameStatus.WAITING,
     )
-    current_turn: int = models.IntegerField(default=0)
-    settings: Optional['GameSettings'] = models.ForeignKey(
-        'GameSettings',
+    current_turn = models.IntegerField(default=0)
+    settings = models.ForeignKey(
+        "GameSettings",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
     )
-    turn_time_left: int = models.IntegerField(default=0)
-    last_word: str = models.CharField(max_length=255, null=True, blank=True, default=generate_random_letter)
+    turn_time_left = models.IntegerField(default=0)
+    last_word = models.CharField(max_length=255, null=True, blank=True, default=generate_random_letter)
 
     class Meta:
-        ordering = ('-created_at',)
-        db_table = 'game'
+        ordering = ("-created_at",)
+        db_table = "game"
 
     def __str__(self) -> str:
-        return f'Game {self.id}'
+        return f"Game {self.id}"
 
     @staticmethod
-    def get_start_able_games() -> 'QuerySet[Game]':
+    def get_start_able_games() -> "QuerySet[Game]":
         """
         Get a QuerySet of games that can be started.
         :return: QuerySet[Game]
         """
         player_filter = Q(player__type=PlayerType.HUMAN) | Q(player__type=PlayerType.BOT)
-        return Game.objects.annotate(
-            total_players=Count('player', filter=player_filter)
-        ).filter(status=GameStatus.WAITING, total_players=2)
+        return Game.objects.annotate(total_players=Count("player", filter=player_filter)).filter(
+            status=GameStatus.WAITING, total_players=2
+        )
 
     @staticmethod
-    def get_startable_game_by_id(game_id: str) -> 'QuerySet[Game]':
+    def get_startable_game_by_id(game_id: str) -> "QuerySet[Game]":
         """
         Get a queryset of a Game that can be started by ID.
         :param game_id: str - Game ID
@@ -73,36 +73,36 @@ class Game(AbstractModel):  # pylint: disable=too-many-public-methods
         return Game.get_start_able_games().filter(id=game_id)
 
     @property
-    def players(self) -> 'QuerySet[Player]':
+    def players(self) -> "QuerySet[Player]":
         return self.player_set.all().exclude(type=PlayerType.SPECTATOR)
 
     @property
-    def words(self) -> 'QuerySet[GameWord]':
+    def words(self) -> "QuerySet[GameWord]":
         return self.gameword_set.all()
 
     @property
-    def host(self) -> Optional['Player']:
+    def host(self) -> Optional["Player"]:
         return self.player_set.filter(is_host=True).first()
 
     @property
-    def current_player(self) -> Optional['Player']:
+    def current_player(self) -> Optional["Player"]:
         return self.player_set.filter(is_current=True).first()
 
     @current_player.setter
-    def current_player(self, value: 'Player') -> None:
+    def current_player(self, value: "Player") -> None:
         self.player_set.filter().update(is_current=False)
         value.is_current = True
-        value.save(update_fields=['is_current'])
+        value.save(update_fields=["is_current"])
 
     @property
-    def winner(self) -> Optional['Player']:
+    def winner(self) -> Optional["Player"]:
         return self.player_set.filter(type=PlayerType.WINNER).first()
 
     @winner.setter
-    def winner(self, value: 'Player') -> None:
+    def winner(self, value: "Player") -> None:
         self.player_set.filter(type=PlayerType.WINNER).update(type=PlayerType.HUMAN)
         value.type = PlayerType.WINNER
-        value.save(update_fields=['type'])
+        value.save(update_fields=["type"])
 
     @property
     def player_count(self) -> int:
@@ -113,7 +113,7 @@ class Game(AbstractModel):  # pylint: disable=too-many-public-methods
         return self.gameword_set.count()
 
     @property
-    def last_used_word(self) -> Optional['GameWord']:
+    def last_used_word(self) -> Optional["GameWord"]:
         return self.gameword_set.last()
 
     @property
@@ -129,10 +129,10 @@ class Game(AbstractModel):  # pylint: disable=too-many-public-methods
         return self.status == GameStatus.PLAYING
 
     @property
-    def leaderboard(self) -> QuerySet['Player']:
+    def leaderboard(self) -> QuerySet["Player"]:
         return self.player_set.annotate(
-            total_score=Sum('gameword__score'),
-        ).order_by('-total_score')
+            total_score=Sum("gameword__score"),
+        ).order_by("-total_score")
 
     def save(
         self,
@@ -152,25 +152,30 @@ class Game(AbstractModel):  # pylint: disable=too-many-public-methods
             has_settings_changed
             and update_fields
             and isinstance(update_fields, list)
-            and 'settings' not in update_fields
+            and "settings" not in update_fields
         ):
-            update_fields.append('settings')
+            update_fields.append("settings")
         super().save(force_insert, force_update, using, update_fields)
 
-    def join(self, player: Union['Player', str]) -> 'Player':
+    def join(self, player: Union["Player", str]) -> "Player":
         """Add a player to the game."""
         if self.is_started or self.is_finished:
-            raise ValidationError('Game has already started or is finished.')
+            raise ValidationError("Game has already started or is finished.")
         if isinstance(player, str):
-            player = Player(name=player, game=self, type=PlayerType.HUMAN, is_host=self.player_count == 0)
+            player = Player(
+                name=player,
+                game=self,
+                type=PlayerType.HUMAN,
+                is_host=self.player_count == 0,
+            )
         else:
             player.game = self
             player.type = PlayerType.HUMAN
             player.is_host = self.player_count == 0
-        player.save(update_fields=['name', 'game', 'type', 'session_key', 'is_host'])
+        player.save(update_fields=["name", "game", "type", "session_key", "is_host"])
         return player
 
-    def leave(self, player: Union['Player', str]) -> None:
+    def leave(self, player: Union["Player", str]) -> None:
         """Remove a player from the game."""
         if isinstance(player, str):
             player = self.player_set.get(session_key=player)
@@ -185,7 +190,7 @@ class Game(AbstractModel):  # pylint: disable=too-many-public-methods
                 self.calculate_current_player(save=False)
             except ValidationError:
                 self.status = GameStatus.FINISHED
-        self.save(update_fields=['status'])
+        self.save(update_fields=["status"])
 
     def start(self, session_key: str = None, *, save: bool = True) -> None:
         """
@@ -196,16 +201,16 @@ class Game(AbstractModel):  # pylint: disable=too-many-public-methods
         :raises ValidationError: If there are less than 2 players in the game.
         """
         if self.status != GameStatus.WAITING:
-            raise ValidationError('Cannot start a game that is not waiting.')
+            raise ValidationError("Cannot start a game that is not waiting.")
         if session_key and self.host.session_key != session_key:
-            raise ValidationError('Only the host can start the game.')
+            raise ValidationError("Only the host can start the game.")
         if self.player_count < 2:
-            raise ValidationError('Cannot start a game with less than 2 players.')
+            raise ValidationError("Cannot start a game with less than 2 players.")
         self.status = GameStatus.PLAYING
         self.calculate_current_player(save=False)
         self.turn_time_left = self.settings.turn_time
         if save:
-            self.save(update_fields=['status', 'turn_time_left'])
+            self.save(update_fields=["status", "turn_time_left"])
 
     def calculate_current_player(self, *, save: bool = True) -> None:
         """
@@ -216,9 +221,9 @@ class Game(AbstractModel):  # pylint: disable=too-many-public-methods
         """
         player_count = self.player_count
         if player_count == 0:
-            raise ValidationError('Cannot calculate current player when there are no players.')
+            raise ValidationError("Cannot calculate current player when there are no players.")
         if player_count == 1:
-            raise ValidationError('Cannot calculate current player when there is only 1 player.')
+            raise ValidationError("Cannot calculate current player when there is only 1 player.")
 
         self.current_player = self.players[self.current_turn % self.player_count]
 
@@ -237,13 +242,13 @@ class Game(AbstractModel):  # pylint: disable=too-many-public-methods
 
         # If no players raise ValidationError
         if not players.exists():
-            raise ValidationError('Cannot recalculate host when there are no players.')
+            raise ValidationError("Cannot recalculate host when there are no players.")
 
         if not host:
             if first := self.players.first():
                 first.is_host = True
                 if save:
-                    first.save(update_fields=['is_host'])
+                    first.save(update_fields=["is_host"])
 
     def can_take_turn(self, session_key: str, *, timeout: bool = False) -> None:
         """
@@ -259,11 +264,11 @@ class Game(AbstractModel):  # pylint: disable=too-many-public-methods
         :raises ValidationError: If the player cannot take a turn.
         """
         if self.status != GameStatus.PLAYING:
-            raise ValidationError('Game is not in progress.')
+            raise ValidationError("Game is not in progress.")
         if self.current_player.session_key != session_key:
-            raise ValidationError('It is not your turn.')
+            raise ValidationError("It is not your turn.")
         if not timeout and self.turn_time_left <= 0:
-            raise ValidationError('Turn time has expired.')
+            raise ValidationError("Turn time has expired.")
 
     def take_turn(self, session_key: str, word: str | None, *, save: bool = True) -> None:
         """
@@ -294,7 +299,7 @@ class Game(AbstractModel):  # pylint: disable=too-many-public-methods
             if self.current_turn + 1 > self.settings.max_turns:
                 self.status = GameStatus.FINISHED
                 self.winner = self.leaderboard.first()
-                self.save(update_fields=['status', 'last_word', 'current_turn'])
+                self.save(update_fields=["status", "last_word", "current_turn"])
                 return
             self.current_turn += 1
             self.calculate_current_player(save=False)
@@ -302,9 +307,9 @@ class Game(AbstractModel):  # pylint: disable=too-many-public-methods
             if save:
                 self.save(
                     update_fields=[
-                        'current_turn',
-                        'last_word',
-                        'turn_time_left',
+                        "current_turn",
+                        "last_word",
+                        "turn_time_left",
                     ]
                 )
 
@@ -320,7 +325,7 @@ class Game(AbstractModel):  # pylint: disable=too-many-public-methods
         """
         self.take_turn(self.current_player.session_key, None)
 
-    def get_winner(self) -> Optional['Player']:
+    def get_winner(self) -> Optional["Player"]:
         """
         Get the winner of the game.
         To be called when the game is finished.
@@ -330,9 +335,9 @@ class Game(AbstractModel):  # pylint: disable=too-many-public-methods
         :raises ValidationError: If the game is not finished or started.
         """
         if not self.is_finished:
-            raise ValidationError('Cannot get winner of a game that is not finished.')
+            raise ValidationError("Cannot get winner of a game that is not finished.")
         if not self.is_started:
-            raise ValidationError('Cannot get winner of a game that has not started.')
+            raise ValidationError("Cannot get winner of a game that has not started.")
 
         return self.leaderboard.first()
 
@@ -361,7 +366,7 @@ class Game(AbstractModel):  # pylint: disable=too-many-public-methods
 class Player(AbstractModel, NanoIdModel):
     name = models.CharField(max_length=255)
     game = models.ForeignKey(
-        'Game',
+        "Game",
         on_delete=models.CASCADE,
         null=True,
     )
@@ -375,25 +380,40 @@ class Player(AbstractModel, NanoIdModel):
     session_key = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:
-        db_table = 'player'
+        db_table = "player"
         constraints = [
-            models.UniqueConstraint(name='unique_session_key', fields=['game', 'session_key'], ),
-            models.UniqueConstraint(name='unique_name', fields=['game', 'name'], ),
+            models.UniqueConstraint(
+                name="unique_session_key",
+                fields=["game", "session_key"],
+            ),
+            models.UniqueConstraint(
+                name="unique_name",
+                fields=["game", "name"],
+            ),
             # There can only be one current player per game.
-            models.UniqueConstraint(name='unique_current_player', fields=['game', 'is_current'],
-                                    condition=models.Q(is_current=True)),
+            models.UniqueConstraint(
+                name="unique_current_player",
+                fields=["game", "is_current"],
+                condition=models.Q(is_current=True),
+            ),
             # There can only be one host per game.
-            models.UniqueConstraint(name='unique_host', fields=['game', 'is_host'], condition=models.Q(is_host=True)),
+            models.UniqueConstraint(
+                name="unique_host",
+                fields=["game", "is_host"],
+                condition=models.Q(is_host=True),
+            ),
             # There can only be one winner per game.
-            models.UniqueConstraint(name='unique_winner',
-                                    fields=['game', 'type'], condition=models.Q(type=PlayerType.WINNER),
-                                    ),
+            models.UniqueConstraint(
+                name="unique_winner",
+                fields=["game", "type"],
+                condition=models.Q(type=PlayerType.WINNER),
+            ),
         ]
-        ordering = ['created_at']
+        ordering = ["created_at"]
         indexes = [
-            models.Index(fields=['game', 'type']),
-            models.Index(fields=['game', 'session_key']),
-            models.Index(fields=['game', 'name'])
+            models.Index(fields=["game", "type"]),
+            models.Index(fields=["game", "session_key"]),
+            models.Index(fields=["game", "name"]),
         ]
 
     def __str__(self):
@@ -401,15 +421,15 @@ class Player(AbstractModel, NanoIdModel):
 
     @property
     def score(self):
-        result = self.gameword_set.aggregate(models.Sum('score')).get('score__sum') or 0
+        result = self.gameword_set.aggregate(models.Sum("score")).get("score__sum") or 0
         return int(round(result, 0))
 
     @property
-    def words(self) -> 'QuerySet[GameWord]':
+    def words(self) -> "QuerySet[GameWord]":
         return self.gameword_set.all()
 
     @classmethod
-    def get_by_session_key(cls, game_id: str, session_key: str) -> Optional['Player']:
+    def get_by_session_key(cls, game_id: str, session_key: str) -> Optional["Player"]:
         """
         Get a player by their session key.
         :param game_id: The game id of the player.
@@ -423,11 +443,11 @@ class GameWord(NanoIdModel):
     word = models.CharField(max_length=255, null=True, blank=True)
     score = models.FloatField(default=0)
     game = models.ForeignKey(
-        'Game',
+        "Game",
         on_delete=models.CASCADE,
     )
     player = models.ForeignKey(
-        'Player',
+        "Player",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -435,16 +455,19 @@ class GameWord(NanoIdModel):
     duration = models.FloatField(default=0)
 
     class Meta:
-        db_table = 'game_word'
+        db_table = "game_word"
         indexes = [
-            models.Index(fields=['game', 'player']),
-            models.Index(fields=['game', 'word']),
-            models.Index(fields=['game', 'score']),
-            models.Index(fields=['player', 'score', 'word'])
+            models.Index(fields=["game", "player"]),
+            models.Index(fields=["game", "word"]),
+            models.Index(fields=["game", "score"]),
+            models.Index(fields=["player", "score", "word"]),
         ]
         constraints = [
-            models.UniqueConstraint(name='unique_word', fields=['game', 'word'],
-                                    condition=models.Q(word__isnull=False)),
+            models.UniqueConstraint(
+                name="unique_word",
+                fields=["game", "word"],
+                condition=models.Q(word__isnull=False),
+            ),
         ]
 
     @property
@@ -462,7 +485,7 @@ class GameWord(NanoIdModel):
             self.word = self.word.lower()  # Normalize the word.
             self.score = self.calculated_score
         else:
-            self.score = -.25 * self.duration
+            self.score = -0.25 * self.duration
         super().save(force_insert, force_update, using, update_fields)
 
     def validate(self, *, raise_exception: bool = False) -> bool:
@@ -478,13 +501,13 @@ class GameWord(NanoIdModel):
         """
         error_message = None
         if self.game.last_word and self.word[0] != self.game.last_word[-1]:
-            error_message = 'Word must start with the last letter of the previous word.'
+            error_message = "Word must start with the last letter of the previous word."
         if self.game.gameword_set.filter(word=self.word).exists():
-            error_message = 'Word already used.'
+            error_message = "Word already used."
         if len(self.word) < self.game.settings.word_length:
-            error_message = f'Word must be at least {self.game.settings.word_length} characters long.'
+            error_message = f"Word must be at least {self.game.settings.word_length} characters long."
         if not Word.validate(self.word, self.game.settings.locale):
-            error_message = 'Word not found in dictionary.'
+            error_message = "Word not found in dictionary."
         if error_message and raise_exception:
             raise ValidationError(error_message)
         return error_message is None
@@ -497,17 +520,17 @@ class GameSettings(NanoIdModel):
     max_turns = models.IntegerField(default=10, validators=[MinValueValidator(5), MaxValueValidator(20)])
 
     class Meta:
-        db_table = 'game_settings'
+        db_table = "game_settings"
 
     @staticmethod
     def get_default_settings() -> dict:
         all_fields = GameSettings._meta.get_fields()  # noqa pylint: disable=protected-access
-        fields = filter(lambda f: hasattr(f, 'default') and f.name != 'id', all_fields)
+        fields = filter(lambda f: hasattr(f, "default") and f.name != "id", all_fields)
         # inspect the fields and create a dict of the defaults.
         return {field.name: field.default for field in fields}
 
     @classmethod
-    def from_defaults(cls) -> 'GameSettings':
+    def from_defaults(cls) -> "GameSettings":
         return cls.objects.create(**cls.get_default_settings())
 
 
@@ -516,14 +539,14 @@ class Word(models.Model):
     locale = models.CharField(max_length=10, choices=GameLocales.choices, default=GameLocales.EN)
 
     class Meta:
-        db_table = 'word'
+        db_table = "word"
         indexes = [
-            models.Index(fields=['word', 'locale']),
-            models.Index(fields=['locale']),
-            models.Index(fields=['word']),
+            models.Index(fields=["word", "locale"]),
+            models.Index(fields=["locale"]),
+            models.Index(fields=["word"]),
         ]
         constraints = [
-            models.UniqueConstraint(name='unique_word_locale', fields=['word', 'locale']),
+            models.UniqueConstraint(name="unique_word_locale", fields=["word", "locale"]),
         ]
 
     def __str__(self):

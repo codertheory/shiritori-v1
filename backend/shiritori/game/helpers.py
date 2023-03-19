@@ -5,7 +5,7 @@ from djangorestframework_camel_case.settings import api_settings
 from djangorestframework_camel_case.util import camelize
 from rest_framework.utils.serializer_helpers import ReturnDict
 
-from shiritori.game.models import Player, Game
+from shiritori.game.models import Game, Player
 from shiritori.game.serializers import ShiritoriGameSerializer, ShiritoriPlayerSerializer
 
 __all__ = (

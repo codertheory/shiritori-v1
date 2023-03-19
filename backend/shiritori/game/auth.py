@@ -1,6 +1,5 @@
 from drf_spectacular.extensions import OpenApiAuthenticationExtension
-from rest_framework import authentication
-from rest_framework import exceptions
+from rest_framework import authentication, exceptions
 
 
 class RequiresSessionAuth(authentication.BaseAuthentication):

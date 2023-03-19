@@ -1,4 +1,4 @@
-from celery import shared_task, Task
+from celery import Task, shared_task
 from channels.exceptions import ChannelFull
 from django.db import OperationalError
 
@@ -47,7 +47,6 @@ def game_worker_task(self: Task, game_id):
     time_limit=TASK_TIME_LIMIT,
     soft_time_limit=TASK_TIME_LIMIT,
     ignore_result=True,
-
 )
 def start_game_task(game_id):
     game = Game.get_startable_game_by_id(game_id)
