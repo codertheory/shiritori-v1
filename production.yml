@@ -11,7 +11,7 @@ services:
             context: .
             dockerfile: compose/production/django/Dockerfile
 
-        image: backend_production_django
+        image: lucascluk/shiritori:backend_production_django
         depends_on:
             - postgres
             - redis
@@ -25,7 +25,7 @@ services:
         build:
             context: .
             dockerfile: compose/production/postgres/Dockerfile
-        image: backend_production_postgres
+        image: lucascluk/shiritori:backend_production_postgres
         volumes:
             - production_postgres_data:/var/lib/postgresql/data
             - production_postgres_data_backups:/backups
@@ -36,7 +36,7 @@ services:
         build:
             context: .
             dockerfile: compose/production/traefik/Dockerfile
-        image: backend_production_traefik
+        image: lucascluk/shiritori:backend_production_traefik
         depends_on:
             - django
             - nuxt
@@ -52,16 +52,16 @@ services:
 
     celeryworker:
         <<: *django
-        image: backend_production_celeryworker
+        image: lucascluk/shiritori:backend_production_celeryworker
         command: /start-celeryworker
 
     celerybeat:
         <<: *django
-        image: backend_production_celerybeat
+        image: lucascluk/shiritori:backend_production_celerybeat
         command: /start-celerybeat
 
     nuxt:
         build:
             context: .
             dockerfile: compose/production/nuxt/Dockerfile
-        image: frontend_local_nuxt
+        image: lucascluk/shiritori:frontend_local_nuxt
