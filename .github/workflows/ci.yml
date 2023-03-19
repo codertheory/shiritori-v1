@@ -92,3 +92,23 @@ jobs:
                 run: |
                     cd backend
                     poetry run pytest
+
+
+    build: # Build docker images and push to docker hub
+        needs: test
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout Code Repository
+                uses: actions/checkout@v3
+
+            -   name: Build Docker Images
+                run: |
+                    docker-compose -f docker-compose.production.yml build
+            -   name: Login to Docker Hub
+                uses: docker/login-action@v2
+                with:
+                    username: ${{ secrets.DOCKER_USERNAME }}
+                    password: ${{ secrets.DOCKER_PASSWORD }}
+            -   name: Push Docker Images
+                run: |
+                    docker-compose -f docker-compose.production.yml push

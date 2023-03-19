@@ -5,5 +5,5 @@ set -o pipefail
 set -o nounset
 
 RUN python manage.py migrate
-
+RUN python manage.py update_dictionary en
 exec /usr/local/bin/daphne config.asgi:application --b 0.0.0.0

@@ -38,8 +38,3 @@ REDIS_URL=redis://redis:6379/0
 
 # Celery
 # ------------------------------------------------------------------------------
-
-# Flower
-CELERY_FLOWER_USER=ykIzIJNfvEdhoONqRPcJYbubAyVgjSCH
-CELERY_FLOWER_PASSWORD=mDHZzGv9gsZcbFPfBa0xpLtxHzDUUfgpYMqjtU9DU0XyzmSwU2phSlgzpEp3hx3K
-

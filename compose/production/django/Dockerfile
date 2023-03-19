@@ -1,4 +1,4 @@
-ARG PYTHON_VERSION=3.10-slim-bullseye
+ARG PYTHON_VERSION=3.11-slim-bullseye
 
 
 
@@ -9,7 +9,7 @@ FROM python:${PYTHON_VERSION} as python
 FROM python as python-build-stage
 
 ARG BUILD_ENVIRONMENT=production
-
+ENV POETRY_VERSION=1.4.0
 # Install apt packages
 RUN apt-get update && apt-get install --no-install-recommends -y \
   # dependencies for building Python packages
@@ -17,12 +17,12 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
   # psycopg2 dependencies
   libpq-dev
 
-# Requirements are installed here to ensure they will be cached.
-COPY ./backend/requirements .
-
-# Create Python Dependency and Sub-Dependency Wheels.
-RUN pip wheel --wheel-dir /usr/src/app/wheels  \
-  -r ${BUILD_ENVIRONMENT}.txt
+RUN pip install "poetry==${POETRY_VERSION}"
+COPY ./backend .
+RUN python -m venv /venv
+RUN poetry config virtualenvs.in-project true && \
+    poetry install --with production --no-root && \
+    poetry build
 
 
 # Python 'run' stage
@@ -53,12 +53,10 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 # All absolute dir copies ignore workdir instruction. All relative dir copies are wrt to the workdir instruction
 # copy python dependency wheels from python-build-stage
-COPY --from=python-build-stage /usr/src/app/wheels  /wheels/
-
-# use wheels to install python dependencies
-RUN pip install --no-cache-dir --no-index --find-links=/wheels/ /wheels/* \
-  && rm -rf /wheels/
-
+COPY --from=python-build-stage /venv /venv
+COPY --from=python-build-stage /dist .
+RUN /venv/bin/pip install *.whl
+RUN chown django:django /venv
 
 COPY --chown=django:django ./compose/production/django/entrypoint /entrypoint
 RUN sed -i 's/\r$//g' /entrypoint

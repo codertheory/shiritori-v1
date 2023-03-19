@@ -21,6 +21,7 @@ services:
         command: /start
 
     postgres:
+        hostname: postgres
         build:
             context: .
             dockerfile: compose/production/postgres/Dockerfile
