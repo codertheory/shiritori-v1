@@ -3,9 +3,9 @@ from django.core.management import BaseCommand
 from shiritori.game.models import Word
 
 
-def chunk_list(l, n):
-    for i in range(0, len(l), n):
-        yield l[i:i + n]
+def chunk_list(iterable, n):
+    for i in range(0, len(iterable), n):
+        yield iterable[i:i + n]
 
 
 class Command(BaseCommand):

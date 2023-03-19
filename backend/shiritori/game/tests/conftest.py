@@ -4,8 +4,8 @@ from asgiref.sync import sync_to_async
 from channels.testing import WebsocketCommunicator
 from django.db.models.signals import post_save, post_delete
 from pytest_factoryboy import register
-from rest_framework.test import APIClient
 from pytest_mock import MockerFixture
+from rest_framework.test import APIClient
 
 from shiritori.game.consumers import GameLobbyConsumer, GameConsumer
 from shiritori.game.models import Game, GameStatus, GameSettings
@@ -91,6 +91,6 @@ async def game_consumer(mocker: MockerFixture):
 
 
 @pytest.fixture(autouse=True)  # Automatically use in tests.
-def mute_signals(request):
+def mute_signals():
     post_save.receivers = []
     post_delete.receivers = []

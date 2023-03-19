@@ -165,7 +165,7 @@ CORS_ALLOW_CREDENTIALS = True
 if RENDER_EXTERNAL_HOSTNAME := env("RENDER_EXTERNAL_HOSTNAME", default=""):
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
     ALLOWED_HOSTS.append('127.0.0.1')
-    SPECTACULAR_SETTINGS["SERVERS"].append(
+    SPECTACULAR_SETTINGS["SERVERS"].append(  # noqa F405
         {"url": f"https://{RENDER_EXTERNAL_HOSTNAME}", "description": "Render server"}
     )
 

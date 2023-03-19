@@ -6,23 +6,23 @@ from shiritori.game.models import Game, Player, GameWord
 
 
 @receiver(post_save, sender=Game)
-def game_post_save(sender, instance: Game, created, **kwargs):  # pylint: disable=unused-argument
+def game_post_save(sender, instance: Game, created, **kwargs):
     send_game_updated(instance)
     send_lobby_update(instance, update_type="game_updated" if created else "game_created")
 
 
 @receiver(post_save, sender=Player)
-def player_post_save(sender, instance: Player, created, **kwargs):  # pylint: disable=unused-argument
+def player_post_save(sender, instance: Player, created, **kwargs):
     send_game_updated(instance.game)
     send_lobby_update(instance.game, update_type="player_updated" if created else "player_created")
 
 
 @receiver(post_delete, sender=Player)
-def player_post_delete(sender, instance: Player, **kwargs):  # pylint: disable=unused-argument
+def player_post_delete(sender, instance: Player, **kwargs):
     send_game_updated(instance.game)
 
 
 @receiver(post_save, sender=GameWord)
-def game_word_post_save(sender, instance: GameWord, created, **kwargs):  # pylint: disable=unused-argument
+def game_word_post_save(sender, instance: GameWord, created, **kwargs):
     if created:
         send_game_updated(instance.game)

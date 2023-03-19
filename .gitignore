@@ -346,3 +346,4 @@ schema.yml
 /.idea/codeStyles/codeStyleConfig.xml
 /.idea/codeStyles/Project.xml
 /backend/.my_pgpass
+.ruff_cache/
