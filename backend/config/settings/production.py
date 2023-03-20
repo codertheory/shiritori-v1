@@ -150,3 +150,9 @@ CORS_ALLOWED_ORIGINS = [
     "https://www.shiritoriwithfriends.com",
 ]
 CORS_ALLOW_CREDENTIALS = True
+
+# CSRF
+# ------------------------------------------------------------------------------
+CSRF_TRUSTED_ORIGINS = [
+    "https://shiritoriwithfriends.com",
+]
