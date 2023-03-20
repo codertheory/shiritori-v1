@@ -5,4 +5,4 @@ set -o pipefail
 set -o nounset
 
 echo "Starting daphne"
-daphne --fd 5 config.asgi:application --b 0.0.0.0 --access-log -
+daphne config.asgi:application --b 0.0.0.0 --access-log -
