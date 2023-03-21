@@ -285,3 +285,4 @@ SPECTACULAR_SETTINGS = {
 # Your stuff...
 # ------------------------------------------------------------------------------
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+LOAD_DICTIONARY_KEY = env("LOAD_DICTIONARY_KEY", default="load_dictionary")

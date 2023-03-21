@@ -3,12 +3,13 @@ from channels.exceptions import ChannelFull
 from django.db import OperationalError
 
 from shiritori.game.events import send_game_updated
-from shiritori.game.models import Game
+from shiritori.game.models import Game, Word
 
 __all__ = (
     "send_game_updated_task",
     "game_worker_task",
     "start_game_task",
+    "load_dictionary_task",
 )
 
 TASK_TIME_LIMIT = 60 * 60 * 24  # 24 hours
@@ -55,3 +56,13 @@ def start_game_task(game_id):
     game.first().start()
     send_game_updated_task.delay(game_id)
     game_worker_task.delay(game_id)
+
+
+@shared_task(
+    time_limit=TASK_TIME_LIMIT,
+    soft_time_limit=TASK_TIME_LIMIT,
+    ignore_result=True,
+)
+def load_dictionary_task(locale: str = 'en'):
+    words = Word.load_dictionary(locale)
+    return {"status": "success", "word_count": len(words), "locale": locale}

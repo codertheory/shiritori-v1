@@ -1,12 +1,14 @@
+import typing
 from typing import Iterable, Optional, Union
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models, transaction
 from django.db.models import Count, F, Q, QuerySet, Sum
 
 from shiritori.game.events import send_game_updated
-from shiritori.game.utils import calculate_score, generate_random_letter, wait
+from shiritori.game.utils import calculate_score, generate_random_letter, wait, chunk_list
 from shiritori.utils import NanoIdField
 from shiritori.utils.abstract_model import AbstractModel, NanoIdModel
 
@@ -556,3 +558,20 @@ class Word(models.Model):
     def validate(cls, word: str, locale: GameLocales | str = GameLocales.EN) -> bool:
         """Validate that the word is in the dictionary for the given locale."""
         return cls.objects.filter(word__iexact=word, locale=locale).exists()
+
+    @staticmethod
+    def load_dictionary(locale: GameLocales | str = GameLocales.EN) -> typing.List["Word"]:
+        """Load the dictionary for the given locale."""
+        with open(f"{settings.BASE_DIR}/dictionaries/{locale}.txt", 'r', encoding='utf-8') as f:
+            words = f.read().splitlines()
+        created_words = []
+        # Batch insert the words into the database in chunks of 1000
+        for chunk in chunk_list(words, 1000):
+            created_words.extend(
+                Word.objects.bulk_create(
+                    [Word(word=word, locale=locale) for word in chunk],
+                    batch_size=1000,
+                    ignore_conflicts=True,
+                )
+            )
+        return created_words

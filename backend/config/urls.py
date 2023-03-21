@@ -9,8 +9,8 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework import status
 
 urlpatterns = [
-    # Your stuff: custom urls includes go here
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+                  # Your stuff: custom urls includes go here
+              ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 if settings.DEBUG:
     # Static file serving when using Gunicorn + Uvicorn for local web socket development
     urlpatterns += staticfiles_urlpatterns()
@@ -33,12 +33,26 @@ def health_check(request: ASGIRequest):
     return JsonResponse({"status": "ok"}, status=status.HTTP_200_OK)
 
 
+def load_dictionary_view(request: ASGIRequest):
+    """
+    This will be `/load-dictionary/` on `urls.py`
+    """
+    key = request.GET.get("key")
+    locale = request.GET.get("locale", "en")
+    if key != settings.LOAD_DICTIONARY_KEY:
+        return JsonResponse({"status": "error"}, status=status.HTTP_403_FORBIDDEN)
+    from shiritori.game.tasks import load_dictionary_task
+    load_dictionary_task.delay(locale)
+    return JsonResponse({"status": "ok"}, status=status.HTTP_200_OK)
+
+
 # API URLS
 urlpatterns += [
     # API base url
     path("health/", health_check, name="health-check"),
     path("api/", include("config.api_router")),
     path("api/set-csrf-cookie/", set_csrf_token, name="set-csrf-cookie"),
+    path("api/load-dictionary/", load_dictionary_view, name="load-dictionary"),
     # DRF auth token
     path("api/schema/", SpectacularAPIView.as_view(), name="api-schema"),
     path(

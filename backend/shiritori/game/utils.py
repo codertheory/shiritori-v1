@@ -11,6 +11,11 @@ LENGTH_MODIFIER = 1.25
 DURATION_MODIFIERS = {5: 1.8, 10: 1.5, 15: 1.2}
 
 
+def chunk_list(iterable, n):
+    for i in range(0, len(iterable), n):
+        yield iterable[i: i + n]
+
+
 def calculate_score(word: str, duration: int | float) -> float:
     """
     Calculate the score for a word.
