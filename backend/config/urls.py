@@ -9,8 +9,8 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework import status
 
 urlpatterns = [
-                  # Your stuff: custom urls includes go here
-              ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    # Your stuff: custom urls includes go here
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 if settings.DEBUG:
     # Static file serving when using Gunicorn + Uvicorn for local web socket development
     urlpatterns += staticfiles_urlpatterns()
@@ -42,6 +42,7 @@ def load_dictionary_view(request: ASGIRequest):
     if key != settings.LOAD_DICTIONARY_KEY:
         return JsonResponse({"status": "error"}, status=status.HTTP_403_FORBIDDEN)
     from shiritori.game.tasks import load_dictionary_task
+
     load_dictionary_task.delay(locale)
     return JsonResponse({"status": "ok"}, status=status.HTTP_200_OK)
 

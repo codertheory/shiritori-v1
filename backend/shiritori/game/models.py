@@ -8,7 +8,7 @@ from django.db import models, transaction
 from django.db.models import Count, F, Q, QuerySet, Sum
 
 from shiritori.game.events import send_game_updated
-from shiritori.game.utils import calculate_score, generate_random_letter, wait, chunk_list
+from shiritori.game.utils import calculate_score, chunk_list, generate_random_letter, wait
 from shiritori.utils import NanoIdField
 from shiritori.utils.abstract_model import AbstractModel, NanoIdModel
 
@@ -562,7 +562,7 @@ class Word(models.Model):
     @staticmethod
     def load_dictionary(locale: GameLocales | str = GameLocales.EN) -> typing.List["Word"]:
         """Load the dictionary for the given locale."""
-        with open(f"{settings.BASE_DIR}/dictionaries/{locale}.txt", 'r', encoding='utf-8') as f:
+        with open(f"{settings.BASE_DIR}/dictionaries/{locale}.txt", "r", encoding="utf-8") as f:
             words = f.read().splitlines()
         created_words = []
         # Batch insert the words into the database in chunks of 1000

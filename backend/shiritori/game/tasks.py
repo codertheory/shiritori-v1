@@ -63,6 +63,6 @@ def start_game_task(game_id):
     soft_time_limit=TASK_TIME_LIMIT,
     ignore_result=True,
 )
-def load_dictionary_task(locale: str = 'en'):
+def load_dictionary_task(locale: str = "en"):
     words = Word.load_dictionary(locale)
     return {"status": "success", "word_count": len(words), "locale": locale}
