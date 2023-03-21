@@ -131,9 +131,10 @@ sentry_sdk.init(
 # -------------------------------------------------------------------------------
 # Tools that generate code samples can use SERVERS to point to the correct domain
 SPECTACULAR_SETTINGS["SERVERS"] = [  # noqa F405
-    {"url": env.str("DJANGO_SPECTACULAR_SERVER",
-                    default="https://api.shiritoriwithfriends.com"),
-     "description": "Production server"}
+    {
+        "url": env.str("DJANGO_SPECTACULAR_SERVER", default="https://api.shiritoriwithfriends.com"),
+        "description": "Production server",
+    }
 ]
 # Your stuff...
 # ------------------------------------------------------------------------------
@@ -152,14 +153,20 @@ SESSION_COOKIE_DOMAIN = env.str("SESSION_COOKIE_DOMAIN", default=".shiritoriwith
 
 # CORS
 # ------------------------------------------------------------------------------
-CORS_ALLOWED_ORIGINS = env.list("DJANGO_CORS_ALLOWED_ORIGINS", default=[
-    "https://shiritoriwithfriends.com",
-    "https://www.shiritoriwithfriends.com",
-])
+CORS_ALLOWED_ORIGINS = env.list(
+    "DJANGO_CORS_ALLOWED_ORIGINS",
+    default=[
+        "https://shiritoriwithfriends.com",
+        "https://www.shiritoriwithfriends.com",
+    ],
+)
 CORS_ALLOW_CREDENTIALS = True
 
 # CSRF
 # ------------------------------------------------------------------------------
-CSRF_TRUSTED_ORIGINS = env.list("DJANGO_CSRF_TRUSTED_ORIGINS", default=[
-    "https://shiritoriwithfriends.com",
-])
+CSRF_TRUSTED_ORIGINS = env.list(
+    "DJANGO_CSRF_TRUSTED_ORIGINS",
+    default=[
+        "https://shiritoriwithfriends.com",
+    ],
+)
