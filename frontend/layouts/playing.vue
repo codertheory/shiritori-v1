@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="grid justify-content-evenly">
         <div class="grid">
             <div class="col-12">
                 <div class="align-center">
@@ -10,7 +10,7 @@
             </div>
             <div class="col-12">
                 <Form @submit="gameTurnForm.onSubmit">
-                    <div class="grid">
+                    <div class="grid align-center">
                         <div class="grid-item">
                             <h2>Players</h2>
                             <div class="grid">

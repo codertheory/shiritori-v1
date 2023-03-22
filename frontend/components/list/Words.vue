@@ -1,9 +1,9 @@
 <template>
     <Sidebar
-        v-model="globalStore.showSidebar"
+        v-model:visible="globalStore.showSidebar"
         :modal="false"
-        :visible="globalStore.showSidebar"
-        position="right"
+        :position="position"
+        :dismissable="device.isMobileOrTablet"
     >
         <h2>Words Used</h2>
         <ListItemGameWord />
@@ -12,8 +12,24 @@
 
 <script setup lang="ts">
     import { useGlobalStore } from "~/stores/useGlobalStore";
+    import { SidebarProps } from "primevue/sidebar";
 
     const globalStore = useGlobalStore();
+
+    const device = useDevice();
+
+    const position = computed<SidebarProps["position"]>(() => {
+        if (device.isMobileOrTablet) {
+            return "bottom";
+        }
+        return "right";
+    });
+
+    onMounted(() => {
+        if (device.isMobileOrTablet) {
+            globalStore.showSidebar = false;
+        }
+    });
 </script>
 
 <style scoped></style>

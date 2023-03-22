@@ -5,6 +5,8 @@ export default defineNuxtConfig({
         "@nuxt/devtools",
         "@pinia/nuxt",
         "nuxt-typed-router",
+        "@nuxtjs/device",
+        "@nuxtjs/eslint-module",
     ],
     css: [
         "primevue/resources/themes/lara-dark-purple/theme.css",
