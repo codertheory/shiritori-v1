@@ -8,11 +8,11 @@ import { Writeable } from "zod";
 export const useGameStore = defineStore("game", () => {
     const { watchSocket } = useSocketStore();
     const {
-        apiCreateGame,
-        apiJoinGame,
-        apiStartGame,
-        apiSetCsrfToken,
-        apiTakeTurn,
+        apiGameCreate,
+        apiGameJoinCreate,
+        apiGameStartCreate,
+        apiCsrfCookieCreate,
+        apiGameTurnCreate,
     } = useApi();
     const game = ref<components["schemas"]["ShiritoriGame"]>();
     const myId = ref<string>();
@@ -86,7 +86,7 @@ export const useGameStore = defineStore("game", () => {
     const createGame = async (
         settings: components["schemas"]["ShiritoriGameSettings"]
     ) => {
-        const { data, error } = await apiCreateGame({ settings });
+        const { data, error } = await apiGameCreate({}, { body: { settings } });
         if (error.value) {
             throw error.value;
         }
@@ -97,19 +97,24 @@ export const useGameStore = defineStore("game", () => {
         gameId: string,
         player: Pick<components["schemas"]["ShiritoriPlayer"], "name">
     ) => {
-        const { data, error } = await apiJoinGame(gameId, player);
+        const { data, error } = await apiGameJoinCreate(
+            { id: gameId },
+            { body: player }
+        );
         if (error.value) {
             throw error.value;
         }
-        await apiSetCsrfToken();
+        await apiCsrfCookieCreate();
         setIsJoining(false);
         joinGameWS(gameId);
-        setMe(data.value.id);
+        setMe(data.value!.id);
         return data;
     };
 
     const handleStartGame = async () => {
-        const { data, error } = await apiStartGame(game.value!.id);
+        const { data, error } = await apiGameStartCreate({
+            id: game.value!.id,
+        });
         if (error.value) {
             throw error.value;
         }
@@ -126,7 +131,10 @@ export const useGameStore = defineStore("game", () => {
     };
 
     const handleTakeTurn = async (word: string) => {
-        const { data, error } = await apiTakeTurn(game.value!.id, { word });
+        const { data, error } = await apiGameTurnCreate(
+            { id: game.value!.id },
+            { body: { word } }
+        );
         if (error.value) {
             throw error.value;
         }

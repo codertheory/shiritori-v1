@@ -1,27 +1,48 @@
 import { useFetch, useRequestHeaders } from "#imports";
-import { components, paths } from "~/schema";
+import { operations, paths } from "~/schema";
 import { useConfig } from "~/composeables/useConfig";
+import { HTTPMethod } from "h3";
+import { FetchOptions } from "ofetch";
 
-type ApiPostOptions<T> = Parameters<typeof useFetch<T>>[1];
+export type apiPath = keyof paths;
+export type apiUseFetchResponse<T> = Promise<ReturnType<typeof useFetch<T>>>;
 
-type useApiPost<T = unknown> = (
-    // eslint-disable-next-line no-unused-vars
-    url: keyof paths,
-    // eslint-disable-next-line no-unused-vars
-    options?: Omit<ApiPostOptions<T>, "method">
-) => ReturnType<typeof useFetch>;
+export type operationPathParameters<key extends keyof operations> =
+    // @ts-ignore
+    operations[key]["parameters"]["path"];
+export type operationResponse<key extends keyof operations> =
+    // @ts-ignore
+    operations[key]["responses"][200]["content"]["application/json"];
+export type operationRequestBody<key extends keyof operations> =
+    // @ts-ignore
+    operations[key]["requestBody"]["content"]["application/json"];
+export type apiUseFetchOptions<key extends keyof operations> =
+    FetchOptions<"json"> & {
+        body?: operationRequestBody<key>;
+    };
+
+export type client = {
+    [key in keyof operations]: (
+        // eslint-disable-next-line no-unused-vars
+        pathParameters?: operationPathParameters<key>,
+        // eslint-disable-next-line no-unused-vars
+        options?: apiUseFetchOptions<key>
+    ) => apiUseFetchResponse<operationResponse<key>>;
+};
 
 export const useApi = () => {
     const { baseURL, isProduction } = useConfig();
 
-    const api: useApiPost = <R extends keyof paths, O>(
-        url: R,
-        options: ApiPostOptions<O> = {}
-    ) => {
-        return useFetch(url as unknown as string, {
-            ...options,
-            method: options.method || "POST",
-            baseURL: options.baseURL || baseURL.value,
+    const useApiFetch = async <key extends keyof operations>(
+        path: apiPath,
+        method: HTTPMethod,
+        options?: apiUseFetchOptions<key>
+    ): apiUseFetchResponse<operationResponse<key>> => {
+        return useFetch(path, {
+            ...(options || {}),
+            method,
+            body: options?.body,
+            baseURL: options?.baseURL || baseURL.value,
             credentials: "include",
             // eslint-disable-next-line no-undef
             headers: useRequestHeaders(["cookie"]) as HeadersInit,
@@ -31,57 +52,57 @@ export const useApi = () => {
             },
         });
     };
-
-    const apiSetCsrfToken = async () =>
-        api("/api/set-csrf-cookie/", { method: "GET" });
-
-    const apiGetGame = (gameId: string) =>
-        api(`/api/game/${gameId}/`, {
-            method: "GET",
-            query: {
-                format: "json",
-            },
-            // This only exists because of a bug that
-            // locally this singular get function breaks
-            baseURL: isProduction.value
-                ? baseURL.value
-                : "http://127.0.0.1:8000",
-        });
-
-    const apiCreateGame = (body: components["schemas"]["CreateGame"]) =>
-        api("/api/game/", {
-            body,
-        });
-
-    const apiTakeTurn = (
-        gameId: string,
-        body: components["schemas"]["ShiritoriTurn"]
-    ) =>
-        api(`/api/game/${gameId}/turn/`, {
-            body,
-        });
-
-    const apiJoinGame = (
-        gameId: string,
-        body: Pick<components["schemas"]["ShiritoriPlayer"], "name">
-    ) =>
-        api(`/api/game/${gameId}/join/`, {
-            body,
-        });
-
-    const apiLeaveGame = (gameId: string) =>
-        api(`/api/game/${gameId}/leave/`, {});
-
-    const apiStartGame = (gameId: string) =>
-        api(`/api/game/${gameId}/start/`, {});
+    const api = <client>{
+        apiGameList: async (pathParameters, options) => {
+            return useApiFetch("/api/game/", "GET", options);
+        },
+        apiGameCreate: async (pathParameters, options = {}) => {
+            return useApiFetch("/api/game/", "POST", options);
+        },
+        apiGameTurnCreate: async (pathParameters, options) => {
+            return useApiFetch(
+                `/api/game/${pathParameters?.id}/turn/`,
+                "POST",
+                options
+            );
+        },
+        apiGameRetrieve: async (pathParameters, options) => {
+            return useApiFetch(`/api/game/${pathParameters?.id}/`, "GET", {
+                ...options,
+                // This only exists because of a bug that
+                // locally this singular get function breaks
+                baseURL: isProduction.value
+                    ? baseURL.value
+                    : "http://127.0.0.1:8000",
+            });
+        },
+        apiGameJoinCreate: async (pathParameters, options) => {
+            return useApiFetch(
+                `/api/game/${pathParameters?.id}/join/`,
+                "POST",
+                options
+            );
+        },
+        apiGameLeaveCreate: async (pathParameters, options) => {
+            return useApiFetch(
+                `/api/game/${pathParameters?.id}/leave/`,
+                "POST",
+                options
+            );
+        },
+        apiGameStartCreate: async (pathParameters, options) => {
+            return useApiFetch(
+                `/api/game/${pathParameters?.id}/start/`,
+                "POST",
+                options
+            );
+        },
+        apiCsrfCookieCreate: async (pathParameters?, options?) => {
+            return useApiFetch("/api/set-csrf-cookie/", "GET", options);
+        },
+    };
 
     return {
-        apiSetCsrfToken,
-        apiGetGame,
-        apiCreateGame,
-        apiTakeTurn,
-        apiJoinGame,
-        apiLeaveGame,
-        apiStartGame,
+        ...api,
     };
 };

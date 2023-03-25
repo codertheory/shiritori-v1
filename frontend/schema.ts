@@ -140,7 +140,7 @@ export interface operations {
             };
         };
         responses: {
-            201: {
+            200: {
                 content: {
                     "application/json": components["schemas"]["ShiritoriGame"];
                 };
@@ -175,7 +175,7 @@ export interface operations {
             };
         };
         responses: {
-            201: {
+            200: {
                 content: {
                     "application/json": components["schemas"]["Player"];
                 };

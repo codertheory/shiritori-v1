@@ -11,6 +11,7 @@
 </template>
 
 <script setup lang="ts">
+    import { computed } from "vue";
     import { useGameStore } from "~/stores/useGameStore";
     import { useIsSubmitting } from "vee-validate";
 
@@ -24,6 +25,7 @@
         if (!gameStore.canStart) {
             return "You need least 2 players to start the game";
         }
+        return "";
     });
 </script>
 

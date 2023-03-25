@@ -11,6 +11,7 @@
 </template>
 
 <script setup lang="ts">
+    import { computed, onMounted } from "vue";
     import { useGlobalStore } from "~/stores/useGlobalStore";
     import { SidebarProps } from "primevue/sidebar";
 

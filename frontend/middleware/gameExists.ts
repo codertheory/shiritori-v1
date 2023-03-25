@@ -5,11 +5,11 @@ import { useApi } from "~/composeables/useApi";
 export default defineNuxtRouteMiddleware(async (to) => {
     const { id } = to.params;
     const { setGame, game } = useGameStore();
-    const { apiGetGame } = useApi();
+    const { apiGameRetrieve } = useApi();
 
     if (game?.id === id) return true;
 
-    const { data, error } = await apiGetGame(id as string);
+    const { data, error } = await apiGameRetrieve({ id: id as string });
     if (!data.value || error.value) {
         return abortNavigation();
     }
