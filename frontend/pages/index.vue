@@ -7,14 +7,14 @@
     useHead({
         title: "Shiritori",
         meta: [
-            { key: "og-type", property: "og:type", content: "website" },
+            { key: "og:type", property: "og:type", content: "website" },
             {
-                key: "og-title",
+                key: "og:title",
                 property: "og:title",
                 content: "Play Shiritori with Friends",
             },
             {
-                key: "og-url",
+                key: "og:url",
                 property: "og:url",
                 content: "https://shiritoriwithfriends.com/",
             },
