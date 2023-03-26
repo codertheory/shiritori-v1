@@ -20,6 +20,10 @@ from shiritori.game.serializers import (
 )
 from shiritori.game.tasks import game_worker_task
 
+__all__ = (
+    "GameViewSet",
+)
+
 
 class GameViewSet(ReadOnlyModelViewSet):
     queryset = Game.objects.all()
