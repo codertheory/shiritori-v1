@@ -30,6 +30,7 @@
         "eslint-config-prettier": "latest",
         "eslint-plugin-prettier": "latest",
         "eslint-plugin-vue": "latest",
+        "gsap": "^3.11.5",
         "nuxt": "^3.3.1",
         "nuxt-typed-router": "^3.0.6",
         "pinia": "^2.0.33",

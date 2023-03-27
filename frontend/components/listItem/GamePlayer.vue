@@ -1,7 +1,10 @@
 <template>
     <Card>
         <template #title>
-            <h3>{{ player.name }} - {{ player.score }}</h3>
+            <h3>
+                {{ player.name }} -
+                <PlayerScore :number="player.score" />
+            </h3>
         </template>
         <template #content>
             <InputFieldWord v-if="player.isCurrent" :player-id="player.id" />
@@ -12,6 +15,7 @@
 <script setup lang="ts">
     import { components } from "~/schema";
     import type { PropType } from "vue";
+    import PlayerScore from "~/components/text/PlayerScore.vue";
 
     defineProps({
         player: {

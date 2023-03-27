@@ -19,7 +19,7 @@ export const useGameStore = defineStore("game", () => {
     const isJoining = ref<boolean | undefined>();
 
     const me = computed(() => {
-        return game.value?.players.find((p) => p.id === myId.value);
+        return game.value?.players?.find((p) => p.id === myId.value);
     });
 
     const players = computed(() => {
