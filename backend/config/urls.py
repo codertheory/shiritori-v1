@@ -7,8 +7,8 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from config import admin_views
 
 urlpatterns = [
-    # Your stuff: custom urls includes go here
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+                  # Your stuff: custom urls includes go here
+              ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 if settings.DEBUG:
     # Static file serving when using Gunicorn + Uvicorn for local web socket development
     urlpatterns += staticfiles_urlpatterns()
@@ -27,6 +27,6 @@ urlpatterns += [
         name="api-docs",
     ),
 ]
-if not settings.DEBUG:
+if settings.PRODUCTION:
     # Only add Django site authentication urls if in production mode
     urlpatterns += [path("health/", include("health_check.urls"))]
