@@ -172,3 +172,4 @@ gunicorn = "20.1.0"  # https://github.com/benoitc/gunicorn
 psycopg2 = "^2.9.5"# https://github.com/psycopg/psycopg2
 sentry-sdk = "1.17.0"  # https://github.com/getsentry/sentry-python
 dj-database-url = "1.2.0" # https://github.com/jazzband/dj-database-url
+django-health-check = "^3.17.0" # https://github.com/revsys/django-health-check

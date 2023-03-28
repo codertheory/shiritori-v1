@@ -18,6 +18,19 @@ SECRET_KEY = env("DJANGO_SECRET_KEY")
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=[])
 ALLOWED_HOSTS.append("api.shiritoriwithfriends.com")
 
+# Health check
+# ------------------------------------------------------------------------------
+INSTALLED_APPS += [  # noqa F405
+    "health_check",  # required
+    "health_check.db",  # stock Django health checkers
+    "health_check.cache",
+    "health_check.storage",
+    "health_check.contrib.migrations",
+    "health_check.contrib.celery",  # requires celery
+    "health_check.contrib.celery_ping",  # requires celery
+    "health_check.contrib.redis",  # requires Redis broker
+]
+
 # DATABASES
 # ------------------------------------------------------------------------------
 DATABASES = {

@@ -950,6 +950,25 @@ files = [
 Django = ">=3.2"
 
 [[package]]
+name = "django-health-check"
+version = "3.17.0"
+description = "Run checks on services like databases, queue servers, celery processes, etc."
+category = "dev"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "django-health-check-3.17.0.tar.gz", hash = "sha256:d1b8671e79d1de6e3dd1a9c69566222b0bfcfacca8b90511a4407b2d0d3d2778"},
+    {file = "django_health_check-3.17.0-py2.py3-none-any.whl", hash = "sha256:20dc5ccb516a4e7163593fd4026f0a7531e3027b47d23ebe3bd9dbc99ac4354c"},
+]
+
+[package.dependencies]
+django = ">=2.2"
+
+[package.extras]
+docs = ["sphinx"]
+test = ["celery", "pytest", "pytest-cov", "pytest-django", "redis"]
+
+[[package]]
 name = "django-model-utils"
 version = "4.3.1"
 description = "Django model mixins and utilities"
@@ -3385,4 +3404,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "2cc8f75b8bf58c8397061589854e4e509bb21d446c7ed2a155e0cb1389cfbd67"
+content-hash = "a7b059fc8369f556e19255c209cb5d466443f75b40364dfec0e534b52dc8cbf1"
