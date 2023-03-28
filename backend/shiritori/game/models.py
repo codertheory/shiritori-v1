@@ -1,5 +1,5 @@
-import typing
-from typing import Iterable, Optional, Union
+from collections.abc import Iterable
+from typing import Optional, Union
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -560,9 +560,9 @@ class Word(models.Model):
         return cls.objects.filter(word__iexact=word, locale=locale).exists()
 
     @staticmethod
-    def load_dictionary(locale: GameLocales | str = GameLocales.EN) -> typing.List["Word"]:
+    def load_dictionary(locale: GameLocales | str = GameLocales.EN) -> list["Word"]:
         """Load the dictionary for the given locale."""
-        with open(f"{settings.BASE_DIR}/dictionaries/{locale}.txt", "r", encoding="utf-8") as f:
+        with open(f"{settings.BASE_DIR}/dictionaries/{locale}.txt", encoding="utf-8") as f:
             words = f.read().splitlines()
         created_words = []
         # Batch insert the words into the database in chunks of 1000

@@ -29,7 +29,7 @@ jobs:
                 uses: ./.github/actions/build-action
             -   name: Ruff
                 run: |
-                    ruff check $(git ls-files '*.py')
+                    ruff check --format=github $(git ls-files '*.py')
             -   name: Black
                 run: |
                     cd backend

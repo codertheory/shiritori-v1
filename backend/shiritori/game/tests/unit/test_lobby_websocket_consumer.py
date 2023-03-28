@@ -1,5 +1,3 @@
-import typing
-
 import pytest
 from channels.testing import WebsocketCommunicator
 
@@ -14,7 +12,7 @@ async def test_connect_lobby_with_no_games(lobby_consumer: WebsocketCommunicator
 
 
 async def test_connect_lobby_with_games(
-    sample_games: typing.List[Game],
+    sample_games: list[Game],
     lobby_consumer: WebsocketCommunicator,
 ):
     data = await lobby_consumer.receive_json_from()
