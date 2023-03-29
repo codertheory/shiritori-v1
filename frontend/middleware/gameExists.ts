@@ -1,6 +1,7 @@
 import { useGameStore } from "~/stores/useGameStore";
 import { components } from "~/schema";
 import { useApi } from "~/composeables/useApi";
+import { defineNuxtRouteMiddleware, abortNavigation } from "#app";
 
 export default defineNuxtRouteMiddleware(async (to) => {
     const { id } = to.params;

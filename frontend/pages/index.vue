@@ -4,6 +4,8 @@
 </template>
 
 <script lang="ts" setup>
+    import { useHead } from "unhead";
+
     useHead({
         title: "Shiritori",
         meta: [

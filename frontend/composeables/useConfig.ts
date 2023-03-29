@@ -1,3 +1,6 @@
+import { computed } from "vue";
+import { useRuntimeConfig } from "#app";
+
 export const useConfig = () => {
     const config = useRuntimeConfig();
 

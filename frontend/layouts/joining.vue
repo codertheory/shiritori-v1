@@ -33,6 +33,7 @@
 <script setup lang="ts">
     import { Form } from "vee-validate";
     import { useJoinGameForm } from "~/composeables/useJoinGameForm";
+    import { useRouter } from "#app";
 
     const { validationSchema, onSubmit } = useJoinGameForm();
 

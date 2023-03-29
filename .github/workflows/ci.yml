@@ -1,19 +1,16 @@
 name: CI
 
-# Enable Buildkit and let compose use it to speed up image building
 env:
-    DOCKER_BUILDKIT: 1
-    COMPOSE_DOCKER_CLI_BUILD: 1
     DJANGO_SETTINGS_MODULE: "config.settings.test"
     POETRY_VERSION: 1.4.1
     PYTHON_VERSION: 3.11
 
 on:
     pull_request:
-        branches: [ "master", "main" ]
+        branches: [ "main" ]
 
     push:
-        branches: [ "master", "main" ]
+        branches: [ "main" ]
 
 concurrency:
     group: ${{ github.head_ref || github.run_id }}
@@ -60,23 +57,3 @@ jobs:
                 run: |
                     cd backend
                     poetry run pytest
-
-
-#    deploy: # Build docker images and push to docker hub
-#        needs: test
-#        runs-on: ubuntu-latest
-#        steps:
-#            -   name: Checkout Code Repository
-#                uses: actions/checkout@v3
-#
-#            -   name: Build Docker Images
-#                run: |
-#                    docker-compose -f production.yml build
-#            -   name: Login to Docker Hub
-#                uses: docker/login-action@v2
-#                with:
-#                    username: ${{ secrets.DOCKER_USERNAME }}
-#                    password: ${{ secrets.DOCKER_PASSWORD }}
-#            -   name: Push Docker Images
-#                run: |
-#                    docker-compose -f production.yml push

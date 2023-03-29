@@ -3,7 +3,7 @@
 .github
 .gitignore
 .idea
-backend/.pre-commit-config.yaml
+.pre-commit-config.yaml
 venv
 .git
 .env

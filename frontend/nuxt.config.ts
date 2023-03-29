@@ -1,3 +1,4 @@
+import { defineNuxtConfig } from "nuxt/config";
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
     modules: [
@@ -6,6 +7,7 @@ export default defineNuxtConfig({
         "@pinia/nuxt",
         "nuxt-typed-router",
         "@nuxtjs/device",
+        "@nuxtjs/eslint-module",
     ],
     css: [
         "primevue/resources/themes/lara-dark-purple/theme.css",
@@ -31,5 +33,8 @@ export default defineNuxtConfig({
             env: "dev",
             apiHost: "dev.shiritoriwithfriends.com",
         },
+    },
+    eslint: {
+        lintOnStart: false,
     },
 });

@@ -14,6 +14,7 @@
     import { computed, onMounted } from "vue";
     import { useGlobalStore } from "~/stores/useGlobalStore";
     import { SidebarProps } from "primevue/sidebar";
+    import { useDevice } from "#imports";
 
     const globalStore = useGlobalStore();
 

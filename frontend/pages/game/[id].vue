@@ -5,8 +5,10 @@
 </template>
 
 <script setup lang="ts">
+    import { computed, onMounted } from "vue";
     import { useRoute } from "vue-router";
     import { useGameStore } from "~/stores/useGameStore";
+    import { useFetch, definePageMeta } from "#imports";
 
     const gameStore = useGameStore();
     const result = await useFetch("/api/isJoining");

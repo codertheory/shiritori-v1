@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref, watch, WatchCallback } from "vue";
+import { ref, watch, WatchCallback, computed } from "vue";
 import { useConfig } from "~/composeables/useConfig";
 
 export const useSocketStore = defineStore("socket", () => {
