@@ -7,7 +7,6 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models, transaction
 from django.db.models import Count, F, Q, QuerySet, Sum
 
-from shiritori.game.events import send_game_updated
 from shiritori.game.utils import calculate_score, chunk_list, generate_random_letter, wait
 from shiritori.utils import NanoIdField
 from shiritori.utils.abstract_model import AbstractModel, NanoIdModel
@@ -353,7 +352,9 @@ class Game(AbstractModel):
         :param game_id: The id of the game to run the turn loop for.
 
         """
-        qs = Game.objects.filter(id=game_id)
+        from shiritori.game.events import send_game_timer_updated
+
+        qs: QuerySet["Game"] = Game.objects.filter(id=game_id)
         while not qs.filter(status=GameStatus.FINISHED).exists():
             if qs.filter(turn_time_left__gt=0).exists():
                 qs.update(turn_time_left=F("turn_time_left") - 1)
@@ -362,7 +363,8 @@ class Game(AbstractModel):
                 # if the game timer is 0, end the turn
                 # and start the next turn
                 qs.first().end_turn()
-            send_game_updated(qs.first())
+            if game := qs.values("id", "turn_time_left").first():
+                send_game_timer_updated(game["id"], game["turn_time_left"])
 
 
 class Player(AbstractModel, NanoIdModel):

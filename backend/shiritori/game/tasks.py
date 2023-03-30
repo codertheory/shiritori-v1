@@ -4,6 +4,7 @@ from django.db import OperationalError
 
 from shiritori.game.events import send_game_updated
 from shiritori.game.models import Game, Word
+from shiritori.game.utils import mock_stream_closer
 
 __all__ = (
     "send_game_updated_task",
@@ -36,6 +37,7 @@ def send_game_updated_task(game_id):
     bind=True,
 )
 def game_worker_task(self: Task, game_id):
+    mock_stream_closer()
     try:
         Game.run_turn_loop(game_id)
     except OperationalError as error:

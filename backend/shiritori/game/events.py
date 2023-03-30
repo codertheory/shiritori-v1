@@ -1,5 +1,6 @@
 import typing
 
+from shiritori.game.helpers import convert_game_to_json
 from shiritori.game.utils import send_message_to_layer
 
 if typing.TYPE_CHECKING:
@@ -8,40 +9,45 @@ if typing.TYPE_CHECKING:
 __all__ = (
     "send_lobby_update",
     "send_game_updated",
+    "send_game_timer_updated",
 )
 
 
-def send_lobby_update(game: typing.Union["Game", dict], *, update_type: str = "game_created"):
-    from shiritori.game.models import Game  # pylint: disable=import-outside-toplevel
-    from shiritori.game.serializers import ShiritoriGameSerializer  # pylint: disable=import-outside-toplevel
-
+def send_lobby_update(game: typing.Union["Game", dict]):
     if game is None:
         return
 
-    if isinstance(game, Game):
-        game = ShiritoriGameSerializer(game).data
+    if not isinstance(game, dict):
+        game = convert_game_to_json(game)
     send_message_to_layer(
         "lobby",
         {
-            "type": update_type,
+            "type": "game_created",
             "data": game,
         },
     )
 
 
-def send_game_updated(game: typing.Union["Game", dict], *, update_type: str = "game_updated"):
-    from shiritori.game.models import Game  # pylint: disable=import-outside-toplevel
-    from shiritori.game.serializers import ShiritoriGameSerializer  # pylint: disable=import-outside-toplevel
-
+def send_game_updated(game: typing.Union["Game", dict]):
     if game is None:
         return
 
-    if isinstance(game, Game):
-        game = ShiritoriGameSerializer(game).data
+    if not isinstance(game, dict):
+        game = convert_game_to_json(game)
     send_message_to_layer(
         game["id"],
         {
-            "type": update_type,
+            "type": "game_updated",
             "data": game,
+        },
+    )
+
+
+def send_game_timer_updated(game_id: str, turn_time_left: int):
+    send_message_to_layer(
+        game_id,
+        {
+            "type": "game_timer_updated",
+            "data": turn_time_left,
         },
     )

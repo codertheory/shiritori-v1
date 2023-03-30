@@ -3,6 +3,8 @@
 import random
 import string
 import time
+import typing
+from typing import TypedDict
 
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
@@ -14,6 +16,11 @@ DURATION_MODIFIERS = {5: 1.8, 10: 1.5, 15: 1.2}
 def chunk_list(iterable, n):
     for i in range(0, len(iterable), n):
         yield iterable[i : i + n]
+
+
+class EventDict(TypedDict):
+    type: typing.Literal["game_created", "game_updated", "game_timer_updated"]
+    data: typing.Any
 
 
 def calculate_score(word: str, duration: int | float) -> float:
@@ -45,7 +52,7 @@ def generate_random_letter():
     return random.choice(string.ascii_lowercase)
 
 
-def send_message_to_layer(channel_name: str, message: dict):
+def send_message_to_layer(channel_name: str, message: EventDict):
     """
     Send a message to a channel layer.
     :param channel_name: str - The channel name to send the message to.
@@ -54,7 +61,7 @@ def send_message_to_layer(channel_name: str, message: dict):
     return async_to_sync(asend_message_to_layer)(channel_name, message)
 
 
-async def asend_message_to_layer(channel_name: str, message: dict):
+async def asend_message_to_layer(channel_name: str, message: EventDict):
     """
     Send a message to a channel layer.
     :param channel_name: str - The channel name to send the message to.
@@ -70,3 +77,17 @@ async def asend_message_to_layer(channel_name: str, message: dict):
 
 def wait():
     time.sleep(1.25)
+
+
+def mock_stream_closer():
+    """
+    Quites the closing error in relation to redis.
+    """
+    from asyncio.streams import StreamWriter
+
+    StreamWriter.close = lambda self: None
+
+    async def mock_wait_closed(self):
+        pass
+
+    StreamWriter.wait_closed = mock_wait_closed

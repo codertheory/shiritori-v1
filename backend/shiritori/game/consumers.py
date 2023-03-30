@@ -5,7 +5,7 @@ from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from djangorestframework_camel_case.settings import api_settings
 from djangorestframework_camel_case.util import camelize
 
-from shiritori.game.helpers import convert_game_to_json, get_player_from_cookie
+from shiritori.game.helpers import aconvert_game_to_json, aget_player_from_cookie
 from shiritori.game.models import Game, GameStatus
 from shiritori.game.serializers import ShiritoriGameSerializer
 
@@ -69,13 +69,13 @@ class GameConsumer(CamelizedWebSocketConsumer):
                 await sync_to_async(self.scope["session"].save)()
 
             self_player = (
-                await get_player_from_cookie(game_id, session_id)
+                await aget_player_from_cookie(game_id, session_id)
                 if (session_id := self.scope["session"].session_key)
                 else None
             )
             await self.channel_layer.group_add(self.game_group_name, self.channel_name)
 
-            game_data = await convert_game_to_json(game)
+            game_data = await aconvert_game_to_json(game)
 
             await self.send_json(
                 {
@@ -94,4 +94,7 @@ class GameConsumer(CamelizedWebSocketConsumer):
             raise DenyConnection("Something went wrong") from e
 
     async def game_updated(self, event):
+        await self.send_json(event)
+
+    async def game_timer_updated(self, event):
         await self.send_json(event)
