@@ -1,4 +1,4 @@
-from .base import *  # noqa pylint: disable=wildcard-import,unused-wildcard-import
+from .base import *  # noqa F403
 from .base import env
 
 # GENERAL

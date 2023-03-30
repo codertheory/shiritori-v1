@@ -155,9 +155,7 @@ def test_can_current_player_take_turn_when_game_status_is_not_playing(game, play
     pytest.raises(ValidationError, game.can_take_turn, human_player_2.session_key)
 
 
-def test_take_turn_with_word_non_existent_word(
-    started_game: Game, sample_words: list[str]
-):  # pylint: disable=unused-argument
+def test_take_turn_with_word_non_existent_word(started_game: Game, sample_words: list[str]):
     with pytest.raises(ValidationError) as exec_info:
         started_game.turn_time_left = 10
         session_key = started_game.current_player.session_key
@@ -165,9 +163,7 @@ def test_take_turn_with_word_non_existent_word(
     assert exec_info.value.message == "Word not found in dictionary."
 
 
-def test_take_turn_with_word_already_used(
-    started_game: Game, sample_words: list[str]
-):  # pylint: disable=unused-argument
+def test_take_turn_with_word_already_used(started_game: Game, sample_words: list[str]):
     with pytest.raises(ValidationError) as exec_info:
         started_game.turn_time_left = 10
         GameWord.objects.create(word=sample_words[0], game=started_game)
@@ -176,9 +172,7 @@ def test_take_turn_with_word_already_used(
     assert exec_info.value.message == "Word already used."
 
 
-def test_take_turn_with_word_not_starting_with_last_word(
-    started_game: Game, sample_words: list[str]
-):  # pylint: disable=unused-argument
+def test_take_turn_with_word_not_starting_with_last_word(started_game: Game, sample_words: list[str]):
     with pytest.raises(ValidationError) as exec_info:
         started_game.turn_time_left = 10
         session_key = started_game.current_player.session_key
@@ -186,9 +180,7 @@ def test_take_turn_with_word_not_starting_with_last_word(
     assert exec_info.value.message == "Word must start with the last letter of the previous word."
 
 
-def test_take_turn_with_word_not_long_enough(
-    started_game: Game, sample_words: list[str]
-):  # pylint: disable=unused-argument
+def test_take_turn_with_word_not_long_enough(started_game: Game, sample_words: list[str]):
     with pytest.raises(ValidationError) as exec_info:
         started_game.turn_time_left = 10
         session_key = started_game.current_player.session_key
@@ -203,3 +195,7 @@ def test_end_turn_updates_current_player_and_turn(started_game):
     assert first_player.score == -15
     assert started_game.current_player == next_player
     assert started_game.current_turn == 1
+
+
+def test_finished_game_longest_word(finished_game):
+    assert finished_game.longest_word.word == "toothbrush"

@@ -11,11 +11,18 @@ from shiritori.game.consumers import GameConsumer, GameLobbyConsumer
 from shiritori.game.models import Game, GameSettings, GameStatus
 from shiritori.game.tests.factories import GameFactory, PlayerFactory, WordFactory
 
+# Constants
+SAMPLE_WORDS = [
+    "test",
+    "toothbrush",
+    "hello",
+]
+
 # Game Factory fixtures
 register(GameFactory)
 register(GameFactory, _name="unstarted_game", status=GameStatus.WAITING, with_players=2)
 register(GameFactory, _name="started_game", status=GameStatus.PLAYING, with_players=2)
-register(GameFactory, _name="finished_game", status=GameStatus.FINISHED, with_players=2)
+register(GameFactory, _name="finished_game", status=GameStatus.FINISHED, with_players=2, with_words=SAMPLE_WORDS)
 
 # Player Factory Fixtures
 register(PlayerFactory, human=True)
@@ -41,14 +48,9 @@ def un_saved_game():
 
 @pytest.fixture()
 def sample_words():
-    words = [
-        "test",
-        "toothbrush",
-        "hello",
-    ]
-    for word in words:
+    for word in SAMPLE_WORDS:
         WordFactory(word=word)
-    yield words
+    yield SAMPLE_WORDS
 
 
 @pytest.fixture()

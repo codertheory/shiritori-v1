@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# pylint: disable=cyclic-import
 import os
 import sys
 from pathlib import Path
@@ -14,7 +13,7 @@ if __name__ == "__main__":
         # issue is really that Django is missing to avoid masking other
         # exceptions on Python 2.
         try:
-            import django  # noqa pylint: disable=unused-import
+            import django  # noqa: F401
         except ImportError as exc:
             raise ImportError(
                 "Couldn't import Django. Are you sure it's installed and "

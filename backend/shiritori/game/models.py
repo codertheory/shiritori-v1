@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models, transaction
 from django.db.models import Count, F, Q, QuerySet, Sum
+from django.db.models.functions import Length
 
 from shiritori.game.utils import calculate_score, chunk_list, generate_random_letter, wait
 from shiritori.utils import NanoIdField
@@ -118,6 +119,10 @@ class Game(AbstractModel):
         return self.gameword_set.last()
 
     @property
+    def longest_word(self) -> Optional["GameWord"]:
+        return self.gameword_set.order_by(Length("word").desc()).first()
+
+    @property
     def is_finished(self) -> bool:
         return self.status == GameStatus.FINISHED
 
@@ -131,7 +136,7 @@ class Game(AbstractModel):
 
     @property
     def leaderboard(self) -> QuerySet["Player"]:
-        return self.player_set.annotate(
+        return self.players.annotate(
             total_score=Sum("gameword__score"),
         ).order_by("-total_score")
 
@@ -326,22 +331,6 @@ class Game(AbstractModel):
         """
         self.take_turn(self.current_player.session_key, None)
 
-    def get_winner(self) -> Optional["Player"]:
-        """
-        Get the winner of the game.
-        To be called when the game is finished.
-        For a player to be determined as the winner they must have the highest score.
-
-        :return: Optional[Player] - The winner of the game.
-        :raises ValidationError: If the game is not finished or started.
-        """
-        if not self.is_finished:
-            raise ValidationError("Cannot get winner of a game that is not finished.")
-        if not self.is_started:
-            raise ValidationError("Cannot get winner of a game that has not started.")
-
-        return self.leaderboard.first()
-
     @staticmethod
     def run_turn_loop(game_id):
         """
@@ -528,7 +517,7 @@ class GameSettings(NanoIdModel):
 
     @staticmethod
     def get_default_settings() -> dict:
-        all_fields = GameSettings._meta.get_fields()  # noqa pylint: disable=protected-access
+        all_fields = GameSettings._meta.get_fields()  # noqa - protected access
         fields = filter(lambda f: hasattr(f, "default") and f.name != "id", all_fields)
         # inspect the fields and create a dict of the defaults.
         return {field.name: field.default for field in fields}

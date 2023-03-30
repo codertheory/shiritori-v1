@@ -42,7 +42,7 @@ def game_worker_task(self: Task, game_id):
         Game.run_turn_loop(game_id)
     except OperationalError as error:
         self.retry(exc=error, args=(game_id,))
-    except Exception as error:  # pylint: disable=broad-except
+    except Exception as error:
         print(error)
 
 

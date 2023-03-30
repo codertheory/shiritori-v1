@@ -71,7 +71,7 @@ async def asend_message_to_layer(channel_name: str, message: EventDict):
         try:
             await channel_layer.group_send(channel_name, message)
             # await channel_layer.close_pools()
-        except Exception as error:  # pylint: disable=broad-except
+        except Exception as error:
             print(f"Error sending message to channel layer: {error}")
 
 

@@ -68,9 +68,10 @@ class ShiritoriGameSerializer(serializers.ModelSerializer):
     settings = ShiritoriGameSettingsSerializer(read_only=True)
     player_count = serializers.IntegerField(read_only=True)
     word_count = serializers.IntegerField(read_only=True)
+    longest_word = serializers.PrimaryKeyRelatedField(read_only=True, allow_null=True)
     is_finished = serializers.BooleanField(read_only=True)
-    winner = serializers.StringRelatedField(read_only=True, source="winner_id")
-    current_player = serializers.StringRelatedField(read_only=True, source="current_player_id")
+    winner = serializers.PrimaryKeyRelatedField(read_only=True, allow_null=True)
+    current_player = serializers.PrimaryKeyRelatedField(read_only=True, allow_null=True)
     turn_time_left = serializers.IntegerField(read_only=True)
     words = ShiritoriGameWordSerializer(many=True, read_only=True)
     players = ShiritoriPlayerSerializer(many=True, read_only=True)
@@ -83,21 +84,9 @@ class ShiritoriGameSerializer(serializers.ModelSerializer):
 class ShiritoriTurnSerializer(serializers.Serializer):
     word = serializers.CharField(max_length=50)
 
-    def create(self, validated_data):
-        pass  # Need to override because parent class is abstract
-
-    def update(self, instance, validated_data):
-        pass  # Need to override because parent class is abstract
-
 
 class CreateGameSerializer(serializers.Serializer):
     settings = ShiritoriGameSettingsSerializer()
-
-    def create(self, validated_data):
-        pass  # Need to override because parent class is abstract
-
-    def update(self, instance, validated_data):
-        pass  # Need to override because parent class is abstract
 
     def save(self, **kwargs):
         settings = GameSettings.objects.create(**self.validated_data["settings"])

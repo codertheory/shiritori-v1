@@ -1,3 +1,5 @@
+import random
+
 import factory
 from pytest_factoryboy import register
 
@@ -28,7 +30,7 @@ class PlayerFactory(factory.django.DjangoModelFactory):
         model = Player
         django_get_or_create = ("id",)
 
-    class Params:  # pylint: disable=too-few-public-methods
+    class Params:
         human = factory.Trait(
             type=PlayerType.HUMAN,
         )
@@ -53,7 +55,7 @@ class GameFactory(factory.django.DjangoModelFactory):
         model = Game
         django_get_or_create = ("id",)
 
-    class Params:  # pylint: disable=too-few-public-methods
+    class Params:
         waiting = factory.Trait(
             status=GameStatus.WAITING,
         )
@@ -75,36 +77,57 @@ class GameFactory(factory.django.DjangoModelFactory):
             return
         obj.settings = extracted or GameSettingsFactory()
 
-    @staticmethod
-    def generate_players(obj: Game, create, extracted, **kwargs):
+    @factory.post_generation
+    def with_players(self: Game, create, extracted, **kwargs):
         if not create:
             return
         if extracted is None:
             return
-        players = PlayerFactory.create_batch(extracted, game=obj, is_current=False, is_host=False)
+        players = PlayerFactory.create_batch(extracted, game=self, is_current=False, is_host=False)
         was_changed = False
-        if obj.is_started and not obj.current_player:
+        if self.is_started and not self.current_player:
             players[0].is_current = True
             was_changed = True
-        if not obj.host:
+        if not self.host:
             players[0].is_host = True
             was_changed = True
         if was_changed:
             players[0].save()
+        if self.is_finished:
+            self.winner = random.choice(players)  # noqa
 
-    with_players = factory.PostGeneration(generate_players)
+    @factory.post_generation
+    def with_words(self: Game, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted is None:
+            return
+        if isinstance(extracted, int):
+            GameWordFactory.create_batch(extracted, game=self)
+        if isinstance(extracted, list):
+            for word in extracted:
+                GameWordFactory.create(game=self, word=word)
 
 
 @register
 class GameWordFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = GameWord
-        django_get_or_create = (
-            "word",
-            "game",
-        )
+        django_get_or_create = ("word", "game", "player")
 
     word = factory.Faker("word")
+
+    @factory.lazy_attribute
+    def score(self):
+        return len(str(self.word))
+
+    @factory.lazy_attribute
+    def duration(self):
+        return random.randint(self.game.settings.turn_time // 2, self.game.settings.turn_time * 2)
+
+    @factory.lazy_attribute
+    def player(self):
+        return random.choice(self.game.players.all()) if self.game.players.exists() else None
 
 
 @register

@@ -6,4 +6,4 @@ class GameConfig(AppConfig):
     name = "shiritori.game"
 
     def ready(self) -> None:
-        import shiritori.game.signals  # noqa pylint: disable=import-outside-toplevel,unused-import
+        import shiritori.game.signals  # noqa: F401
