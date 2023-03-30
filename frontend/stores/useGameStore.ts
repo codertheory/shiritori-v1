@@ -17,6 +17,7 @@ export const useGameStore = defineStore("game", () => {
     const game = ref<components["schemas"]["ShiritoriGame"]>();
     const myId = ref<string>();
     const isJoining = ref<boolean | undefined>();
+    const turnTimeLeft = ref<number>(0);
 
     const me = computed(() => {
         return game.value?.players?.find((p) => p.id === myId.value);
@@ -42,10 +43,6 @@ export const useGameStore = defineStore("game", () => {
 
     const settings = computed(() => {
         return game.value?.settings ?? {};
-    });
-
-    const turnTimeLeft = computed(() => {
-        return game.value?.turnTimeLeft ?? 0;
     });
 
     const lastWord = computed(() => {
@@ -148,6 +145,9 @@ export const useGameStore = defineStore("game", () => {
 
     const setGame = (g: components["schemas"]["ShiritoriGame"]) => {
         game.value = g;
+        if (turnTimeLeft.value === 0) {
+            setTurnTimeLeft(g.turnTimeLeft);
+        }
     };
 
     const setMe = (m: string) => {
@@ -158,11 +158,18 @@ export const useGameStore = defineStore("game", () => {
         isJoining.value = i;
     };
 
+    const setTurnTimeLeft = (t: number) => {
+        turnTimeLeft.value = t;
+    };
+
     const onSocketEvent = (e: MessageEvent) => {
         const eventData = JSON.parse(e.data);
         switch (eventData.type) {
             case "game_updated":
                 setGame(eventData.data);
+                break;
+            case "game_timer_updated":
+                setTurnTimeLeft(eventData.data);
                 break;
             case "connected":
                 setGame(eventData.data.game);
