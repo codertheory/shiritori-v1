@@ -11,7 +11,6 @@ repos:
           - id: trailing-whitespace
           - id: end-of-file-fixer
           - id: check-yaml
-          - id: check-shebang-scripts-are-executable
     - repo: https://github.com/asottile/pyupgrade
       rev: v3.3.1
       hooks:
@@ -24,7 +23,7 @@ repos:
             -   id: check-untracked-migrations
                 # Optional, if specified, hook will work only on these branches
                 # otherwise it will work on all branches
-                args: [ "--branches", "main", "other_branch" ]
+                args: [ "--branches", "main" ]
             -   id: check-unapplied-migrations
             -   id: check-absent-migrations
             -   id: po-location-format
@@ -32,6 +31,15 @@ repos:
                 # file: show only the file path as location
                 # never: remove all locations
                 args: [ "--add-location", "file" ]
+
+    -   repo: https://github.com/sourcery-ai/sourcery
+        rev: v1.1.0
+        hooks:
+            -   id: sourcery
+                  # The best way to use Sourcery in a pre-commit hook:
+                  # * review only changed lines:
+                # * omit the summary
+                args: [ --diff=git diff HEAD, --no-summary ]
 
     - repo: https://github.com/charliermarsh/ruff-pre-commit
       # Ruff version.
