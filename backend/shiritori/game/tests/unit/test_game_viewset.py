@@ -120,35 +120,40 @@ def test_get_game_view(drf: APIClient, finished_game: Game):
     player.save()
     response = drf.get(f"/api/game/{game.id}/")
     assert response.status_code == 200
-    assert response.data["id"] == game.id
-    assert response.data["status"] == game.status
-    assert response.data["settings"] == {
-        "locale": game.settings.locale,
-        "word_length": game.settings.word_length,
-        "turn_time": game.settings.turn_time,
-        "max_turns": game.settings.max_turns,
+    expected_result = {
+        "id": game.id,
+        "created_at": game.created_at.isoformat().replace("+00:00", "Z"),
+        "updated_at": game.updated_at.isoformat().replace("+00:00", "Z"),
+        "last_word": game.last_word,
+        "status": game.status,
+        "settings": {
+            "locale": game.settings.locale,
+            "word_length": game.settings.word_length,
+            "turn_time": game.settings.turn_time,
+            "max_turns": game.settings.max_turns,
+        },
+        "player_count": game.player_count,
+        "word_count": game.word_count,
+        "longest_word": game.longest_word.id,
+        "is_finished": game.is_finished,
+        "winner": game.winner.id,
+        "current_player": None,
+        "current_turn": game.current_turn,
+        "turn_time_left": game.turn_time_left,
+        "players": [
+            {
+                "id": player.id,
+                "name": player.name,
+                "score": player.score,
+                "type": player.type,
+                "is_current": player.is_current,
+                "is_host": player.is_host,
+            }
+            for player in game.players.all()
+        ],
+        "words": [
+            {"word": word.word, "score": word.score, "duration": word.duration, "player_id": word.player.id}
+            for word in game.words.all()
+        ],
     }
-    assert response.data["player_count"] == game.player_count
-    assert response.data["word_count"] == game.word_count
-    assert response.data["longest_word"] == game.longest_word.id
-    assert response.data["is_finished"] == game.is_finished
-    assert response.data["winner"] == game.winner.id
-    assert response.data["current_player"] is None
-    assert response.data["current_turn"] == game.current_turn
-    assert response.data["word_count"] == game.word_count
-    assert response.data["turn_time_left"] == game.turn_time_left
-    assert response.data["players"] == [
-        {
-            "id": player.id,
-            "name": player.name,
-            "score": player.score,
-            "type": player.type,
-            "is_current": player.is_current,
-            "is_host": player.is_host,
-        }
-        for player in game.players.all()
-    ]
-    assert response.data["words"] == [
-        {"word": word.word, "score": word.score, "duration": word.duration, "player_id": word.player.id}
-        for word in game.words.all()
-    ]
+    assert response.data == expected_result
