@@ -64,14 +64,8 @@ class GameViewSet(ReadOnlyModelViewSet):
     def start(self, request, pk=None):
         game = self.get_object()
         session_key = request.session.session_key
-        try:
-            game.start(session_key)
-            game_worker_task.delay(game.id)
-        except ValidationError as error:
-            return Response(
-                status=status.HTTP_400_BAD_REQUEST,
-                data={"detail": "Invalid start", "errors": error},
-            )
+        game.start(session_key)
+        game_worker_task.delay(game.id)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @extend_schema(responses={201: inline_serializer("Player", {"id": CharField(read_only=True)})})
@@ -97,11 +91,7 @@ class GameViewSet(ReadOnlyModelViewSet):
         game = self.get_object()
         serializer: ShiritoriTurnSerializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        try:
-            game.take_turn(request.session.session_key, **serializer.validated_data)
-        except ValidationError as error:
-            return Response(status=status.HTTP_400_BAD_REQUEST, data={"detail": error.message})
-
+        game.take_turn(request.session.session_key, **serializer.validated_data)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=["post"], authentication_classes=[RequiresSessionAuth])

@@ -13,6 +13,16 @@ LENGTH_MODIFIER = 1.25
 DURATION_MODIFIERS = {5: 1.8, 10: 1.5, 15: 1.2}
 
 
+def case_insensitive_equal(a: str, b: str) -> bool:
+    """
+    Check if two strings are equal, ignoring case.
+    :param a: str - The first string.
+    :param b: str - The second string.
+    :return: bool - True if the strings are equal, False otherwise.
+    """
+    return a.lower() == b.lower()
+
+
 def chunk_list(iterable, n):
     for i in range(0, len(iterable), n):
         yield iterable[i : i + n]

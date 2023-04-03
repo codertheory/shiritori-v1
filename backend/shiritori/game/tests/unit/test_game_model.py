@@ -189,6 +189,13 @@ def test_take_turn_with_word_not_long_enough(started_game: Game, sample_words: l
     assert exec_info.value.message == "Word must be at least 3 characters long."
 
 
+def test_word_case_insensitive(started_game: Game, sample_words: list[str]):
+    started_game.turn_time_left = 10
+    session_key = started_game.current_player.session_key
+    started_game.take_turn(session_key, sample_words[0].upper())
+    assert started_game.last_word == sample_words[0]
+
+
 def test_end_turn_updates_current_player_and_turn(started_game):
     first_player, next_player = started_game.players
     started_game.end_turn()

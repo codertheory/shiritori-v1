@@ -8,7 +8,7 @@ from django.db import models, transaction
 from django.db.models import Count, F, Q, QuerySet, Sum
 from django.db.models.functions import Length
 
-from shiritori.game.utils import calculate_score, chunk_list, generate_random_letter, wait
+from shiritori.game.utils import calculate_score, case_insensitive_equal, chunk_list, generate_random_letter, wait
 from shiritori.utils import NanoIdField
 from shiritori.utils.abstract_model import AbstractModel, NanoIdModel
 
@@ -288,6 +288,8 @@ class Game(AbstractModel):
         :return: None
         :raises ValidationError: If the player cannot take a turn.
         """
+        if isinstance(word, str):
+            word = word.lower()
         timed_out = self.turn_time_left <= 0
         self.can_take_turn(session_key, timeout=timed_out)
         game_qs = Game.objects.prefetch_related("settings").filter(pk=self.pk)
@@ -297,7 +299,7 @@ class Game(AbstractModel):
             game_word = GameWord(
                 game=self,
                 player=self.current_player,
-                word=word.lower() if isinstance(word, str) else None,
+                word=word if isinstance(word, str) else None,
                 duration=duration,
             )
             if not timed_out:
@@ -496,9 +498,9 @@ class GameWord(NanoIdModel):
         :return: bool - Whether the word is valid.
         """
         error_message = None
-        if self.game.last_word and self.word[0] != self.game.last_word[-1]:
+        if self.game.last_word and not case_insensitive_equal(self.word[0], self.game.last_word[-1]):
             error_message = "Word must start with the last letter of the previous word."
-        if self.game.gameword_set.filter(word=self.word).exists():
+        if self.game.gameword_set.filter(word__iexact=self.word).exists():
             error_message = "Word already used."
         if len(self.word) < self.game.settings.word_length:
             error_message = f"Word must be at least {self.game.settings.word_length} characters long."
