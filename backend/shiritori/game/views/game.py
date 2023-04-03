@@ -15,7 +15,6 @@ from shiritori.game.serializers import (
     EmptySerializer,
     JoinGameSerializer,
     ShiritoriGameSerializer,
-    ShiritoriPlayerSerializer,
     ShiritoriTurnSerializer,
 )
 from shiritori.game.tasks import game_worker_task
@@ -28,6 +27,11 @@ class GameViewSet(ReadOnlyModelViewSet):
     serializer_class = ShiritoriGameSerializer
     authentication_classes = []
     permission_classes = []
+
+    def handle_exception(self, exc: Exception) -> Response:
+        if isinstance(exc, ValidationError):
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={"detail": exc.message})
+        return super().handle_exception(exc)
 
     @staticmethod
     def get_success_headers(data):
@@ -77,11 +81,9 @@ class GameViewSet(ReadOnlyModelViewSet):
             request.session.save()
 
         game = self.get_object()
-        serializer: ShiritoriPlayerSerializer = self.get_serializer(data=request.data)
+        serializer: JoinGameSerializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        player = serializer.save()
-        player.session_key = request.session.session_key
-        game.join(player)
+        player = game.join(player=serializer.validated_data["name"], session_key=request.session.session_key)
 
         headers = self.get_success_headers(serializer.validated_data)
         return Response(

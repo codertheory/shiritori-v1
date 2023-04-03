@@ -163,7 +163,7 @@ class Game(AbstractModel):
             update_fields.append("settings")
         super().save(force_insert, force_update, using, update_fields)
 
-    def join(self, player: Union["Player", str]) -> "Player":
+    def join(self, player: Union["Player", str], session_key: str = None) -> "Player":
         """Add a player to the game."""
         if self.is_started or self.is_finished:
             raise ValidationError("Game has already started or is finished.")
@@ -172,12 +172,15 @@ class Game(AbstractModel):
                 name=player,
                 game=self,
                 type=PlayerType.HUMAN,
+                session_key=session_key,
                 is_host=self.player_count == 0,
             )
         else:
             player.game = self
             player.type = PlayerType.HUMAN
             player.is_host = self.player_count == 0
+            if not player.session_key:
+                player.session_key = session_key
         player.save(update_fields=["name", "game", "type", "session_key", "is_host"])
         return player
 
