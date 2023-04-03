@@ -7,15 +7,17 @@
             :model-value="currentSelected === option.value"
             :on-label="option.label"
             :off-label="option.label"
-            @update:model-value="(value) => handleUpdate(option)(value)"
+            @update:model-value="handleUpdate(option)"
         />
     </div>
 </template>
 
 <script setup lang="ts">
+    import { PropType } from "vue";
+
     defineProps({
         options: {
-            type: Array,
+            type: Array as PropType<{ label: string; value: any }[]>,
             required: true,
         },
         currentSelected: {
@@ -26,10 +28,8 @@
 
     const emit = defineEmits(["change"]);
 
-    const handleUpdate = (option: any) => (value: boolean) => {
-        if (value) {
-            emit("change", option);
-        }
+    const handleUpdate = (option: any) => {
+        emit("change", option);
     };
 </script>
 

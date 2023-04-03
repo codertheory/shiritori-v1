@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-    import { defineProps } from "vue";
+    import { defineProps, PropType } from "vue";
     import { Field } from "vee-validate";
     import { SelectButtonChangeEvent } from "primevue/selectbutton";
 
@@ -30,7 +30,7 @@
             required: true,
         },
         options: {
-            type: Array,
+            type: Array as PropType<{ label: string; value: any }[]>,
             required: true,
         },
         tooltip: {
@@ -40,9 +40,8 @@
         },
     });
 
-    const handleChange =
-        (field: { onChange: Function[] }) => (e: SelectButtonChangeEvent) => {
-            field.onChange[0](e.value);
-        };
+    const handleChange = (field: any) => (e: SelectButtonChangeEvent) => {
+        field.onChange[0](e.value);
+    };
 </script>
 <style scoped></style>

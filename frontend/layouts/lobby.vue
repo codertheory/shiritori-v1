@@ -6,7 +6,7 @@
         @submit="onSubmit"
     >
         <div class="grid">
-            <SvgRoomCode :room-code="$route.params.id" />
+            <SvgRoomCode :room-code="$route.params.id as string" />
             <div class="col">
                 <Card>
                     <template #title>Settings</template>

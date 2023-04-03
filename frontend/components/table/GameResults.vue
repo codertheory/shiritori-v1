@@ -9,17 +9,16 @@
 
 <script setup lang="ts">
     import { useGameStore } from "~/stores/useGameStore";
-    import { components } from "~/schema";
 
     const gameStore = useGameStore();
 
-    const getBestWord = (player: components["schemas"]["ShiritoriPlayer"]) => {
+    const getBestWord = (player: any) => {
         const words = gameStore.getPlayerWords(player.id);
         if (words.length === 0) {
             return "";
         }
         const bestWord = words.reduce((a, b) => (a.score > b.score ? a : b));
-        return bestWord.word;
+        return bestWord.word || "";
     };
 </script>
 

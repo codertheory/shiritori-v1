@@ -28,7 +28,7 @@
                 class="flex flex-column justify-content-center align-items-center"
             >
                 <p class="m-2 text-5xl w-min text-primary font-bold">
-                    {{ gameStore.currentPlayer.name }}
+                    {{ gameStore.currentPlayer?.name || "" }}
                 </p>
                 <p class="m-2 text-5xl font-italic">is thinking of a word...</p>
             </div>
