@@ -1,22 +1,17 @@
 <template>
-    <Card>
-        <template #title>
-            <h1>Finished</h1>
-        </template>
-        <template #content>
-            <h1>Winner: {{ winnerName }} with {{ winnerScore }} Points</h1>
-        </template>
-    </Card>
+    <div
+        class="grid justify-content-center align-content-center flex-wrap h-screen"
+    >
+        <div class="flex flex-column align-center justify-content-center">
+            <h1>GAME RESULTS</h1>
+            <TableGameResults />
+            <!--            <div class="pt-3">-->
+            <!--                <ButtonReturnToLobby />-->
+            <!--            </div>-->
+        </div>
+    </div>
 </template>
 
-<script lang="ts" setup>
-    import { useGameStore } from "~/stores/useGameStore";
-    import { computed } from "vue";
-
-    const gameStore = useGameStore();
-
-    const winnerName = computed(() => gameStore?.winner?.name ?? "");
-    const winnerScore = computed(() => gameStore?.winner?.score ?? 0);
-</script>
+<script lang="ts" setup></script>
 
 <style scoped></style>

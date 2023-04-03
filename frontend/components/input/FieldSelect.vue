@@ -1,26 +1,25 @@
 <template>
-    <Field :name="fieldName" v-slot="{ field, value, errorMessage }">
+    <Field :name="fieldName" v-slot="{ field, value }">
         <div class="field">
             <div class="col-12">
                 <h5>{{ fieldLabel }}</h5>
-                <Slider
-                    v-bind="{ ...field, ...$attrs }"
+                <InputBetterSelectButton
                     v-tooltip="tooltip"
-                    :aria-describedby="`${fieldName}-help`"
-                    :class="{ 'p-invalid': errorMessage }"
                     :model-value="value"
+                    :options="options"
+                    :current-selected="value"
+                    @change="(e) => handleChange(field)(e)"
                 />
             </div>
-
-            <small :id="`${fieldName}-help`" class="p-error">{{
-                errorMessage
-            }}</small>
         </div>
     </Field>
 </template>
 
 <script setup lang="ts">
+    import { defineProps } from "vue";
     import { Field } from "vee-validate";
+    import { SelectButtonChangeEvent } from "primevue/selectbutton";
+
     defineProps({
         fieldName: {
             type: String,
@@ -30,12 +29,20 @@
             type: String,
             required: true,
         },
+        options: {
+            type: Array,
+            required: true,
+        },
         tooltip: {
             type: String,
             required: false,
             default: "",
         },
     });
-</script>
 
+    const handleChange =
+        (field: { onChange: Function[] }) => (e: SelectButtonChangeEvent) => {
+            field.onChange[0](e.value);
+        };
+</script>
 <style scoped></style>

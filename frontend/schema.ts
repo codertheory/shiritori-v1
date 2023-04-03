@@ -248,7 +248,7 @@ export interface operations {
 export const gameSettingsSchema = z.object({
     locale: z.literal("en").default("en"),
     word_length: z.number().min(3).max(5).default(3),
-    turn_time: z.number().min(30).max(120).default(60),
+    turn_time: z.number().min(5).max(60).default(60),
     max_turns: z.number().min(5).max(20).default(10),
 });
 

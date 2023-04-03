@@ -1,6 +1,12 @@
 <template>
-    <h1>Shiritori</h1>
-    <FormCreateGame />
+    <div class="grid">
+        <div class="col-3 p-0">
+            <SvgLogo />
+        </div>
+        <div class="col-9 justify-content-center align-center flex">
+            <FormCreateGame />
+        </div>
+    </div>
 </template>
 
 <script lang="ts" setup>

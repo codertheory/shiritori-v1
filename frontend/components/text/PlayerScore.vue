@@ -20,7 +20,10 @@
     watch(
         () => props.number,
         (n) => {
-            gsap.to(tweened, { duration: 0.5, number: Number(n) || 0 });
+            if (Number.isNaN(n)) {
+                return;
+            }
+            gsap.to(tweened, { duration: 0.5, number: n });
         }
     );
 </script>

@@ -1,10 +1,9 @@
 <template>
     <Button
         :loading="isSubmitting"
-        icon="pi pi-check"
         label="Join Game"
+        class="w-full rounded-text-input"
         :disabled="!formIsValid"
-        type="submit"
         @click="submitForm"
     />
 </template>
@@ -25,4 +24,8 @@
     const submitForm = useSubmitForm(onSubmit);
 </script>
 
-<style scoped></style>
+<style scoped>
+    :deep(.p-button) {
+        border-radius: 40px !important;
+    }
+</style>

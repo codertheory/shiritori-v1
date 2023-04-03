@@ -1,7 +1,7 @@
 <template>
     <Button
-        icon="pi pi-check"
         label="Create Game"
+        class="rounded-text-input"
         type="submit"
         :disabled="!formIsValid"
         :loading="isSubmitting"
@@ -15,4 +15,8 @@
     const formIsValid = useIsFormValid();
 </script>
 
-<style scoped></style>
+<style scoped>
+    :deep(.p-button) {
+        border-radius: 40px !important;
+    }
+</style>

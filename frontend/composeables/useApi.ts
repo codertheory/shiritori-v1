@@ -46,10 +46,6 @@ export const useApi = () => {
             credentials: "include",
             // eslint-disable-next-line no-undef
             headers: useRequestHeaders(["cookie"]) as HeadersInit,
-            onRequestError({ error }) {
-                // Handle the request errors
-                console.error("onRequestError", error);
-            },
         });
     };
     const api = <client>{

@@ -12,9 +12,13 @@ export const useJoinGameForm = () => {
         const route = useRoute();
         const id = route.params.id;
         if (!id) throw new Error("No game id found");
-        await gameStore.joinGame(id as string, {
-            name: values.username,
-        });
+        try {
+            await gameStore.joinGame(id as string, {
+                name: values.username,
+            });
+        } catch (e) {
+            console.error(e);
+        }
     });
 
     return {

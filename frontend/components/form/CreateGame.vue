@@ -5,21 +5,18 @@
         :validate-on-mount="false"
         @submit="onSubmit"
     >
-        <div class="flex justify-content-center">
+        <div class="flex flex-column col-3 justify-content-center w-full">
+            <InputFieldUsername />
             <Card>
-                <template #title>Create Game</template>
                 <template #content>
                     <UtilityFormUIBlock>
-                        <InputFieldUsername />
-                        <Divider />
-                        <h1>Settings</h1>
                         <FieldsetSettingsGame />
                     </UtilityFormUIBlock>
                 </template>
-                <template #footer>
-                    <ButtonCreateGame />
-                </template>
             </Card>
+            <div class="pt-6">
+                <ButtonCreateGame class="w-full h-4rem" />
+            </div>
         </div>
     </Form>
 </template>
@@ -31,4 +28,12 @@
     const { validationSchema, initialValues, onSubmit } = useCreateGameForm();
 </script>
 
-<style scoped></style>
+<style scoped>
+    :deep(.p-card-body) {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+    :deep(.p-card-content) {
+        padding-top: 0 !important;
+    }
+</style>

@@ -6,11 +6,12 @@ export default defineNuxtConfig({
         "@nuxt/devtools",
         "@pinia/nuxt",
         "nuxt-typed-router",
+        "nuxt-icon",
         "@nuxtjs/device",
         "@nuxtjs/eslint-module",
     ],
     css: [
-        "primevue/resources/themes/lara-dark-purple/theme.css",
+        "assets/css/theme.css",
         "primevue/resources/primevue.min.css",
         "primeicons/primeicons.css",
         "primeflex/primeflex.css",

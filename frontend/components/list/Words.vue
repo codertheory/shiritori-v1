@@ -5,7 +5,10 @@
         :position="position"
         :dismissable="device.isMobileOrTablet"
     >
-        <h2>Words Used</h2>
+        <div class="flex flex-column justify-content-center align-items-center">
+            <h2 class="mt-0">Words Used</h2>
+        </div>
+        <divider class="mt-0" />
         <ListItemGameWord />
     </Sidebar>
 </template>

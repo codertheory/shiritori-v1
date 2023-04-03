@@ -1,18 +1,15 @@
 {
-  "root": true,
-  "plugins": [
-    "@typescript-eslint",
-    "prettier"
-  ],
-  "env": {
-    "node": true,
-    "browser": true
-  },
-  "parserOptions": {
-      "parser": "@typescript-eslint/parser",
-      "ecmaVersion": 2020,
-      "sourceType": "module"
-  },
+    "root": true,
+    "plugins": ["@typescript-eslint", "prettier"],
+    "env": {
+        "node": true,
+        "browser": true
+    },
+    "parserOptions": {
+        "parser": "@typescript-eslint/parser",
+        "ecmaVersion": 2020,
+        "sourceType": "module"
+    },
     "extends": [
         "plugin:vue/vue3-strongly-recommended",
         "eslint:recommended",
@@ -48,10 +45,7 @@
         "no-console": [
             "error",
             {
-                "allow": [
-                    "warn",
-                    "error"
-                ]
+                "allow": ["warn", "error"]
             }
         ],
         "semi": "off",
@@ -59,9 +53,7 @@
     },
     "overrides": [
         {
-            "files": [
-                "*.vue"
-            ],
+            "files": ["*.vue"],
             "rules": {
                 "indent": "off"
             }

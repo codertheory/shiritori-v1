@@ -1,26 +1,20 @@
 <template>
-    <div>
-        <h1>Game {{ $route.params.id }}</h1>
+    <Form
+        :initial-values="initialValues"
+        :validate-on-mount="false"
+        :validation-schema="validationSchema"
+        @submit="onSubmit"
+    >
         <div class="grid">
+            <SvgRoomCode :room-code="$route.params.id" />
             <div class="col">
-                <Form
-                    :initial-values="initialValues"
-                    :validate-on-mount="false"
-                    :validation-schema="validationSchema"
-                    @submit="onSubmit"
-                >
-                    <Card>
-                        <template #title>Settings</template>
-                        <template #content>
-                            <FormSettingsGame :disabled="!gameStore.isHost" />
-                        </template>
-                        <template #footer>
-                            <div class="flex flex-end justify-content-end">
-                                <ButtonStartGame />
-                            </div>
-                        </template>
-                    </Card>
-                </Form>
+                <Card>
+                    <template #title>Settings</template>
+                    <template #content>
+                        <FormSettingsGame :disabled="!gameStore.isHost" />
+                        <ButtonStartGame />
+                    </template>
+                </Card>
             </div>
             <div class="col">
                 <Card>
@@ -31,7 +25,7 @@
                 </Card>
             </div>
         </div>
-    </div>
+    </Form>
 </template>
 
 <script setup lang="ts">
@@ -43,4 +37,8 @@
     const { validationSchema, initialValues, onSubmit } = useGameSettingsForm();
 </script>
 
-<style scoped></style>
+<style scoped>
+    :deep(.p-card) {
+        height: 100%;
+    }
+</style>

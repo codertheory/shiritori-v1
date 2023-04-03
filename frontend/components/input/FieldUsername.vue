@@ -3,20 +3,17 @@
         <div class="field">
             <div class="col-12">
                 <div class="p-inputgroup">
-                    <span class="p-inputgroup-addon">
-                        <i class="pi pi-user"></i>
-                    </span>
                     <InputText
                         v-bind="field"
                         aria-describedby="username-help"
+                        class="rounded-text-input"
                         :class="{ 'p-invalid': errorMessage }"
-                        placeholder="username"
+                        placeholder="ENTER USERNAME"
                         autofocus
+                        autocomplete="off"
                     />
                 </div>
             </div>
-
-            <small id="username-help" class="p-error">{{ errorMessage }}</small>
         </div>
     </Field>
 </template>
@@ -25,4 +22,4 @@
     import { Field } from "vee-validate";
 </script>
 
-<style scoped></style>
+<style scoped lang="scss"></style>

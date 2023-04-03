@@ -1,12 +1,14 @@
 <template>
-    <div v-tooltip.top="tooltipMessage" style="display: inline-block">
-        <Button
-            :disabled="!gameStore.canStart"
-            :loading="isSubmitting"
-            icon="pi pi-check"
-            label="Start Game"
-            type="submit"
-        />
+    <div class="pt-6">
+        <div class="w-full" v-tooltip.top="tooltipMessage" style="">
+            <Button
+                :disabled="!gameStore.canStart"
+                :loading="isSubmitting"
+                class="w-full h-4rem"
+                label="Start Game"
+                type="submit"
+            />
+        </div>
     </div>
 </template>
 
@@ -29,4 +31,8 @@
     });
 </script>
 
-<style scoped></style>
+<style scoped>
+    :deep(.p-button) {
+        border-radius: 40px !important;
+    }
+</style>

@@ -17,7 +17,11 @@ export const useGameStore = defineStore("game", () => {
     const game = ref<components["schemas"]["ShiritoriGame"]>();
     const myId = ref<string>();
     const isJoining = ref<boolean | undefined>();
-    const turnTimeLeft = ref<number>(0);
+    const gameTurnTimeLeft = ref<number>(0);
+
+    const roomCode = computed(() => {
+        return game.value?.id ?? "";
+    });
 
     const me = computed(() => {
         return game.value?.players?.find((p) => p.id === myId.value);
@@ -41,8 +45,20 @@ export const useGameStore = defineStore("game", () => {
         return game.value?.players.find((p) => p.isCurrent);
     });
 
+    const isCurrentPlayerMe = computed(() => {
+        return currentPlayer.value?.id == me.value?.id;
+    });
+
     const settings = computed(() => {
         return game.value?.settings ?? {};
+    });
+
+    const currentTurn = computed(() => {
+        return game.value?.currentTurn ?? 0;
+    });
+
+    const maxTurns = computed(() => {
+        return game.value?.settings.maxTurns ?? 0;
     });
 
     const lastWord = computed(() => {
@@ -72,12 +88,20 @@ export const useGameStore = defineStore("game", () => {
         return players.value.find((p) => p.type === "WINNER");
     });
 
+    const leaderboard = computed(() => {
+        return [...players.value].sort((a, b) => b.score - a.score);
+    });
+
     const isPlayerCurrent = (playerId: string) => {
         return playerId === currentPlayer.value?.id;
     };
 
     const getPlayer = (playerId: string) => {
         return players.value.find((p) => p.id === playerId);
+    };
+
+    const getPlayerWords = (playerId: string) => {
+        return words.value.filter((w) => w.playerId === playerId);
     };
 
     const createGame = async (
@@ -145,7 +169,7 @@ export const useGameStore = defineStore("game", () => {
 
     const setGame = (g: components["schemas"]["ShiritoriGame"]) => {
         game.value = g;
-        if (turnTimeLeft.value === 0) {
+        if (gameTurnTimeLeft.value === 0) {
             setTurnTimeLeft(g.turnTimeLeft);
         }
     };
@@ -159,7 +183,9 @@ export const useGameStore = defineStore("game", () => {
     };
 
     const setTurnTimeLeft = (t: number) => {
-        turnTimeLeft.value = t;
+        if (t) {
+            gameTurnTimeLeft.value = t;
+        }
     };
 
     const onSocketEvent = (e: MessageEvent) => {
@@ -189,22 +215,28 @@ export const useGameStore = defineStore("game", () => {
     return {
         game,
         myId,
+        roomCode,
         me,
         isJoining,
         players,
         words,
         isMyTurn,
         currentPlayer,
+        isCurrentPlayerMe,
         settings,
-        turnTimeLeft,
+        currentTurn,
+        maxTurns,
+        gameTurnTimeLeft,
         lastWord,
         lastLetter,
         gameTurnDuration,
         isHost,
         canStart,
         winner,
+        leaderboard,
         isPlayerCurrent,
         getPlayer,
+        getPlayerWords,
         createGame,
         joinGame,
         handleStartGame,

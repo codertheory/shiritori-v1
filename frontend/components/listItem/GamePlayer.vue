@@ -1,13 +1,18 @@
 <template>
-    <Card>
+    <Card
+        class="flex flex-column justify-content-center align-items-center"
+        :class="{ 'active-player': gameStore.isPlayerCurrent(player.id) }"
+        style="min-width: 15.625rem"
+    >
         <template #title>
-            <h3>
-                {{ player.name }} -
-                <PlayerScore :number="player.score" />
-            </h3>
-        </template>
-        <template #content>
-            <InputFieldWord v-if="player.isCurrent" :player-id="player.id" />
+            <div
+                class="flex col-12 flex-row justify-content-center align-items-center"
+            >
+                <h3 class="align-center">{{ player.name }} -</h3>
+                <div class="ml-2">
+                    <PlayerScore :number="player.score" />
+                </div>
+            </div>
         </template>
     </Card>
 </template>
@@ -16,6 +21,7 @@
     import { components } from "~/schema";
     import type { PropType } from "vue";
     import PlayerScore from "~/components/text/PlayerScore.vue";
+    import { useGameStore } from "~/stores/useGameStore";
 
     defineProps({
         player: {
@@ -23,6 +29,15 @@
             required: true,
         },
     });
+
+    const gameStore = useGameStore();
 </script>
 
-<style scoped></style>
+<style scoped>
+    :deep(.p-card-body) {
+        width: 100%;
+    }
+    .active-player {
+        border: 2px solid var(--primary-color);
+    }
+</style>
