@@ -362,7 +362,7 @@ class Game(AbstractModel):
 
 
 class Player(AbstractModel, NanoIdModel):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=15)
     game = models.ForeignKey(
         "Game",
         on_delete=models.CASCADE,
@@ -514,7 +514,7 @@ class GameWord(NanoIdModel):
 class GameSettings(NanoIdModel):
     locale = models.CharField(max_length=10, choices=GameLocales.choices, default=GameLocales.EN)
     word_length = models.IntegerField(default=3, validators=[MinValueValidator(3), MaxValueValidator(5)])
-    turn_time = models.IntegerField(default=60, validators=[MinValueValidator(30), MaxValueValidator(120)])
+    turn_time = models.IntegerField(default=60, validators=[MinValueValidator(5), MaxValueValidator(120)])
     max_turns = models.IntegerField(default=10, validators=[MinValueValidator(5), MaxValueValidator(20)])
 
     class Meta:

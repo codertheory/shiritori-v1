@@ -2,7 +2,7 @@
     <Timeline :value="gameStore.words">
         <template #opposite="slotProps">
             <div
-                class="flex flex-row justify-content-center align-items-end pt-sm"
+                class="flex flex-row justify-content-start align-items-end pt-sm"
             >
                 <span class="font-bold text-primary">{{
                     getPlayerName(slotProps.item)
