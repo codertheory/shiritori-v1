@@ -258,9 +258,10 @@ export const usernameSchema = z
     .string()
     .min(3, "Username must be at least 3 characters long")
     .max(15, "Username must be at most 15 characters long")
-    .refine((value) => /^[a-zA-Z0-9_]+$/.test(value), {
-        message: "Username can only contain letters, numbers and underscores",
-    });
+    .refine(
+        (value) => /^[a-zA-Z0-9]+$/.test(value),
+        "Username can only contain letters and numbers"
+    );
 
 export const createGameSchema = gameSettingsSchema.extend({
     username: usernameSchema,

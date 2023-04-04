@@ -31,6 +31,10 @@ export const useGameStore = defineStore("game", () => {
         return game.value?.players ?? [];
     });
 
+    const connectedPlayers = computed(() => {
+        return players.value.filter((p) => p.isConnected);
+    });
+
     const words = computed(
         (): Writeable<components["schemas"]["ShiritoriGameWord"][]> => {
             return Object.assign([], game.value?.words ?? []);
@@ -81,7 +85,7 @@ export const useGameStore = defineStore("game", () => {
     });
 
     const canStart = computed(() => {
-        return isHost.value && players.value.length >= 2;
+        return isHost.value && connectedPlayers.value.length >= 2;
     });
 
     const winner = computed(() => {
