@@ -11,7 +11,7 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from shiritori.game.auth import RequiresSessionAuth
 from shiritori.game.models import Game
 from shiritori.game.serializers import (
-    CreateGameSerializer,
+    CreateStartGameSerializer,
     EmptySerializer,
     JoinGameSerializer,
     ShiritoriGameSerializer,
@@ -42,9 +42,9 @@ class GameViewSet(ReadOnlyModelViewSet):
 
     def get_serializer_class(self):
         match self.action:
-            case "create":
-                return CreateGameSerializer
-            case "start" | "turn":
+            case "create" | "start":
+                return CreateStartGameSerializer
+            case "turn":
                 return ShiritoriTurnSerializer
             case "join":
                 return JoinGameSerializer
@@ -64,7 +64,10 @@ class GameViewSet(ReadOnlyModelViewSet):
     def start(self, request, pk=None):
         game = self.get_object()
         session_key = request.session.session_key
-        game.start(session_key)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        game_settings = serializer.validated_data.get("settings")
+        game.start(session_key, game_settings=game_settings)
         game_worker_task.delay(game.id)
         return Response(status=status.HTTP_204_NO_CONTENT)
 

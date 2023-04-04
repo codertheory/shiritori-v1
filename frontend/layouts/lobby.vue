@@ -1,9 +1,9 @@
 <template>
     <Form
-        :initial-values="initialValues"
+        :initial-values="gameStore.settings"
         :validate-on-mount="false"
-        :validation-schema="validationSchema"
-        @submit="onSubmit"
+        :validation-schema="gameSettingsForm.validationSchema"
+        @submit="gameSettingsForm.onSubmit"
     >
         <div class="grid">
             <SvgRoomCode :room-code="$route.params.id as string" />
@@ -34,7 +34,7 @@
     import { useGameSettingsForm } from "~/composeables/useGameSettingsForm";
 
     const gameStore = useGameStore();
-    const { validationSchema, initialValues, onSubmit } = useGameSettingsForm();
+    const gameSettingsForm = useGameSettingsForm();
 </script>
 
 <style scoped>

@@ -5,8 +5,9 @@ from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from djangorestframework_camel_case.settings import api_settings
 from djangorestframework_camel_case.util import camelize
 
-from shiritori.game.helpers import aconvert_game_to_json, aget_player_from_cookie
-from shiritori.game.models import Game, GameStatus
+from shiritori.game import tasks
+from shiritori.game.helpers import aconvert_game_to_json, aget_player_from_cookie, disconnect_player
+from shiritori.game.models import Game, GameStatus, Player
 from shiritori.game.serializers import ShiritoriGameSerializer
 
 __all__ = (
@@ -68,12 +69,24 @@ class GameConsumer(CamelizedWebSocketConsumer):
             if not self.scope["session"].session_key:
                 await sync_to_async(self.scope["session"].save)()
 
-            self_player = (
+            self_player: Player | None = (
                 await aget_player_from_cookie(game_id, session_id)
                 if (session_id := self.scope["session"].session_key)
                 else None
             )
+            self_player.is_connected = True
+            await self_player.asave()  # type: ignore
             await self.channel_layer.group_add(self.game_group_name, self.channel_name)
+
+            await self.channel_layer.group_send(
+                game_id,
+                {
+                    "type": "player_connected",
+                    "data": {
+                        "player_id": self_player.id,
+                    },
+                },
+            )
 
             game_data = await aconvert_game_to_json(game)
 
@@ -93,8 +106,32 @@ class GameConsumer(CamelizedWebSocketConsumer):
             sentry_sdk.capture_exception(e)
             raise DenyConnection("Something went wrong") from e
 
+    async def disconnect(self, code):
+        game_id = self.scope["url_route"]["kwargs"]["game_id"]
+        if not self.scope["session"].session_key:
+            return
+        player = await disconnect_player(game_id, self.scope["session"].session_key)
+        if player:
+            tasks.player_disconnect_task.delay(self.scope["session"].session_key)
+            await self.channel_layer.group_send(
+                game_id,
+                {
+                    "type": "player_disconnected",
+                    "data": {
+                        "player_id": player.id,
+                    },
+                },
+            )
+        await self.channel_layer.group_discard(self.game_group_name, self.channel_name)
+
     async def game_updated(self, event):
         await self.send_json(event)
 
     async def game_timer_updated(self, event):
+        await self.send_json(event)
+
+    async def player_connected(self, event):
+        await self.send_json(event)
+
+    async def player_disconnected(self, event):
         await self.send_json(event)

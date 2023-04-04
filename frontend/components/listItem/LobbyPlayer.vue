@@ -1,6 +1,8 @@
 <template>
     <div>
-        <h1>{{ player.name }}</h1>
+        <h1 :class="{ disconnected: !player.isConnected }">
+            {{ player.name }}
+        </h1>
     </div>
 </template>
 
@@ -16,4 +18,8 @@
     });
 </script>
 
-<style scoped></style>
+<style scoped>
+    .disconnected {
+        color: var(--surface-300);
+    }
+</style>

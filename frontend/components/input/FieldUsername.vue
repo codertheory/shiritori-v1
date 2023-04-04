@@ -14,6 +14,7 @@
                     />
                 </div>
             </div>
+            <small id="username-help" class="p-error">{{ errorMessage }}</small>
         </div>
     </Field>
 </template>

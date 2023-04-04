@@ -14,6 +14,7 @@ __all__ = (
     "aconvert_games_to_json",
     "aconvert_player_to_json",
     "aget_player_from_cookie",
+    "disconnect_player",
 )
 
 
@@ -43,3 +44,17 @@ def aconvert_player_to_json(player: Player) -> ReturnDict[Player] | ReturnDict:
 @sync_to_async
 def aget_player_from_cookie(game_id: str, session_key: str) -> Player | None:
     return Player.get_by_session_key(game_id, session_key)
+
+
+async def reconnect_player(game_id: str, session_key: str) -> Player | None:
+    qs = Player.objects.filter(game_id=game_id, session_key=session_key)
+    if await qs.aexists():
+        await qs.aupdate(is_connected=True)
+        return await qs.afirst()
+
+
+async def disconnect_player(game_id: str, session_key: str) -> Player | None:
+    qs = Player.objects.filter(game_id=game_id, session_key=session_key)
+    if await qs.aexists():
+        await qs.aupdate(is_connected=False)
+        return await qs.afirst()

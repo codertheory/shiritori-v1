@@ -43,7 +43,7 @@ export interface paths {
 
 export interface components {
     schemas: {
-        CreateGame: {
+        CreateStartGame: {
             settings: components["schemas"]["ShiritoriGameSettings"];
         };
         JoinGame: {
@@ -57,9 +57,10 @@ export interface components {
             settings: components["schemas"]["ShiritoriGameSettings"];
             playerCount: number;
             wordCount: number;
+            longestWord: string | null;
             isFinished: boolean;
-            winner: string;
-            currentPlayer: string;
+            winner: string | null;
+            currentPlayer: string | null;
             turnTimeLeft: number;
             words: readonly components["schemas"]["ShiritoriGameWord"][];
             players: readonly components["schemas"]["ShiritoriPlayer"][];
@@ -90,10 +91,10 @@ export interface components {
         ShiritoriGameWord: {
             word?: string | null;
             /** Format: double */
-            score: number;
+            score?: number;
             /** Format: double */
-            duration: number;
-            playerId: string;
+            duration?: number;
+            playerId: string | null;
         };
         ShiritoriPlayer: {
             id: string;
@@ -107,6 +108,7 @@ export interface components {
              * @enum {string}
              */
             type?: "HUMAN" | "BOT" | "SPECTATOR" | "WINNER";
+            isConnected?: boolean;
             isCurrent?: boolean;
             isHost?: boolean;
         };
@@ -136,7 +138,7 @@ export interface operations {
     apiGameCreate: {
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateGame"];
+                "application/json": components["schemas"]["CreateStartGame"];
             };
         };
         responses: {
@@ -149,8 +151,8 @@ export interface operations {
     };
     apiGameRetrieve: {
         parameters: {
-            /** @description A unique value identifying this game. */
             path: {
+                /** @description A unique value identifying this game. */
                 id: string;
             };
         };
@@ -164,8 +166,8 @@ export interface operations {
     };
     apiGameJoinCreate: {
         parameters: {
-            /** @description A unique value identifying this game. */
             path: {
+                /** @description A unique value identifying this game. */
                 id: string;
             };
         };
@@ -184,8 +186,8 @@ export interface operations {
     };
     apiGameLeaveCreate: {
         parameters: {
-            /** @description A unique value identifying this game. */
             path: {
+                /** @description A unique value identifying this game. */
                 id: string;
             };
         };
@@ -196,28 +198,28 @@ export interface operations {
     };
     apiGameStartCreate: {
         parameters: {
-            /** @description A unique value identifying this game. */
             path: {
+                /** @description A unique value identifying this game. */
                 id: string;
             };
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ShiritoriTurn"];
+                "application/json": components["schemas"]["CreateStartGame"];
             };
         };
         responses: {
             200: {
                 content: {
-                    "application/json": components["schemas"]["ShiritoriTurn"];
+                    "application/json": components["schemas"]["CreateStartGame"];
                 };
             };
         };
     };
     apiGameTurnCreate: {
         parameters: {
-            /** @description A unique value identifying this game. */
             path: {
+                /** @description A unique value identifying this game. */
                 id: string;
             };
         };
@@ -247,15 +249,18 @@ export interface operations {
 
 export const gameSettingsSchema = z.object({
     locale: z.literal("en").default("en"),
-    word_length: z.number().min(3).max(5).default(3),
-    turn_time: z.number().min(5).max(60).default(60),
-    max_turns: z.number().min(5).max(20).default(10),
+    wordLength: z.number().min(3).max(5).default(3),
+    turnTime: z.number().min(5).max(60).default(60),
+    maxTurns: z.number().min(5).max(20).default(10),
 });
 
 export const usernameSchema = z
     .string()
     .min(3, "Username must be at least 3 characters long")
-    .max(15, "Username must be at most 15 characters long");
+    .max(15, "Username must be at most 15 characters long")
+    .refine((value) => /^[a-zA-Z0-9_]+$/.test(value), {
+        message: "Username can only contain letters, numbers and underscores",
+    });
 
 export const createGameSchema = gameSettingsSchema.extend({
     username: usernameSchema,

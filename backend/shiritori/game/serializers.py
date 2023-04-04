@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from shiritori.game.models import Game, GameSettings, GameWord, Player
@@ -10,8 +11,17 @@ __all__ = (
     "JoinGameSerializer",
     "ShiritoriGameSerializer",
     "ShiritoriTurnSerializer",
-    "CreateGameSerializer",
+    "CreateStartGameSerializer",
 )
+
+
+@extend_schema_field(
+    {
+        "type": "string",
+    }
+)
+class StringPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
+    pass
 
 
 class EmptySerializer(serializers.Serializer):
@@ -54,6 +64,7 @@ class ShiritoriPlayerSerializer(serializers.ModelSerializer):
             "score",
             "type",
             "is_current",
+            "is_connected",
             "is_host",
         )
 
@@ -68,10 +79,10 @@ class ShiritoriGameSerializer(serializers.ModelSerializer):
     settings = ShiritoriGameSettingsSerializer(read_only=True)
     player_count = serializers.IntegerField(read_only=True)
     word_count = serializers.IntegerField(read_only=True)
-    longest_word = serializers.PrimaryKeyRelatedField(read_only=True, allow_null=True)
+    longest_word = StringPrimaryKeyRelatedField(read_only=True, allow_null=True)
     is_finished = serializers.BooleanField(read_only=True)
-    winner = serializers.PrimaryKeyRelatedField(read_only=True, allow_null=True)
-    current_player = serializers.PrimaryKeyRelatedField(read_only=True, allow_null=True)
+    winner = StringPrimaryKeyRelatedField(read_only=True, allow_null=True)
+    current_player = StringPrimaryKeyRelatedField(read_only=True, allow_null=True)
     turn_time_left = serializers.IntegerField(read_only=True)
     words = ShiritoriGameWordSerializer(many=True, read_only=True)
     players = ShiritoriPlayerSerializer(many=True, read_only=True)
@@ -85,8 +96,8 @@ class ShiritoriTurnSerializer(serializers.Serializer):
     word = serializers.CharField(max_length=50)
 
 
-class CreateGameSerializer(serializers.Serializer):
-    settings = ShiritoriGameSettingsSerializer()
+class CreateStartGameSerializer(serializers.Serializer):
+    settings = ShiritoriGameSettingsSerializer(required=False)
 
     def save(self, **kwargs):
         settings = GameSettings.objects.create(**self.validated_data["settings"])

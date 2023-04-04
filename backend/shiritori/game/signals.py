@@ -19,6 +19,13 @@ def player_post_save(sender, instance: Player, created, **kwargs):
 
 @receiver(post_delete, sender=Player)
 def player_post_delete(sender, instance: Player, **kwargs):
+    if instance.game.player_count == 0:
+        instance.game.delete()
+        return
+
+    if instance.is_host:
+        instance.game.recalculate_host()
+
     send_game_updated(instance.game)
 
 

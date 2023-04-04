@@ -3,7 +3,7 @@ from typing import Optional, Union
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import models, transaction
 from django.db.models import Count, F, Q, QuerySet, Sum
 from django.db.models.functions import Length
@@ -89,6 +89,10 @@ class Game(AbstractModel):
     @property
     def current_player(self) -> Optional["Player"]:
         return self.player_set.filter(is_current=True).first()
+
+    @property
+    def next_player(self) -> Optional["Player"]:
+        return self.players[self.current_turn % self.player_count]
 
     @current_player.setter
     def current_player(self, value: "Player") -> None:
@@ -201,10 +205,13 @@ class Game(AbstractModel):
                 self.status = GameStatus.FINISHED
         self.save(update_fields=["status"])
 
-    def start(self, session_key: str = None, *, save: bool = True) -> None:
+    def start(
+        self, session_key: str = None, game_settings: Optional["GameSettings"] = None, *, save: bool = True
+    ) -> None:
         """
         Start the game.
         :param session_key: str - The session key of the player starting the game.
+        :param game_settings: GameSettings - The settings to use for the game.
         :param save: bool - Whether to save the game after starting.
         :return: None
         :raises ValidationError: If there are less than 2 players in the game.
@@ -218,8 +225,13 @@ class Game(AbstractModel):
         self.status = GameStatus.PLAYING
         self.calculate_current_player(save=False)
         self.turn_time_left = self.settings.turn_time
+        if game_settings:
+            self.settings = game_settings
         if save:
-            self.save(update_fields=["status", "turn_time_left"])
+            update_fields = ["status", "turn_time_left"]
+            if game_settings:
+                update_fields.append("settings")
+            self.save(update_fields=update_fields)
 
     def calculate_current_player(self, *, save: bool = True) -> None:
         """
@@ -234,7 +246,10 @@ class Game(AbstractModel):
         if player_count == 1:
             raise ValidationError("Cannot calculate current player when there is only 1 player.")
 
-        self.current_player = self.players[self.current_turn % self.player_count]
+        if self.next_player and self.next_player.is_connected is False:
+            self.skip_turn()
+        else:
+            self.current_player = self.next_player
 
         if save:
             self.save()
@@ -324,6 +339,21 @@ class Game(AbstractModel):
                     ]
                 )
 
+    def skip_turn(self):
+        """
+        Skip the current turn.
+        This is usually called when the player has disconnected.
+
+        This will not result in a penalty.
+
+        :return: None
+        """
+        connected_players = self.players.filter(is_connected=True)
+        current_player_index = list(connected_players).index(self.current_player)
+        if connected_players.count() >= 2:
+            next_index = (current_player_index + 1) % connected_players.count()
+            self.current_player = connected_players[next_index]
+
     def end_turn(self) -> None:
         """
         End the current turn. and start the next turn.
@@ -362,7 +392,9 @@ class Game(AbstractModel):
 
 
 class Player(AbstractModel, NanoIdModel):
-    name = models.CharField(max_length=15)
+    name = models.CharField(
+        max_length=15, validators=[RegexValidator(r"^[0-9a-zA-Z]*$", "Only alphanumeric characters are allowed.")]
+    )
     game = models.ForeignKey(
         "Game",
         on_delete=models.CASCADE,
@@ -375,6 +407,7 @@ class Player(AbstractModel, NanoIdModel):
     )
     is_current = models.BooleanField(default=False)
     is_host = models.BooleanField(default=False)
+    is_connected = models.BooleanField(default=True)
     session_key = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:

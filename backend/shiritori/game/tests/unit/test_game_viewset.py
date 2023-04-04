@@ -14,6 +14,12 @@ def mock_game_worker_task():
         yield mock
 
 
+@pytest.fixture(scope="module", autouse=True)
+def mock_player_disconnect_task():
+    with patch("shiritori.game.tasks.player_disconnect_task") as mock:
+        yield mock
+
+
 def test_game_create_view(drf: APIClient, default_game_settings):
     response = drf.post("/api/game/", {"settings": default_game_settings}, format="json")
     assert response.status_code == 201
@@ -148,6 +154,7 @@ def test_get_game_view(drf: APIClient, finished_game: Game):
                 "score": player.score,
                 "type": player.type,
                 "is_current": player.is_current,
+                "is_connected": player.is_connected,
                 "is_host": player.is_host,
             }
             for player in game.players.all()

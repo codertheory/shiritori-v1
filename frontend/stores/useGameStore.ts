@@ -1,6 +1,6 @@
 import { computed, ref } from "vue";
 import { defineStore } from "pinia";
-import { components, createGameSchema } from "~/schema";
+import { components, createGameSchema, gameSettingsSchema } from "~/schema";
 import { useSocketStore } from "~/stores/useSocketStore";
 import { useApi } from "~/composeables/useApi";
 import { Writeable } from "zod";
@@ -50,7 +50,7 @@ export const useGameStore = defineStore("game", () => {
     });
 
     const settings = computed(() => {
-        return game.value?.settings ?? {};
+        return game.value?.settings ?? gameSettingsSchema.parse({});
     });
 
     const currentTurn = computed(() => {
@@ -97,7 +97,17 @@ export const useGameStore = defineStore("game", () => {
     };
 
     const getPlayer = (playerId: string) => {
-        return players.value.find((p) => p.id === playerId);
+        return players.value.findIndex((p) => p.id === playerId);
+    };
+
+    const setPlayerConnected = (playerId: string, connected: boolean) => {
+        const playerIndex = getPlayer(playerId);
+        if (playerIndex !== -1) {
+            const player = game.value?.players[playerIndex];
+            if (player) {
+                player.isConnected = connected;
+            }
+        }
     };
 
     const getPlayerWords = (playerId: string) => {
@@ -132,10 +142,15 @@ export const useGameStore = defineStore("game", () => {
         return data;
     };
 
-    const handleStartGame = async () => {
-        const { data, error } = await apiGameStartCreate({
-            id: game.value!.id,
-        });
+    const handleStartGame = async (
+        settings: components["schemas"]["ShiritoriGameSettings"]
+    ) => {
+        const { data, error } = await apiGameStartCreate(
+            {
+                id: game.value!.id,
+            },
+            { body: { settings } }
+        );
         if (error.value) {
             throw error.value;
         }
@@ -200,6 +215,12 @@ export const useGameStore = defineStore("game", () => {
             case "connected":
                 setGame(eventData.data.game);
                 setMe(eventData.data.selfPlayer);
+                break;
+            case "player_disconnected":
+                setPlayerConnected(eventData.data.playerId, false);
+                break;
+            case "player_connected":
+                setPlayerConnected(eventData.data.playerId, true);
                 break;
             default:
                 break;

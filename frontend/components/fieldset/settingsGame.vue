@@ -1,19 +1,19 @@
 <template>
     <BlockUI :blocked="disabled">
         <InputFieldSelect
-            field-name="turn_time"
+            field-name="turnTime"
             field-label="Turn Timer"
             tooltip="The time each player has to play a word."
             :options="turnTimeOptions"
         />
         <InputFieldSelect
-            field-name="word_length"
+            field-name="wordLength"
             field-label="Minimum Word Length"
             tooltip="The minimum length of words to play."
             :options="wordLengthOptions"
         />
         <InputFieldSelect
-            field-name="max_turns"
+            field-name="maxTurns"
             field-label="Rounds"
             tooltip="The number of rounds to play."
             :options="roundOptions"

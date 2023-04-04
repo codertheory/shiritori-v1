@@ -206,3 +206,13 @@ def test_end_turn_updates_current_player_and_turn(started_game):
 
 def test_finished_game_longest_word(finished_game):
     assert finished_game.longest_word.word == "toothbrush"
+
+
+def test_skip_turn_updates_current_player_and_turn(started_game):
+    first_player, next_player = started_game.players
+    started_game.skip_turn()
+    assert started_game.current_player == next_player
+    started_game.skip_turn()
+    assert started_game.current_player == first_player
+    started_game.skip_turn()
+    assert started_game.current_player == next_player
