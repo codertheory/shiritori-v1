@@ -112,7 +112,7 @@ class GameConsumer(CamelizedWebSocketConsumer):
             return
         player = await disconnect_player(game_id, self.scope["session"].session_key)
         if player:
-            tasks.player_disconnect_task.delay(self.scope["session"].session_key)
+            tasks.player_disconnect_task.delay(player.id)
             await self.channel_layer.group_send(
                 game_id,
                 {

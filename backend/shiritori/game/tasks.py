@@ -2,6 +2,7 @@ import time
 
 from celery import Task, shared_task
 from channels.exceptions import ChannelFull
+from django.conf import settings
 from django.db import OperationalError
 
 from shiritori.game.events import send_game_updated
@@ -79,6 +80,6 @@ def load_dictionary_task(locale: str = "en"):
     ignore_result=True,
 )
 def player_disconnect_task(player_id: str):
-    time.sleep(60)
-    if player := Player.objects.filter(id=player_id, is_connected=False):
+    time.sleep(5 if settings.DEBUG else 60)
+    if player := Player.objects.filter(id=player_id, is_connected=False).first():
         player.delete()
