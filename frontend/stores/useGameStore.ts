@@ -97,11 +97,15 @@ export const useGameStore = defineStore("game", () => {
     };
 
     const getPlayer = (playerId: string) => {
+        return players.value.find((p) => p.id === playerId);
+    };
+
+    const getPlayerIndex = (playerId: string) => {
         return players.value.findIndex((p) => p.id === playerId);
     };
 
     const setPlayerConnected = (playerId: string, connected: boolean) => {
-        const playerIndex = getPlayer(playerId);
+        const playerIndex = getPlayerIndex(playerId);
         if (playerIndex !== -1) {
             const player = game.value?.players[playerIndex];
             if (player) {

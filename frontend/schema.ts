@@ -74,8 +74,8 @@ export interface components {
              * * `FINISHED` - Finished
              * @enum {string}
              */
-            status?: "WAITING" | "PLAYING" | "FINISHED";
-            currentTurn?: number;
+            status: "WAITING" | "PLAYING" | "FINISHED";
+            currentTurn: number;
             lastWord?: string | null;
         };
         ShiritoriGameSettings: {
@@ -83,17 +83,17 @@ export interface components {
              * @description * `en` - English
              * @enum {string}
              */
-            locale?: "en";
-            wordLength?: number;
-            turnTime?: number;
-            maxTurns?: number;
+            locale: "en";
+            wordLength: number;
+            turnTime: number;
+            maxTurns: number;
         };
         ShiritoriGameWord: {
             word?: string | null;
             /** Format: double */
-            score?: number;
+            score: number;
             /** Format: double */
-            duration?: number;
+            duration: number;
             playerId: string | null;
         };
         ShiritoriPlayer: {
@@ -107,10 +107,10 @@ export interface components {
              * * `WINNER` - winner
              * @enum {string}
              */
-            type?: "HUMAN" | "BOT" | "SPECTATOR" | "WINNER";
-            isConnected?: boolean;
-            isCurrent?: boolean;
-            isHost?: boolean;
+            type: "HUMAN" | "BOT" | "SPECTATOR" | "WINNER";
+            isConnected: boolean;
+            isCurrent: boolean;
+            isHost: boolean;
         };
         ShiritoriTurn: {
             word: string;

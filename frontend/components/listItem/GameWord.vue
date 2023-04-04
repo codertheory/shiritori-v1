@@ -32,8 +32,13 @@
 
     const gameStore = useGameStore();
 
-    const getPlayerName = (word: components["schemas"]["ShiritoriGameWord"]) =>
-        gameStore.getPlayer(word.playerId)?.name;
+    const getPlayerName = (
+        word: components["schemas"]["ShiritoriGameWord"]
+    ) => {
+        return gameStore.getPlayer(
+            typeof word.playerId === "string" ? word.playerId : ""
+        )?.name;
+    };
 </script>
 
 <style scoped>
