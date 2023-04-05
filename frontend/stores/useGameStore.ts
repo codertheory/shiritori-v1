@@ -11,6 +11,7 @@ export const useGameStore = defineStore("game", () => {
         apiGameCreate,
         apiGameJoinCreate,
         apiGameStartCreate,
+        apiGameRestartCreate,
         apiCsrfCookieCreate,
         apiGameTurnCreate,
     } = useApi();
@@ -165,6 +166,10 @@ export const useGameStore = defineStore("game", () => {
         return data.value;
     };
 
+    const handleRestartGame = async () => {
+        await apiGameRestartCreate({ id: game.value!.id });
+    };
+
     const handleCreateGame = async (data: createGameSchema) => {
         const { username, ...rest } = data;
         const game = await createGame(rest);
@@ -269,6 +274,7 @@ export const useGameStore = defineStore("game", () => {
         createGame,
         joinGame,
         handleStartGame,
+        handleRestartGame,
         handleCreateGame,
         handleTakeTurn,
         joinGameWS,

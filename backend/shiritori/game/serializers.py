@@ -76,7 +76,7 @@ class JoinGameSerializer(serializers.ModelSerializer):
 
 
 class ShiritoriGameSerializer(serializers.ModelSerializer):
-    settings = ShiritoriGameSettingsSerializer(read_only=True)
+    settings = ShiritoriGameSettingsSerializer()
     player_count = serializers.IntegerField(read_only=True)
     word_count = serializers.IntegerField(read_only=True)
     longest_word = StringPrimaryKeyRelatedField(read_only=True, allow_null=True)
@@ -89,7 +89,12 @@ class ShiritoriGameSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Game
-        fields = "__all__"
+        exclude = ("task_id",)
+
+    def create(self, validated_data):
+        settings = validated_data.pop("settings")
+        settings = GameSettings.objects.create(**settings)
+        return Game.objects.create(**validated_data, settings=settings)
 
 
 class ShiritoriTurnSerializer(serializers.Serializer):
@@ -99,6 +104,7 @@ class ShiritoriTurnSerializer(serializers.Serializer):
 class CreateStartGameSerializer(serializers.Serializer):
     settings = ShiritoriGameSettingsSerializer(required=False)
 
-    def save(self, **kwargs):
-        settings = GameSettings.objects.create(**self.validated_data["settings"])
-        return Game.objects.create(settings=settings)
+    def save(self):
+        if "settings" not in self.validated_data:
+            return None
+        return GameSettings.objects.create(**self.validated_data["settings"])

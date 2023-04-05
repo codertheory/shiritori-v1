@@ -8,6 +8,7 @@ from django.db import models, transaction
 from django.db.models import Count, F, Q, QuerySet, Sum
 from django.db.models.functions import Length
 
+from config.celery_app import app
 from shiritori.game.utils import calculate_score, case_insensitive_equal, chunk_list, generate_random_letter, wait
 from shiritori.utils import NanoIdField
 from shiritori.utils.abstract_model import AbstractModel, NanoIdModel
@@ -46,6 +47,7 @@ class Game(AbstractModel):
     )
     turn_time_left = models.IntegerField(default=0)
     last_word = models.CharField(max_length=255, null=True, blank=True, default=generate_random_letter)
+    task_id = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:
         ordering = ("-created_at",)
@@ -233,6 +235,23 @@ class Game(AbstractModel):
                 update_fields.append("settings")
             self.save(update_fields=update_fields)
 
+    def restart(self, session_key: str = None) -> None:
+        """
+        Restart the game.
+        """
+        if session_key:
+            is_host = self.players.filter(session_key=session_key, is_host=True).exists()
+            if not is_host:
+                raise ValidationError("Only the host can restart the game.")
+        task_id = self.task_id  # save task_id before clearing it
+        self.gameword_set.all().delete()
+        self.status = GameStatus.WAITING
+        self.turn_time_left = self.settings.turn_time
+        self.task_id = None
+        self.calculate_current_player(save=False)
+        self.save(update_fields=["status", "turn_time_left", "task_id"])
+        app.control.revoke(task_id, terminate=True, signal="SIGKILL", wait=True)
+
     def calculate_current_player(self, *, save: bool = True) -> None:
         """
         Calculates the current player given the current turn.
@@ -367,19 +386,20 @@ class Game(AbstractModel):
         self.take_turn(self.current_player.session_key, None)
 
     @staticmethod
-    def run_turn_loop(game_id):
+    def run_turn_loop(game_id: str, task_id: str):
         """
         Runs the turn loop for a game.
 
         This will be run from a celery task.
 
         :param game_id: The id of the game to run the turn loop for.
+        :param task_id: The id of the task running the turn loop.
 
         """
         from shiritori.game.events import send_game_timer_updated
 
         qs: QuerySet["Game"] = Game.objects.filter(id=game_id)
-        while not qs.filter(status=GameStatus.FINISHED).exists():
+        while qs.filter(Q(status=GameStatus.PLAYING) & Q(task_id=task_id)).exists():
             if qs.filter(turn_time_left__gt=0).exists():
                 qs.update(turn_time_left=F("turn_time_left") - 1)
                 wait()  # sleep for 1.25 seconds to allow for any networking issues

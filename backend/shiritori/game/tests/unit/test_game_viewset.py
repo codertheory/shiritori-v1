@@ -95,7 +95,6 @@ def test_start_game_view_as_host(drf: APIClient, unstarted_game: Game):
     player = game.players.first()
     player.session_key = drf.session.session_key
     player.save()
-
     response = drf.post(f"/api/game/{game.id}/start/")
     assert response.status_code == 204
 
@@ -118,6 +117,34 @@ def test_start_game_view_as_non_host(drf: APIClient, unstarted_game: Game):
     assert game.current_player is None
     assert game.current_turn == 0
     assert game.word_count == 0
+
+
+def test_start_game_view_with_settings(drf: APIClient, unstarted_game: Game):
+    game = unstarted_game
+    player = game.players.first()
+    player.session_key = drf.session.session_key
+    player.save()
+    settings = {
+        "locale": "en",
+        "word_length": 5,
+        "turn_time": 30,
+        "max_turns": 10,
+    }
+    response = drf.post(
+        f"/api/game/{game.id}/start/",
+        data={"settings": settings},
+        format="json",
+    )
+    assert response.status_code == 204
+    game.refresh_from_db()
+    assert game.status == GameStatus.PLAYING
+    assert game.current_player == player
+    assert {
+        "locale": game.settings.locale,
+        "word_length": game.settings.word_length,
+        "turn_time": game.settings.turn_time,
+        "max_turns": game.settings.max_turns,
+    } == settings
 
 
 def test_get_game_view(drf: APIClient, finished_game: Game):

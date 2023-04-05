@@ -24,6 +24,12 @@ export interface paths {
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
+    [key: `/api/game/${string}/restart/`]: {
+        post: operations["apiGameStartCreate"];
+    };
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     [key: `/api/game/${string}/start/`]: {
         post: operations["apiGameStartCreate"];
     };
@@ -194,6 +200,26 @@ export interface operations {
         responses: {
             /** @description No response body */
             200: never;
+        };
+    };
+    apiGameRestartCreate: {
+        parameters: {
+            path: {
+                /** @description A unique value identifying this game. */
+                id: string;
+            };
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ShiritoriGame"];
+            };
+        };
+        responses: {
+            200: {
+                content: {
+                    "application/json": components["schemas"]["ShiritoriGame"];
+                };
+            };
         };
     };
     apiGameStartCreate: {

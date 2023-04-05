@@ -5,9 +5,9 @@
         <div class="flex flex-column align-center justify-content-center">
             <h1>GAME RESULTS</h1>
             <TableGameResults />
-            <!--            <div class="pt-3">-->
-            <!--                <ButtonReturnToLobby />-->
-            <!--            </div>-->
+            <div class="pt-3">
+                <ButtonReturnToLobby />
+            </div>
         </div>
     </div>
 </template>

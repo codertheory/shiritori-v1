@@ -6,7 +6,7 @@ from djangorestframework_camel_case.settings import api_settings
 from djangorestframework_camel_case.util import camelize
 
 from shiritori.game import tasks
-from shiritori.game.helpers import aconvert_game_to_json, aget_player_from_cookie, disconnect_player
+from shiritori.game.helpers import aconvert_game_to_json, adisconnect_player, aget_player_from_cookie
 from shiritori.game.models import Game, GameStatus, Player
 from shiritori.game.serializers import ShiritoriGameSerializer
 
@@ -110,7 +110,7 @@ class GameConsumer(CamelizedWebSocketConsumer):
         game_id = self.scope["url_route"]["kwargs"]["game_id"]
         if not self.scope["session"].session_key:
             return
-        player = await disconnect_player(game_id, self.scope["session"].session_key)
+        player = await adisconnect_player(game_id, self.scope["session"].session_key)
         if player:
             tasks.player_disconnect_task.delay(player.id)
             await self.channel_layer.group_send(

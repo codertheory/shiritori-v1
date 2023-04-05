@@ -42,7 +42,9 @@ class GameViewSet(ReadOnlyModelViewSet):
 
     def get_serializer_class(self):
         match self.action:
-            case "create" | "start":
+            case "create":
+                return ShiritoriGameSerializer
+            case "start":
                 return CreateStartGameSerializer
             case "turn":
                 return ShiritoriTurnSerializer
@@ -57,8 +59,8 @@ class GameViewSet(ReadOnlyModelViewSet):
     def create(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        game = serializer.save()
-        return Response(status=status.HTTP_201_CREATED, data=ShiritoriGameSerializer(game).data)
+        serializer.save()
+        return Response(status=status.HTTP_201_CREATED, data=serializer.data)
 
     @action(detail=True, methods=["post"], authentication_classes=[SessionAuthentication])
     def start(self, request, pk=None):
@@ -66,9 +68,16 @@ class GameViewSet(ReadOnlyModelViewSet):
         session_key = request.session.session_key
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        game_settings = serializer.validated_data.get("settings")
+        game_settings = serializer.save()
         game.start(session_key, game_settings=game_settings)
         game_worker_task.delay(game.id)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=True, methods=["post"], authentication_classes=[SessionAuthentication])
+    def restart(self, request, pk=None):
+        game = self.get_object()
+        session_key = request.session.session_key
+        game.restart(session_key)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @extend_schema(responses={201: inline_serializer("Player", {"id": CharField(read_only=True)})})

@@ -86,6 +86,13 @@ export const useApi = () => {
                 options
             );
         },
+        apiGameRestartCreate: async (pathParameters, options) => {
+            return useApiFetch(
+                `/api/game/${pathParameters?.id}/restart/`,
+                "POST",
+                options
+            );
+        },
         apiGameStartCreate: async (pathParameters, options) => {
             return useApiFetch(
                 `/api/game/${pathParameters?.id}/start/`,
