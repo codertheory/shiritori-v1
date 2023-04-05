@@ -216,3 +216,16 @@ def test_skip_turn_updates_current_player_and_turn(started_game):
     assert started_game.current_player == first_player
     started_game.skip_turn()
     assert started_game.current_player == next_player
+
+
+def test_restart_game(started_game):
+    started_game.restart()
+    assert started_game.status == GameStatus.WAITING
+    assert started_game.current_turn == 0
+    assert started_game.current_player is None
+    assert started_game.last_word != "toothbrush"
+    assert started_game.turn_time_left == 0
+    assert started_game.longest_word is None
+    assert started_game.players.count() == 2
+    assert started_game.players.first().score == 0
+    assert started_game.players.last().score == 0

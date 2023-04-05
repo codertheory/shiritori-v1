@@ -8,7 +8,6 @@ from django.db import models, transaction
 from django.db.models import Count, F, Q, QuerySet, Sum
 from django.db.models.functions import Length
 
-from config.celery_app import app
 from shiritori.game.utils import calculate_score, case_insensitive_equal, chunk_list, generate_random_letter, wait
 from shiritori.utils import NanoIdField
 from shiritori.utils.abstract_model import AbstractModel, NanoIdModel
@@ -243,14 +242,14 @@ class Game(AbstractModel):
             is_host = self.players.filter(session_key=session_key, is_host=True).exists()
             if not is_host:
                 raise ValidationError("Only the host can restart the game.")
-        task_id = self.task_id  # save task_id before clearing it
+        self.players.update(is_current=False)
         self.gameword_set.all().delete()
         self.status = GameStatus.WAITING
-        self.turn_time_left = self.settings.turn_time
+        self.current_turn = 0
+        self.turn_time_left = 0
         self.task_id = None
-        self.calculate_current_player(save=False)
-        self.save(update_fields=["status", "turn_time_left", "task_id"])
-        app.control.revoke(task_id, terminate=True, signal="SIGKILL", wait=True)
+        self.last_word = generate_random_letter()
+        self.save(update_fields=["status", "current_turn", "turn_time_left", "task_id", "last_word"])
 
     def calculate_current_player(self, *, save: bool = True) -> None:
         """
