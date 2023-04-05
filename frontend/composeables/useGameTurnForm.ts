@@ -18,7 +18,8 @@ export const useGameTurnForm = () => {
         const lastWord = gameStore.lastWord;
         const lastWordLastChar = lastWord[lastWord.length - 1];
         const firstChar = word[0];
-        const isLastWordLastChar = lastWordLastChar === firstChar;
+        const isLastWordLastChar =
+            lastWordLastChar.toLowerCase() === firstChar.toLowerCase();
         if (!isLastWordLastChar) {
             return "Word must start with the last letter of the last word";
         }
