@@ -60,7 +60,7 @@ class GameConsumer(CamelizedWebSocketConsumer):
             if not (
                 game := await Game.objects.filter(id=game_id)
                 .exclude(status=GameStatus.FINISHED)
-                .prefetch_related("player_set", "gameword_set")
+                .prefetch_related("player_set", "gameword_set", "settings")
                 .afirst()
             ):
                 raise DenyConnection("Game does not exist")
@@ -134,4 +134,16 @@ class GameConsumer(CamelizedWebSocketConsumer):
         await self.send_json(event)
 
     async def player_disconnected(self, event):
+        await self.send_json(event)
+
+    async def player_joined(self, event):
+        await self.send_json(event)
+
+    async def player_updated(self, event):
+        await self.send_json(event)
+
+    async def player_left(self, event):
+        await self.send_json(event)
+
+    async def turn_taken(self, event):
         await self.send_json(event)

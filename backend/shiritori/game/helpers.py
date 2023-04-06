@@ -5,14 +5,18 @@ from djangorestframework_camel_case.settings import api_settings
 from djangorestframework_camel_case.util import camelize
 from rest_framework.utils.serializer_helpers import ReturnDict
 
-from shiritori.game.models import Game, Player
-from shiritori.game.serializers import ShiritoriGameSerializer, ShiritoriPlayerSerializer
+from shiritori.game.models import Game, GameWord, Player
+from shiritori.game.serializers import ShiritoriGameSerializer, ShiritoriGameWordSerializer, ShiritoriPlayerSerializer
 
 __all__ = (
     "convert_to_camel",
+    "convert_game_to_json",
+    "convert_player_to_json",
+    "convert_gameword_to_json",
     "aconvert_game_to_json",
     "aconvert_games_to_json",
     "aconvert_player_to_json",
+    "aconvert_gameword_to_json",
     "aget_player_from_cookie",
     "adisconnect_player",
 )
@@ -24,6 +28,14 @@ def convert_to_camel(data: ReturnDict[Any]):
 
 def convert_game_to_json(game: Game) -> ReturnDict[Game] | ReturnDict:
     return ShiritoriGameSerializer(instance=game).data
+
+
+def convert_player_to_json(player: Player) -> ReturnDict[Player] | ReturnDict:
+    return ShiritoriPlayerSerializer(instance=player).data
+
+
+def convert_gameword_to_json(gameword: GameWord) -> ReturnDict[GameWord] | ReturnDict:
+    return ShiritoriGameWordSerializer(instance=gameword).data
 
 
 @sync_to_async
@@ -38,7 +50,12 @@ def aconvert_games_to_json(games: list[Game]) -> ReturnDict[Game] | ReturnDict:
 
 @sync_to_async
 def aconvert_player_to_json(player: Player) -> ReturnDict[Player] | ReturnDict:
-    return ShiritoriPlayerSerializer(instance=player).data
+    return convert_player_to_json(player)
+
+
+@sync_to_async
+def aconvert_gameword_to_json(gameword: GameWord) -> ReturnDict[GameWord] | ReturnDict:
+    return convert_gameword_to_json(gameword)
 
 
 @sync_to_async

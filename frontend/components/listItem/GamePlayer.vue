@@ -7,6 +7,7 @@
         <template #title>
             <div
                 class="flex col-12 flex-row justify-content-center align-items-center"
+                :class="{ disconnected: !player.isConnected }"
             >
                 <h3 class="align-center">{{ player.name }} -</h3>
                 <div class="ml-2">

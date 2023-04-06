@@ -130,6 +130,12 @@ def test_start_game_view_with_settings(drf: APIClient, unstarted_game: Game):
         "turn_time": 30,
         "max_turns": 10,
     }
+    assert settings != {
+        "locale": game.settings.locale,
+        "word_length": game.settings.word_length,
+        "turn_time": game.settings.turn_time,
+        "max_turns": game.settings.max_turns,
+    }
     response = drf.post(
         f"/api/game/{game.id}/start/",
         data={"settings": settings},

@@ -18,8 +18,4 @@
     });
 </script>
 
-<style scoped>
-    .disconnected {
-        color: var(--surface-300);
-    }
-</style>
+<style scoped></style>

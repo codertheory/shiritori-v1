@@ -225,9 +225,9 @@ class Game(AbstractModel):
             raise ValidationError("Cannot start a game with less than 2 players.")
         self.status = GameStatus.PLAYING
         self.calculate_current_player(save=False)
-        self.turn_time_left = self.settings.turn_time
         if game_settings:
             self.settings = game_settings
+        self.turn_time_left = self.settings.turn_time
         if save:
             update_fields = ["status", "turn_time_left"]
             if game_settings:
@@ -367,7 +367,10 @@ class Game(AbstractModel):
         :return: None
         """
         connected_players = self.players.filter(is_connected=True)
-        current_player_index = list(connected_players).index(self.current_player)
+        try:
+            current_player_index = list(connected_players).index(self.current_player)
+        except ValueError as error:
+            raise ValidationError("Current player is not connected.") from error
         if connected_players.count() >= 2:
             next_index = (current_player_index + 1) % connected_players.count()
             self.current_player = connected_players[next_index]

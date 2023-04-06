@@ -19,6 +19,8 @@ export const useGameStore = defineStore("game", () => {
     const myId = ref<string>();
     const isJoining = ref<boolean | undefined>();
     const gameTurnTimeLeft = ref<number>(0);
+    const initialSettings =
+        ref<components["schemas"]["ShiritoriGameSettings"]>();
 
     const roomCode = computed(() => {
         return game.value?.id ?? "";
@@ -123,6 +125,38 @@ export const useGameStore = defineStore("game", () => {
         return words.value.filter((w) => w.playerId === playerId);
     };
 
+    const addPlayer = (player: components["schemas"]["ShiritoriPlayer"]) => {
+        if (!game.value) {
+            return;
+        }
+        if (!game.value.players) {
+            game.value.players = [];
+        }
+        game.value.players.push(player);
+    };
+
+    const removePlayer = (playerId: string) => {
+        const playerIndex = getPlayerIndex(playerId);
+        if (playerIndex !== -1) {
+            game.value!.players.splice(playerIndex, 1);
+        }
+    };
+
+    const updatePlayer = (player: components["schemas"]["ShiritoriPlayer"]) => {
+        const playerIndex = getPlayerIndex(player.id);
+        if (playerIndex !== -1) {
+            game.value!.players[playerIndex] = player;
+        }
+    };
+
+    const addWord = (word: components["schemas"]["ShiritoriGameWord"]) => {
+        game.value!.words.push(word);
+        const player = getPlayer(word.playerId);
+        if (player) {
+            player.score += word.score;
+        }
+    };
+
     const createGame = async (
         settings: components["schemas"]["ShiritoriGameSettings"]
     ) => {
@@ -154,6 +188,7 @@ export const useGameStore = defineStore("game", () => {
     const handleStartGame = async (
         settings: components["schemas"]["ShiritoriGameSettings"]
     ) => {
+        gameTurnTimeLeft.value = settings.turnTime;
         const { data, error } = await apiGameStartCreate(
             {
                 id: game.value!.id,
@@ -175,6 +210,7 @@ export const useGameStore = defineStore("game", () => {
         const game = await createGame(rest);
         if (game) {
             await joinGame(game.id, { name: username });
+            initialSettings.value = game.settings;
             return game;
         }
     };
@@ -197,9 +233,7 @@ export const useGameStore = defineStore("game", () => {
 
     const setGame = (g: components["schemas"]["ShiritoriGame"]) => {
         game.value = g;
-        if (gameTurnTimeLeft.value === 0) {
-            setTurnTimeLeft(g.turnTimeLeft);
-        }
+        setTurnTimeLeft(g.turnTimeLeft);
     };
 
     const setMe = (m: string) => {
@@ -229,11 +263,23 @@ export const useGameStore = defineStore("game", () => {
                 setGame(eventData.data.game);
                 setMe(eventData.data.selfPlayer);
                 break;
+            case "player_connected":
+                setPlayerConnected(eventData.data.playerId, true);
+                break;
             case "player_disconnected":
                 setPlayerConnected(eventData.data.playerId, false);
                 break;
-            case "player_connected":
-                setPlayerConnected(eventData.data.playerId, true);
+            case "player_joined":
+                addPlayer(eventData.data);
+                break;
+            case "player_left":
+                removePlayer(eventData.data);
+                break;
+            case "player_updated":
+                updatePlayer(eventData.data);
+                break;
+            case "turn_taken":
+                addWord(eventData.data);
                 break;
             default:
                 break;
@@ -261,6 +307,7 @@ export const useGameStore = defineStore("game", () => {
         currentTurn,
         maxTurns,
         gameTurnTimeLeft,
+        initialSettings,
         lastWord,
         lastLetter,
         gameTurnDuration,

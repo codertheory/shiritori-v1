@@ -29,7 +29,17 @@ def chunk_list(iterable, n):
 
 
 class EventDict(TypedDict):
-    type: typing.Literal["game_created", "game_updated", "game_timer_updated"]
+    type: typing.Literal[
+        "game_created",
+        "game_updated",
+        "game_timer_updated",
+        "player_connected",
+        "player_disconnected",
+        "player_joined",
+        "player_updated",
+        "player_left",
+        "turn_taken",
+    ]
     data: typing.Any
 
 

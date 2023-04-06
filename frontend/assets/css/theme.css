@@ -8061,3 +8061,7 @@ body {
 .rounded-text-input {
     border-radius: var(--border-radius-smooth) !important;
 }
+
+.disconnected {
+    color: var(--surface-300);
+}

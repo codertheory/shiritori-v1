@@ -1,6 +1,6 @@
 <template>
     <Form
-        :initial-values="gameStore.settings"
+        :initial-values="gameSettingsForm.initialValues"
         :validate-on-mount="false"
         :validation-schema="gameSettingsForm.validationSchema"
         @submit="gameSettingsForm.onSubmit"

@@ -68,8 +68,8 @@ export interface components {
             winner: string | null;
             currentPlayer: string | null;
             turnTimeLeft: number;
-            words: readonly components["schemas"]["ShiritoriGameWord"][];
-            players: readonly components["schemas"]["ShiritoriPlayer"][];
+            words: components["schemas"]["ShiritoriGameWord"][];
+            players: components["schemas"]["ShiritoriPlayer"][];
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -100,7 +100,7 @@ export interface components {
             score: number;
             /** Format: double */
             duration: number;
-            playerId: string | null;
+            playerId: string;
         };
         ShiritoriPlayer: {
             id: string;
