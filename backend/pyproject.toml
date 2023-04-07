@@ -68,7 +68,6 @@ line-length = 120
 ignore_errors = true
 
 [tool.coverage.run]
-include = "backend/**"
 omit = ["*migrations*", "*tests*"]
 plugins = ["django_coverage_plugin"]
 

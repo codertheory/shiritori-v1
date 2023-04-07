@@ -1,4 +1,3 @@
-import sentry_sdk
 from asgiref.sync import sync_to_async
 from channels.exceptions import DenyConnection
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
@@ -6,7 +5,7 @@ from djangorestframework_camel_case.settings import api_settings
 from djangorestframework_camel_case.util import camelize
 
 from shiritori.game import tasks
-from shiritori.game.helpers import aconvert_game_to_json, adisconnect_player, aget_player_from_cookie
+from shiritori.game.helpers import aconvert_game_to_json, adisconnect_player, aget_game, aget_player_from_cookie
 from shiritori.game.models import Game, GameStatus, Player
 from shiritori.game.serializers import ShiritoriGameSerializer
 
@@ -52,59 +51,47 @@ class GameConsumer(CamelizedWebSocketConsumer):
         self.game_group_name: str | None = None
 
     async def connect(self):
-        try:
-            game_id = self.scope["url_route"]["kwargs"]["game_id"]
-            self.game_group_name = f"{game_id}"
-            self.groups = [self.game_group_name]
+        game_id = self.scope["url_route"]["kwargs"]["game_id"]
+        self.game_group_name = f"{game_id}"
+        self.groups = [self.game_group_name]
 
-            if not (
-                game := await Game.objects.filter(id=game_id)
-                .exclude(status=GameStatus.FINISHED)
-                .prefetch_related("player_set", "gameword_set", "settings")
-                .afirst()
-            ):
-                raise DenyConnection("Game does not exist")
-            await self.accept()
+        if not (game := await aget_game(game_id)):
+            raise DenyConnection("Game does not exist")
+        await self.accept()
 
-            if not self.scope["session"].session_key:
-                await sync_to_async(self.scope["session"].save)()
+        if not self.scope["session"].session_key:
+            await sync_to_async(self.scope["session"].save)()
 
-            self_player: Player | None = (
-                await aget_player_from_cookie(game_id, session_id)
-                if (session_id := self.scope["session"].session_key)
-                else None
-            )
-            self_player.is_connected = True
-            await self_player.asave()  # type: ignore
-            await self.channel_layer.group_add(self.game_group_name, self.channel_name)
+        self_player: Player | None = (
+            await aget_player_from_cookie(game_id, session_id)
+            if (session_id := self.scope["session"].session_key)
+            else None
+        )
+        self_player.is_connected = True
+        await self_player.asave()  # type: ignore
+        await self.channel_layer.group_add(self.game_group_name, self.channel_name)
 
-            await self.channel_layer.group_send(
-                game_id,
-                {
-                    "type": "player_connected",
-                    "data": {
-                        "player_id": self_player.id,
-                    },
+        await self.channel_layer.group_send(
+            game_id,
+            {
+                "type": "player_connected",
+                "data": {
+                    "player_id": self_player.id,
                 },
-            )
+            },
+        )
 
-            game_data = await aconvert_game_to_json(game)
+        game_data = await aconvert_game_to_json(game)
 
-            await self.send_json(
-                {
-                    "type": "connected",
-                    "data": {
-                        "game": game_data,
-                        "self_player": self_player.id if self_player else None,
-                    },
-                }
-            )
-        except DenyConnection as e:
-            sentry_sdk.capture_exception(e)
-            raise e
-        except Exception as e:
-            sentry_sdk.capture_exception(e)
-            raise DenyConnection("Something went wrong") from e
+        await self.send_json(
+            {
+                "type": "connected",
+                "data": {
+                    "game": game_data,
+                    "self_player": self_player.id if self_player else None,
+                },
+            }
+        )
 
     async def disconnect(self, code):
         game_id = self.scope["url_route"]["kwargs"]["game_id"]

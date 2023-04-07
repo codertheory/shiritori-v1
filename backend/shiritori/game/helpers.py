@@ -5,7 +5,7 @@ from djangorestframework_camel_case.settings import api_settings
 from djangorestframework_camel_case.util import camelize
 from rest_framework.utils.serializer_helpers import ReturnDict
 
-from shiritori.game.models import Game, GameWord, Player
+from shiritori.game.models import Game, GameStatus, GameWord, Player
 from shiritori.game.serializers import ShiritoriGameSerializer, ShiritoriGameWordSerializer, ShiritoriPlayerSerializer
 
 __all__ = (
@@ -75,3 +75,12 @@ async def adisconnect_player(game_id: str, session_key: str) -> Player | None:
     if await qs.aexists():
         await qs.aupdate(is_connected=False)
         return await qs.afirst()
+
+
+async def aget_game(game_id: str) -> Game | None:
+    return (
+        await Game.objects.filter(id=game_id)
+        .exclude(status=GameStatus.FINISHED)
+        .prefetch_related("player_set", "gameword_set", "settings")
+        .afirst()
+    )

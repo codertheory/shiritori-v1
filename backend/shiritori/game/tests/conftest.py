@@ -89,7 +89,7 @@ async def game_consumer(mocker: MockerFixture):
     consumer.scope["session"] = mock_session
     yield consumer, game, player_1
     await consumer.disconnect()
-    await sync_to_async(game.delete)()
+    await game.adelete()
 
 
 @pytest.fixture(autouse=True)  # Automatically use in tests.

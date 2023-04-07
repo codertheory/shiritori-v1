@@ -7,11 +7,10 @@ pytestmark = pytest.mark.django_db
 
 
 def test_create_game(un_saved_game):
-    game = un_saved_game
-    assert game.settings is None
-    game.save()
-    assert game.id is not None
-    assert game.settings is not None
+    assert un_saved_game.settings is None
+    un_saved_game.save()
+    assert un_saved_game.id is not None
+    assert un_saved_game.settings is not None
 
 
 def test_join_game(game, player):

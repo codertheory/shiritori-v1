@@ -198,3 +198,28 @@ def test_get_game_view(drf: APIClient, finished_game: Game):
         ],
     }
     assert response.data == expected_result
+
+
+def test_restart_game_as_host(drf: APIClient, finished_game: Game):
+    game = finished_game
+    player = game.players.first()
+    player.session_key = drf.session.session_key
+    player.save()
+    response = drf.post(f"/api/game/{game.id}/restart/")
+    assert response.status_code == 204
+    game.refresh_from_db()
+    assert game.status == GameStatus.WAITING
+    assert game.current_player is None
+    assert game.current_turn == 0
+    assert game.word_count == 0
+    assert game.words.count() == 0
+
+
+def test_restart_game_as_non_host(drf: APIClient, finished_game: Game):
+    game = finished_game
+    player = game.players.first()
+    drf.session._set_session_key(player.session_key)
+    response = drf.post(f"/api/game/{game.id}/restart/")
+    assert response.status_code == 400
+    game.refresh_from_db()
+    assert game.status == GameStatus.FINISHED

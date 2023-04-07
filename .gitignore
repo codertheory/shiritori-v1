@@ -347,3 +347,4 @@ schema.yml
 /.idea/codeStyles/Project.xml
 /backend/.my_pgpass
 .ruff_cache/
+/.idea/shelf/**
