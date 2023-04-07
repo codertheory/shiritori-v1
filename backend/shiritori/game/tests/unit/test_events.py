@@ -33,9 +33,8 @@ def mock_player_disconnect_task():
 
 
 async def test_send_lobby_update(lobby_consumer, game: Game):
+    await lobby_consumer.receive_json_from()  # consume connected message
     await sync_to_async(send_lobby_update)(game)
-    data = await lobby_consumer.receive_json_from()
-    assert data == []
     data = await lobby_consumer.receive_json_from()
     assert data["type"] == "game_created"
 

@@ -1,6 +1,7 @@
 from asgiref.sync import sync_to_async
 from channels.exceptions import DenyConnection
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
+from django.db import OperationalError
 from djangorestframework_camel_case.settings import api_settings
 from djangorestframework_camel_case.util import camelize
 
@@ -29,7 +30,11 @@ class GameLobbyConsumer(CamelizedWebSocketConsumer):
     async def connect(self):
         await self.accept()
         await self.channel_layer.group_add("lobby", self.channel_name)
-        serialized_games = await sync_to_async(self.get_all_waiting_games)()
+        try:
+            serialized_games = await sync_to_async(self.get_all_waiting_games)()
+        except OperationalError:
+            await self.send_json({"error": "Database is not ready yet"})
+            return
         await self.send_json(serialized_games)
 
     async def disconnect(self, code):
