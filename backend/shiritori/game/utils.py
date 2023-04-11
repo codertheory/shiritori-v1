@@ -1,5 +1,3 @@
-# The modifiers are applied in order, so the first one that matches is used.
-# The duration is in seconds. The score is multiplied by the modifier.
 import random
 import string
 import time
@@ -10,6 +8,8 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
 LENGTH_MODIFIER = 1.25
+# The modifiers are applied in order, so the first one that matches is used.
+# The duration is in seconds. The score is multiplied by the modifier.
 DURATION_MODIFIERS = {5: 1.8, 10: 1.5, 15: 1.2}
 
 
@@ -56,6 +56,8 @@ def calculate_score(word: str, duration: int | float) -> float:
         raise TypeError("Duration must be an integer or float.")
     if duration < 0:
         raise ValueError("Duration must be a positive number.")
+    if isinstance(word, str) and not word:
+        raise ValueError("Word must be a non-empty string.")
     score = len(word) * LENGTH_MODIFIER
     for bucket, modifier in DURATION_MODIFIERS.items():
         if duration <= bucket:
