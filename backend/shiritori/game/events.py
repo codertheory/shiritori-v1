@@ -1,6 +1,6 @@
 import typing
 
-from shiritori.game.helpers import convert_game_to_json, convert_gameword_to_json, convert_player_to_json
+from shiritori.game.converters import convert_game_to_json, convert_gameword_to_json, convert_player_to_json
 from shiritori.game.utils import send_message_to_layer
 
 if typing.TYPE_CHECKING:

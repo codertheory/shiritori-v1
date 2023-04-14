@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from shiritori.game.helpers import aconvert_game_to_json, convert_to_camel
+from shiritori.game.converters import aconvert_game_to_json, convert_to_camel
 
 pytestmark = [pytest.mark.django_db, pytest.mark.asyncio]
 

@@ -6,7 +6,7 @@ from djangorestframework_camel_case.settings import api_settings
 from djangorestframework_camel_case.util import camelize
 
 from shiritori.game import tasks
-from shiritori.game.helpers import aconvert_game_to_json, adisconnect_player, aget_game, aget_player_from_cookie
+from shiritori.game.converters import aconvert_game_to_json, adisconnect_player, aget_game, aget_player_from_cookie
 from shiritori.game.models import Game, GameStatus, Player
 from shiritori.game.serializers import ShiritoriGameSerializer
 

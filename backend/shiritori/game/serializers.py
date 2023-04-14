@@ -91,7 +91,7 @@ class ShiritoriGameSerializer(serializers.ModelSerializer):
         model = Game
         exclude = ("task_id",)
 
-    def create(self, validated_data):
+    def create(self, validated_data):  # noqa
         settings = validated_data.pop("settings")
         settings = GameSettings.objects.create(**settings)
         return Game.objects.create(**validated_data, settings=settings)
