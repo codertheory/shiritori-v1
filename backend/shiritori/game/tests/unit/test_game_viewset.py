@@ -179,6 +179,8 @@ def test_get_game_view(drf: APIClient, finished_game: Game):
         "winner": game.winner.id,
         "current_player": None,
         "current_turn": game.current_turn,
+        "current_round": game.current_round,
+        "max_rounds": game.max_rounds,
         "turn_time_left": game.turn_time_left,
         "players": [
             {

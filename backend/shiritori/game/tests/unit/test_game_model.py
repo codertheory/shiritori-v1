@@ -228,3 +228,21 @@ def test_restart_game(started_game):
     assert started_game.players.count() == 2
     assert started_game.players.first().score == 0
     assert started_game.players.last().score == 0
+
+
+def test_current_round_calculation(started_game):
+    assert started_game.current_round == 1
+    started_game.current_turn = 2
+    assert started_game.current_round == 2
+    started_game.current_turn = 3
+    assert started_game.current_round == 3
+
+
+def test_max_rounds_calculation(started_game, player_factory):
+    assert started_game.max_rounds == 20
+    started_game.player_set.add(player_factory())
+    assert started_game.max_rounds == 30
+    started_game.player_set.add(player_factory())
+    assert started_game.max_rounds == 40
+    started_game.player_set.add(player_factory())
+    assert started_game.max_rounds == 50

@@ -130,6 +130,17 @@ class Game(AbstractModel):
             total_score=Sum("gameword__score"),
         ).order_by("-total_score")
 
+    @property
+    def current_round(self):
+        try:
+            return (self.current_turn or 1 // (self.settings.max_turns * self.player_count)) or 1
+        except ZeroDivisionError:
+            return 1
+
+    @property
+    def max_rounds(self):
+        return self.settings.max_turns * self.player_count
+
     def save(
         self,
         force_insert: bool = False,
