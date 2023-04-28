@@ -70,6 +70,8 @@ export interface components {
             turnTimeLeft: number;
             words: components["schemas"]["ShiritoriGameWord"][];
             players: components["schemas"]["ShiritoriPlayer"][];
+            currentRound: number;
+            maxRounds: number;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */

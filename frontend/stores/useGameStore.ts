@@ -60,8 +60,8 @@ export const useGameStore = defineStore("game", () => {
         return game.value?.settings ?? gameSettingsSchema.parse({});
     });
 
-    const currentTurn = computed(() => {
-        return game.value?.currentTurn ?? 0;
+    const currentRound = computed(() => {
+        return game.value?.currentRound ?? 0;
     });
 
     const maxTurns = computed(() => {
@@ -304,7 +304,7 @@ export const useGameStore = defineStore("game", () => {
         currentPlayer,
         isCurrentPlayerMe,
         settings,
-        currentTurn,
+        currentRound,
         maxTurns,
         gameTurnTimeLeft,
         initialSettings,

@@ -46,6 +46,7 @@
         "lint": "eslint  --fix --ext .js,.ts,.vue . && prettier --write . && vue-tsc --noEmit",
         "prettier": "prettier --write .",
         "postinstall": "nuxt prepare",
-        "preview": "nuxt preview"
+        "preview": "nuxt preview",
+        "test": "nuxt test"
     }
 }
