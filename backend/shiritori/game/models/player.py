@@ -27,6 +27,7 @@ class Player(AbstractModel, NanoIdModel):
     is_host = models.BooleanField(default=False)
     is_connected = models.BooleanField(default=True)
     session_key = models.CharField(max_length=255, null=True, blank=True)
+    order = models.IntegerField(null=True, blank=True)
 
     class Meta:
         db_table = "player"
@@ -56,6 +57,12 @@ class Player(AbstractModel, NanoIdModel):
                 name="unique_winner",
                 fields=["game", "type"],
                 condition=models.Q(type=PlayerType.WINNER),
+            ),
+            # There can only be one player at each order per game, but only if order is not null
+            models.UniqueConstraint(
+                name="unique_order",
+                fields=["game", "order"],
+                condition=models.Q(order__isnull=False),
             ),
         ]
         ordering = ["created_at"]

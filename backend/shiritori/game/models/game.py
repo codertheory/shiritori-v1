@@ -1,3 +1,4 @@
+import random
 from collections.abc import Iterable
 from typing import Optional, Union
 
@@ -23,6 +24,7 @@ class Game(AbstractModel):
         default=GameStatus.WAITING,
     )
     current_turn = models.IntegerField(default=0)
+    current_round = models.IntegerField(default=0)
     settings = models.ForeignKey(
         "GameSettings",
         on_delete=models.CASCADE,
@@ -62,7 +64,10 @@ class Game(AbstractModel):
 
     @property
     def players(self) -> "QuerySet[Player]":
-        return self.player_set.all().exclude(type=PlayerType.SPECTATOR)
+        qs = self.player_set.all().exclude(type=PlayerType.SPECTATOR)
+        if self.is_started:
+            qs = qs.order_by("order")
+        return qs
 
     @property
     def words(self) -> "QuerySet[GameWord]":
@@ -79,6 +84,10 @@ class Game(AbstractModel):
     @property
     def next_player(self) -> Optional["Player"]:
         return self.players[self.current_turn % self.player_count]
+
+    @property
+    def last_player(self) -> Optional["Player"]:
+        return self.players.filter(is_connected=True).last()
 
     @current_player.setter
     def current_player(self, value: "Player") -> None:
@@ -131,14 +140,7 @@ class Game(AbstractModel):
         ).order_by("-total_score")
 
     @property
-    def current_round(self):
-        try:
-            return (self.current_turn or 1 // (self.settings.max_turns * self.player_count)) or 1
-        except ZeroDivisionError:
-            return 1
-
-    @property
-    def max_rounds(self):
+    def max_turns(self):
         return self.settings.max_turns * self.player_count
 
     def save(
@@ -219,6 +221,7 @@ class Game(AbstractModel):
             raise ValidationError("Only the host can start the game.")
         if self.player_count < 2:
             raise ValidationError("Cannot start a game with less than 2 players.")
+        self.shuffle_player_order()
         self.status = GameStatus.PLAYING
         self.calculate_current_player(save=False)
         if game_settings:
@@ -238,7 +241,7 @@ class Game(AbstractModel):
             is_host = self.players.filter(session_key=session_key, is_host=True).exists()
             if not is_host:
                 raise ValidationError("Only the host can restart the game.")
-        self.players.update(is_current=False)
+        self.players.update(is_current=False, order=None)
         self.gameword_set.all().delete()
         self.status = GameStatus.WAITING
         self.current_turn = 0
@@ -267,6 +270,23 @@ class Game(AbstractModel):
 
         if save:
             self.save()
+
+    def shuffle_player_order(self):
+        """
+        Shuffles the order of the players.
+        """
+        if self.is_started:
+            raise ValidationError("Cannot shuffle player order when game has started.")
+        if self.is_finished:
+            raise ValidationError("Cannot shuffle player order when game is finished.")
+        if self.player_count < 2:
+            raise ValidationError("Cannot shuffle player order when there are less than 2 players.")
+        players = list(self.players.all())
+        random.shuffle(players)
+        for index, player in enumerate(players):
+            player.order = index
+            # Let it be known, that for some reason bulk_update does not work here. ¯\_(ツ)_/¯
+            player.save(update_fields=["order"])
 
     def recalculate_host(self, *, save: bool = True) -> None:
         """
@@ -336,18 +356,21 @@ class Game(AbstractModel):
             game_word.save()
             if word:
                 self.last_word = word
-            if self.current_turn + 1 > self.settings.max_turns:
+            if self.current_turn + 1 > self.max_turns:
                 self.status = GameStatus.FINISHED
                 self.winner = self.leaderboard.first()
                 self.save(update_fields=["status", "last_word", "current_turn"])
                 return
             self.current_turn += 1
+            if self.current_player == self.last_player:
+                self.current_round += 1
             self.calculate_current_player(save=False)
             self.turn_time_left = self.settings.turn_time
             if save:
                 self.save(
                     update_fields=[
                         "current_turn",
+                        "current_round",
                         "last_word",
                         "turn_time_left",
                     ]

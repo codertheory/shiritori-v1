@@ -180,7 +180,7 @@ def test_get_game_view(drf: APIClient, finished_game: Game):
         "current_player": None,
         "current_turn": game.current_turn,
         "current_round": game.current_round,
-        "max_rounds": game.max_rounds,
+        "max_turns": game.max_turns,
         "turn_time_left": game.turn_time_left,
         "players": [
             {

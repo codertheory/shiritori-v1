@@ -15,4 +15,4 @@ def test_game_turn_loop(mocker, started_game, sample_words):
     game.run_turn_loop(game_id=game.id, task_id="test_task_id")
     game.is_finished = False
     game.save(update_fields=["status"])
-    assert sleep_mock.call_count == game.settings.turn_time * game.settings.max_turns
+    assert sleep_mock.call_count == game.settings.turn_time * game.max_turns

@@ -153,6 +153,7 @@ pytest-asyncio = "^0.20.3"  # https://github.com/pytest-dev/pytest-asyncio
 pytest-mock = "^3.10.0" # https://github.com/pytest-dev/pytest-mock/
 pytest-celery = "^0.0.0" # https://github.com/celery/pytest-celery
 pytest-factoryboy = "^2.5.1" # https://github.com/pytest-dev/pytest-factoryboy
+pytest-repeat = "^0.9.1" # https://github.com/pytest-dev/pytest-repeat
 # Code quality
 # ------------------------------------------------------------------------------
 ruff = "^0.0.257"

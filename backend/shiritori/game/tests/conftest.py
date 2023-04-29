@@ -96,3 +96,14 @@ async def game_consumer(mocker: MockerFixture):
 def mute_signals():
     post_save.receivers = []
     post_delete.receivers = []
+
+
+@pytest.fixture(autouse=True)
+def mock_shuffle(request: pytest.FixtureRequest, mocker: MockerFixture):
+    ignore = request.node.get_closest_marker("real_shuffle")
+    if ignore is None:
+        mocker.patch("shiritori.game.models.game.random.shuffle")
+    else:
+        import random
+
+        random.seed(42)

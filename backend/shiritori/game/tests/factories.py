@@ -48,6 +48,11 @@ class PlayerFactory(factory.django.DjangoModelFactory):
     name = factory.Faker("name")
     session_key = factory.Faker("uuid4")
     type = PlayerType.HUMAN
+    game = None
+
+    @factory.lazy_attribute
+    def order(self):
+        return None if self.game is None else self.game.player_count + 1
 
 
 class GameFactory(factory.django.DjangoModelFactory):

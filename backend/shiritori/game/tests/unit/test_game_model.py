@@ -188,6 +188,15 @@ def test_take_turn_with_word_not_long_enough(started_game: Game, sample_words: l
     assert exec_info.value.message == "Word must be at least 3 characters long."
 
 
+def test_take_turn_increments_current_round_when_last_player_takes_turn(started_game: Game, sample_words: list[str]):
+    started_game.turn_time_left = 10
+    first_player, next_player = started_game.players
+    started_game.take_turn(first_player.session_key, sample_words[0])
+    assert started_game.current_round == 0
+    started_game.take_turn(next_player.session_key, sample_words[1])
+    assert started_game.current_round == 1
+
+
 def test_word_case_insensitive(started_game: Game, sample_words: list[str]):
     started_game.turn_time_left = 10
     session_key = started_game.current_player.session_key
@@ -230,19 +239,43 @@ def test_restart_game(started_game):
     assert started_game.players.last().score == 0
 
 
-def test_current_round_calculation(started_game):
-    assert started_game.current_round == 1
-    started_game.current_turn = 2
-    assert started_game.current_round == 2
-    started_game.current_turn = 3
-    assert started_game.current_round == 3
+def test_max_turns_calculation(started_game, player_factory):
+    assert started_game.max_turns == 20
+    started_game.player_set.add(player_factory())
+    assert started_game.max_turns == 30
+    started_game.player_set.add(player_factory())
+    assert started_game.max_turns == 40
+    started_game.player_set.add(player_factory())
+    assert started_game.max_turns == 50
 
 
-def test_max_rounds_calculation(started_game, player_factory):
-    assert started_game.max_rounds == 20
-    started_game.player_set.add(player_factory())
-    assert started_game.max_rounds == 30
-    started_game.player_set.add(player_factory())
-    assert started_game.max_rounds == 40
-    started_game.player_set.add(player_factory())
-    assert started_game.max_rounds == 50
+@pytest.mark.real_shuffle
+def test_shuffle_player_order(started_game):
+    started_game.status = GameStatus.WAITING
+    first_player, next_player = started_game.players
+    started_game.shuffle_player_order()
+    started_game.status = GameStatus.PLAYING
+    assert started_game.players.first() == next_player
+    assert started_game.players.last() == first_player
+
+
+@pytest.mark.real_shuffle
+def test_shuffle_player_order_on_started_game_raises_validation_error(started_game):
+    started_game.status = GameStatus.PLAYING
+    with pytest.raises(ValidationError):
+        started_game.shuffle_player_order()
+
+
+@pytest.mark.real_shuffle
+def test_shuffle_player_order_on_finished_game_raises_validation_error(finished_game):
+    finished_game.status = GameStatus.FINISHED
+    with pytest.raises(ValidationError):
+        finished_game.shuffle_player_order()
+
+
+@pytest.mark.real_shuffle
+def test_shuffle_player_order_with_less_than_two_players(game_factory, player_factory):
+    game = game_factory()
+    game.player_set.add(player_factory())
+    with pytest.raises(ValidationError):
+        game.shuffle_player_order()

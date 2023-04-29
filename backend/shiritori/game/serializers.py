@@ -87,7 +87,7 @@ class ShiritoriGameSerializer(serializers.ModelSerializer):
     words = ShiritoriGameWordSerializer(many=True, read_only=True)
     players = ShiritoriPlayerSerializer(many=True, read_only=True)
     current_round = serializers.IntegerField(read_only=True)
-    max_rounds = serializers.IntegerField(read_only=True)
+    max_turns = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Game
