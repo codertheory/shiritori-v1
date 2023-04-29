@@ -5,7 +5,7 @@ from typing import Optional, Union
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.db.models import Count, F, Q, QuerySet, Sum
-from django.db.models.functions import Length
+from django.db.models.functions import Length, Right
 
 from shiritori.game.models.game_settings import GameSettings
 from shiritori.game.models.game_word import GameWord
@@ -143,6 +143,16 @@ class Game(AbstractModel):
     def max_turns(self):
         return self.settings.max_turns * self.player_count
 
+    @property
+    def used_letters(self) -> "QuerySet[str]":
+        return (
+            self.gameword_set.annotate(
+                last_letter=Right("word", 1),
+            )
+            .values_list("last_letter", flat=True)
+            .distinct()
+        )
+
     def save(
         self,
         force_insert: bool = False,
@@ -250,6 +260,11 @@ class Game(AbstractModel):
         self.last_word = generate_random_letter()
         self.save(update_fields=["status", "current_turn", "turn_time_left", "task_id", "last_word"])
 
+    def finish(self):
+        self.status = GameStatus.FINISHED
+        self.winner = self.leaderboard.first()
+        self.save(update_fields=["status", "last_word", "current_turn"])
+
     def calculate_current_player(self, *, save: bool = True) -> None:
         """
         Calculates the current player given the current turn.
@@ -308,7 +323,7 @@ class Game(AbstractModel):
                 if save:
                     first.save(update_fields=["is_host"])
 
-    def can_take_turn(self, session_key: str, *, timeout: bool = False) -> None:
+    def can_take_turn(self, session_key: str) -> None:
         """
         Checks if a player can take a turn.
         Checks the following criteria:
@@ -317,7 +332,6 @@ class Game(AbstractModel):
         3. The player has not exceeded their turn time.
 
         :param session_key: str - The session key of the player.
-        :param timeout: bool - Whether to check if the player has exceeded their turn time.
         :return: None
         :raises ValidationError: If the player cannot take a turn.
         """
@@ -325,7 +339,7 @@ class Game(AbstractModel):
             raise ValidationError("Game is not in progress.")
         if self.current_player.session_key != session_key:
             raise ValidationError("It is not your turn.")
-        if not timeout and self.turn_time_left <= 0:
+        if self.turn_time_left <= 0:
             raise ValidationError("Turn time has expired.")
 
     def take_turn(self, session_key: str, word: str | None, *, save: bool = True) -> None:
@@ -337,35 +351,23 @@ class Game(AbstractModel):
         :return: None
         :raises ValidationError: If the player cannot take a turn.
         """
-        if isinstance(word, str):
-            word = word.lower()
-        timed_out = self.turn_time_left <= 0
-        self.can_take_turn(session_key, timeout=timed_out)
-        game_qs = Game.objects.prefetch_related("settings").filter(pk=self.pk)
+        self.can_take_turn(session_key)
+        self._handle_turn(word, save=save)
+
+    def _handle_turn(self, word: str | None, *, save: bool = True) -> None:
+        """
+        Underlying method for taking a turn.
+        :param word: The word the player submitted.
+        :param save: bool - Whether to save the game after taking the turn.
+        :return: None
+        """
         with transaction.atomic():
-            game = game_qs.first()
-            duration = game.settings.turn_time - game.turn_time_left
-            game_word = GameWord(
-                game=self,
-                player=self.current_player,
-                word=word if isinstance(word, str) else None,
-                duration=duration,
-            )
-            if not timed_out:
-                game_word.validate(raise_exception=True)
-            game_word.save()
-            if word:
-                self.last_word = word
+            self.create_word(word)
             if self.current_turn + 1 > self.max_turns:
-                self.status = GameStatus.FINISHED
-                self.winner = self.leaderboard.first()
-                self.save(update_fields=["status", "last_word", "current_turn"])
-                return
-            self.current_turn += 1
-            if self.current_player == self.last_player:
-                self.current_round += 1
+                self.finish()
+            self.update_turn()
             self.calculate_current_player(save=False)
-            self.turn_time_left = self.settings.turn_time
+            self.reset_turn_time()
             if save:
                 self.save(
                     update_fields=[
@@ -375,6 +377,41 @@ class Game(AbstractModel):
                         "turn_time_left",
                     ]
                 )
+
+    def create_word(self, word: str) -> GameWord:
+        """
+        Create a word for the current turn.
+        :param word: The word the player submitted.
+        """
+        timed_out = self.turn_time_left <= 0
+        duration = self.settings.turn_time - self.turn_time_left
+        game_word = GameWord.create(
+            game=self,
+            player=self.current_player,
+            word=word,
+            duration=duration,
+            timed_out=timed_out,
+        )
+        if word:
+            self.last_word = game_word.word
+        return game_word
+
+    def update_turn(self):
+        """
+        Update the current turn.
+        This will also update the current round if the current player is the last player.
+        :return: None
+        """
+        self.current_turn += 1
+        if self.current_player == self.last_player:
+            self.current_round += 1
+
+    def reset_turn_time(self):
+        """
+        Reset the turn time back to the default turn time.
+        :return: None
+        """
+        self.turn_time_left = self.settings.turn_time
 
     def skip_turn(self):
         """
@@ -404,7 +441,7 @@ class Game(AbstractModel):
 
         :return: None
         """
-        self.take_turn(self.current_player.session_key, None)
+        self._handle_turn(None)
 
     @staticmethod
     def run_turn_loop(game_id: str, task_id: str):

@@ -2,12 +2,15 @@ import random
 import string
 import time
 import typing
+import unicodedata
 from typing import TypedDict
 
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
 LENGTH_MODIFIER = 1.25
+UNUSED_LETTER_MODIFIER = 1.5
+MISSED_WORD_PENALTY = -0.25
 # The modifiers are applied in order, so the first one that matches is used.
 # The duration is in seconds. The score is multiplied by the modifier.
 DURATION_MODIFIERS = {5: 1.8, 10: 1.5, 15: 1.2}
@@ -28,6 +31,13 @@ def chunk_list(iterable, n):
         yield iterable[i : i + n]
 
 
+def normalize_word(word: str | None) -> str:
+    """
+    Normalize a word. This will lowercase the word and normalize the unicode.
+    """
+    return unicodedata.normalize("NFKC", word.lower()) if word else None
+
+
 class EventDict(TypedDict):
     type: typing.Literal[
         "game_created",
@@ -43,19 +53,24 @@ class EventDict(TypedDict):
     data: typing.Any
 
 
-def calculate_score(word: str, duration: int | float) -> float:
+def calculate_score(word: str | None, duration: int | float, unused_letter: bool = False) -> float:
     """
     Calculate the score for a word.
     The score is based on the length of the word
     and the duration it took to enter.
     :param word: str - The word to calculate the score for.
     :param duration: int - The duration it took to enter the word.
+    :param unused_letter: bool - Whether the word used an unused letter.
     :return: float - The score for the word.
     """
     if not isinstance(duration, (int, float)):
         raise TypeError("Duration must be an integer or float.")
     if duration < 0:
         raise ValueError("Duration must be a positive number.")
+
+    if word is None:
+        return MISSED_WORD_PENALTY * duration  # penalty for missing a word
+
     if isinstance(word, str) and not word:
         raise ValueError("Word must be a non-empty string.")
     score = len(word) * LENGTH_MODIFIER
@@ -63,6 +78,8 @@ def calculate_score(word: str, duration: int | float) -> float:
         if duration <= bucket:
             score *= modifier
             break
+    if unused_letter:
+        score *= UNUSED_LETTER_MODIFIER
     return int(round(score, 2))
 
 

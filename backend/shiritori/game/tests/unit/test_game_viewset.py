@@ -77,7 +77,7 @@ def test_take_turn_game_view(drf: APIClient, started_game: Game, sample_words: l
     assert game.word_count == 1
     first_word = game.words.first()
     assert first_word.word == "test"
-    assert first_word.score == 9
+    assert first_word.score == 13.0
     assert first_word.player == player
 
     # Calling take turn again will raise a 401 because the session_key is for player1

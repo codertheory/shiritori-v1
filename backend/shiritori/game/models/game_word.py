@@ -1,11 +1,15 @@
-from collections.abc import Iterable
+import typing
 
 from django.core.exceptions import ValidationError
 from django.db import models
 
 from shiritori.game.models.word import Word
-from shiritori.game.utils import calculate_score, case_insensitive_equal
+from shiritori.game.utils import calculate_score, case_insensitive_equal, normalize_word
 from shiritori.utils.abstract_model import NanoIdModel
+
+if typing.TYPE_CHECKING:
+    from shiritori.game.models.game import Game
+    from shiritori.game.models.player import Player
 
 
 class GameWord(NanoIdModel):
@@ -39,23 +43,34 @@ class GameWord(NanoIdModel):
             ),
         ]
 
-    @property
-    def calculated_score(self):
-        return calculate_score(self.word, self.duration)
-
-    def save(
-        self,
-        force_insert: bool = False,
-        force_update: bool = False,
-        using: str | None = None,
-        update_fields: Iterable[str] | None = None,
-    ) -> None:
-        if self.word:
-            self.word = self.word.lower()  # Normalize the word.
-            self.score = self.calculated_score
-        else:
-            self.score = -0.25 * self.duration
-        super().save(force_insert, force_update, using, update_fields)
+    @classmethod
+    def create(
+        cls, game: "Game", player: "Player", word: str | None, duration: int | float, timed_out: bool = False
+    ) -> typing.Self:
+        """
+        Build a new GameWord instance.
+        :param game: Game - The game the word is for.
+        :param player: Player - The player that entered the word.
+        :param word: str - The word that was entered.
+        :param duration: int - The duration it took to enter the word.
+        :param timed_out: bool - Whether the word was entered because the timer ran out.
+        :return: GameWord - The new GameWord instance.
+        """
+        word = normalize_word(word)
+        current_used_letters = game.used_letters
+        is_new_letter = word and word[-1] not in current_used_letters
+        calculated_score = calculate_score(word, duration, is_new_letter)
+        game_word = cls(
+            game=game,
+            player=player,
+            word=word,
+            duration=duration,
+            score=calculated_score,
+        )
+        if not timed_out:
+            game_word.validate(raise_exception=True)
+        game_word.save()
+        return game_word
 
     def validate(self, *, raise_exception: bool = False) -> bool:
         """

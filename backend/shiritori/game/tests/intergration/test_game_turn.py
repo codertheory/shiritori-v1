@@ -14,7 +14,7 @@ def test_play_game(game: Game, sample_words: list[str]) -> None:
     game.start()
     # Take a turn
     turn_orders = [player, player2, player, player2]
-    expected_score = [(9, 0), (9, 22), (20, 22)]  # Expected score after each turn
+    expected_score = [(13, 0), (13, 33), (29, 33)]  # Expected score after each turn
     for index, (turn_word, turn_player) in enumerate(zip(sample_words, turn_orders)):
         game.turn_time_left = game.settings.turn_time - 5
         game.take_turn(turn_player.session_key, turn_word)
