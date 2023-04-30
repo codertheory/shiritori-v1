@@ -4,6 +4,7 @@ import { ref } from "vue";
 export const useGlobalStore = defineStore("global", () => {
     const loading = ref(false);
     const showSidebar = ref(true);
+    const isRulesModalOpen = ref(false);
     const setLoading = (l: boolean) => {
         loading.value = l;
     };
@@ -12,5 +13,16 @@ export const useGlobalStore = defineStore("global", () => {
         showSidebar.value = !showSidebar.value;
     };
 
-    return { loading, showSidebar, setLoading, toggleSidebar };
+    const toggleRulesModal = () => {
+        isRulesModalOpen.value = !isRulesModalOpen.value;
+    };
+
+    return {
+        loading,
+        showSidebar,
+        isRulesModalOpen,
+        setLoading,
+        toggleSidebar,
+        toggleRulesModal,
+    };
 });

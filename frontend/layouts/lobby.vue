@@ -27,7 +27,7 @@
                 </div>
             </div>
         </Form>
-        <OverlayGameStartCountdown />
+        <DialogGameStartCountdown />
     </div>
 </template>
 
