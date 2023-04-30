@@ -28,25 +28,25 @@
 
 <script setup lang="ts">
     import { computed } from "vue";
-    import { useGameStore } from "~/stores/useGameStore";
 
-    const gameStore = useGameStore();
+    const props = defineProps({
+        timeLeft: {
+            type: Number,
+            required: true,
+        },
+        maxTime: {
+            type: Number,
+            required: true,
+        },
+    });
 
     const padToTwo = (num: number) => {
         return num.toString().padStart(2, "0");
     };
 
-    const timeLeft = computed(() => {
-        return gameStore.gameTurnTimeLeft;
-    });
-
-    const maxTime = computed(() => {
-        return gameStore.gameTurnDuration;
-    });
-
     const timeLeftString = computed(() => {
-        const minutes = Math.floor(timeLeft.value / 60);
-        const seconds = timeLeft.value % 60;
+        const minutes = Math.floor(props.timeLeft / 60);
+        const seconds = props.timeLeft % 60;
         if (minutes > 0) {
             return `${minutes}m:${padToTwo(seconds)}s`;
         }
@@ -56,9 +56,9 @@
     const strokeDasharray = computed(() => {
         const radius = 45;
         const total = 2 * Math.PI * radius;
-        const timeFraction = timeLeft.value / maxTime.value;
+        const timeFraction = props.timeLeft / props.maxTime;
         const adjTimeFraction =
-            timeFraction - (1 - timeFraction) / maxTime.value;
+            timeFraction - (1 - timeFraction) / props.maxTime;
         const elapsedDash = Math.floor(adjTimeFraction * total);
         return `${elapsedDash} ${total}`;
     });

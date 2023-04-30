@@ -21,6 +21,8 @@ export const useGameStore = defineStore("game", () => {
     const gameTurnTimeLeft = ref<number>(0);
     const initialSettings =
         ref<components["schemas"]["ShiritoriGameSettings"]>();
+    const isGameStarting = ref<boolean>(false);
+    const gameStartCountdown = ref<number>(3);
 
     const roomCode = computed(() => {
         return game.value?.id ?? "";
@@ -281,6 +283,20 @@ export const useGameStore = defineStore("game", () => {
             case "turn_taken":
                 addWord(eventData.data);
                 break;
+            case "game_start_countdown_start":
+                isGameStarting.value = true;
+                break;
+            case "game_start_countdown":
+                gameStartCountdown.value = eventData.data;
+                break;
+            case "game_start_countdown_cancel":
+                isGameStarting.value = false;
+                break;
+            case "game_start_countdown_end":
+                isGameStarting.value = false;
+                gameStartCountdown.value = 3;
+                break;
+
             default:
                 break;
         }
@@ -298,6 +314,8 @@ export const useGameStore = defineStore("game", () => {
         roomCode,
         me,
         isJoining,
+        isGameStarting,
+        gameStartCountdown,
         players,
         words,
         isMyTurn,

@@ -1,31 +1,34 @@
 <template>
-    <Form
-        :initial-values="gameSettingsForm.initialValues"
-        :validate-on-mount="false"
-        :validation-schema="gameSettingsForm.validationSchema"
-        @submit="gameSettingsForm.onSubmit"
-    >
-        <div class="grid">
-            <SvgRoomCode :room-code="$route.params.id as string" />
-            <div class="col">
-                <Card>
-                    <template #title>Settings</template>
-                    <template #content>
-                        <FormSettingsGame :disabled="!gameStore.isHost" />
-                        <ButtonStartGame />
-                    </template>
-                </Card>
+    <div>
+        <Form
+            :initial-values="gameSettingsForm.initialValues"
+            :validate-on-mount="false"
+            :validation-schema="gameSettingsForm.validationSchema"
+            @submit="gameSettingsForm.onSubmit"
+        >
+            <div class="grid">
+                <SvgRoomCode :room-code="$route.params.id as string" />
+                <div class="col">
+                    <Card>
+                        <template #title>Settings</template>
+                        <template #content>
+                            <FormSettingsGame :disabled="!gameStore.isHost" />
+                            <ButtonStartGame />
+                        </template>
+                    </Card>
+                </div>
+                <div class="col">
+                    <Card>
+                        <template #title>Players</template>
+                        <template #content>
+                            <ListLobbyPlayers />
+                        </template>
+                    </Card>
+                </div>
             </div>
-            <div class="col">
-                <Card>
-                    <template #title>Players</template>
-                    <template #content>
-                        <ListLobbyPlayers />
-                    </template>
-                </Card>
-            </div>
-        </div>
-    </Form>
+        </Form>
+        <OverlayGameStartCountdown />
+    </div>
 </template>
 
 <script setup lang="ts">

@@ -4,7 +4,7 @@
             class="flex flex-column col-2 justify-content-center align-items-center"
         >
             <div class="col">
-                <TimerTurnGame />
+                <TimerTurnGame :time-left="timeLeft" :max-time="maxTime" />
             </div>
             <div class="col">
                 <p class="text-xl font-bold">
@@ -46,6 +46,7 @@
 </template>
 
 <script setup lang="ts">
+    import { computed } from "vue";
     import { Form } from "vee-validate";
     import { useGameTurnForm } from "~/composeables/useGameTurnForm";
     import { useGlobalStore } from "~/stores/useGlobalStore";
@@ -54,6 +55,14 @@
     const globalStore = useGlobalStore();
     const gameStore = useGameStore();
     const gameTurnForm = useGameTurnForm();
+
+    const timeLeft = computed(() => {
+        return gameStore.gameTurnTimeLeft;
+    });
+
+    const maxTime = computed(() => {
+        return gameStore.gameTurnDuration;
+    });
 </script>
 
 <style scoped>
