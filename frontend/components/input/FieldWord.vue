@@ -29,12 +29,11 @@
 </template>
 
 <script setup lang="ts">
-    import { ref, watch } from "vue";
+    import { ref, VNodeRef, watch } from "vue";
     import { Field } from "vee-validate";
     import { useGameStore } from "~/stores/useGameStore";
-    import InputText from "primevue/inputtext/InputText.vue";
 
-    const inputRef = ref<InputText | null>(null);
+    const inputRef = ref<VNodeRef | null>(null);
     const gameStore = useGameStore();
 
     watch(
