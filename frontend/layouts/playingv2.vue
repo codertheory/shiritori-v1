@@ -10,7 +10,7 @@
         </div>
         <div class="col-3">
             <div class="grid justify-content-center">
-                <TimerTurnGame />
+                <TimerTurnGame :time-left="timeLeft" :max-time="maxTime" />
             </div>
         </div>
         <div class="col-9">
@@ -19,6 +19,20 @@
     </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+    import { computed } from "vue";
+
+    import { useGameStore } from "~/stores/useGameStore";
+
+    const gameStore = useGameStore();
+
+    const timeLeft = computed(() => {
+        return gameStore.gameTurnTimeLeft;
+    });
+
+    const maxTime = computed(() => {
+        return gameStore.gameTurnDuration;
+    });
+</script>
 
 <style scoped></style>
