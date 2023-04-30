@@ -10,7 +10,7 @@
             <div class="col-12">
                 <div class="p-inputgroup">
                     <InputText
-                        :ref="inputRef"
+                        ref="inputRef"
                         v-bind="field"
                         aria-describedby="word-help"
                         class="bubble text-center"
@@ -29,18 +29,19 @@
 </template>
 
 <script setup lang="ts">
-    import { ref, VNodeRef, watch } from "vue";
+    import { ref, watch } from "vue";
     import { Field } from "vee-validate";
     import { useGameStore } from "~/stores/useGameStore";
+    import InputText from "primevue/inputtext/InputText.vue";
 
-    const inputRef = ref<VNodeRef | null>(null);
+    const inputRef = ref<InputText | null>(null);
     const gameStore = useGameStore();
 
     watch(
-        () => gameStore.isCurrentPlayerMe,
-        (isCurrentPlayerMe) => {
-            if (isCurrentPlayerMe) {
-                inputRef?.value?.focus();
+        () => gameStore.currentPlayer,
+        () => {
+            if (gameStore.isCurrentPlayerMe) {
+                inputRef.value?.$el?.focus();
             }
         }
     );

@@ -5553,7 +5553,7 @@ body {
 }
 
 .p-sidebar {
-    background: rgba(0, 0, 0, 0.15);
+    background: var(--surface-b);
     background-blend-mode: multiply;
     color: var(--text-color) !important;
     box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2),

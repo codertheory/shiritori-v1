@@ -8,7 +8,7 @@
             </div>
             <div class="col">
                 <p class="text-xl font-bold">
-                    Turn: {{ gameStore.currentRound }} /
+                    Round: {{ gameStore.currentRound }} /
                     {{ gameStore.maxTurns }}
                 </p>
             </div>
