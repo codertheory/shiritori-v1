@@ -139,3 +139,15 @@ class GameConsumer(CamelizedWebSocketConsumer):
 
     async def turn_taken(self, event):
         await self.send_json(event)
+
+    async def game_start_countdown_start(self, event):
+        await self.send_json(event)
+
+    async def game_start_countdown(self, event):
+        await self.send_json(event)
+
+    async def game_start_countdown_cancel(self, event):
+        await self.send_json(event)
+
+    async def game_start_countdown_end(self, event):
+        await self.send_json(event)

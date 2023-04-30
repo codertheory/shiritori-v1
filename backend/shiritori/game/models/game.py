@@ -214,11 +214,11 @@ class Game(AbstractModel):
                 self.status = GameStatus.FINISHED
         self.save(update_fields=["status"])
 
-    def start(
+    def prepare_start(
         self, session_key: str = None, game_settings: Optional["GameSettings"] = None, *, save: bool = True
     ) -> None:
         """
-        Start the game.
+        Prepares to start the game.
         :param session_key: str - The session key of the player starting the game.
         :param game_settings: GameSettings - The settings to use for the game.
         :param save: bool - Whether to save the game after starting.
@@ -232,16 +232,22 @@ class Game(AbstractModel):
         if self.player_count < 2:
             raise ValidationError("Cannot start a game with less than 2 players.")
         self.shuffle_player_order()
-        self.status = GameStatus.PLAYING
         self.calculate_current_player(save=False)
         if game_settings:
             self.settings = game_settings
         self.turn_time_left = self.settings.turn_time
         if save:
-            update_fields = ["status", "turn_time_left"]
+            update_fields = ["turn_time_left"]
             if game_settings:
                 update_fields.append("settings")
             self.save(update_fields=update_fields)
+
+    def start(self) -> None:
+        """
+        Start the game.
+        """
+        self.status = GameStatus.PLAYING
+        self.save(update_fields=["status"])
 
     def restart(self, session_key: str = None) -> None:
         """
@@ -296,6 +302,7 @@ class Game(AbstractModel):
             raise ValidationError("Cannot shuffle player order when game is finished.")
         if self.player_count < 2:
             raise ValidationError("Cannot shuffle player order when there are less than 2 players.")
+        self.players.update(order=None)
         players = list(self.players.all())
         random.shuffle(players)
         for index, player in enumerate(players):

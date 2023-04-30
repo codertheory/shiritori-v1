@@ -69,12 +69,13 @@ def test_host_leaving_properly_deletes_and_recalculates(started_game):
 def test_start_game_with_one_player(game, player):
     game.join(player)
     with pytest.raises(ValidationError):
-        game.start()
+        game.prepare_start()
 
 
 def test_start_game_with_two_players(game, player, human_player_2):
     game.join(player)
     game.join(human_player_2)
+    game.prepare_start()
     game.start()
     assert game.status == GameStatus.PLAYING
     assert game.current_player == player
@@ -84,13 +85,13 @@ def test_start_game_with_two_players(game, player, human_player_2):
 
 def test_start_started_game(started_game):
     with pytest.raises(ValidationError):
-        started_game.start()
+        started_game.prepare_start()
 
 
 def test_calculate_current_player(game, player, human_player_2):
     game.join(player)
     game.join(human_player_2)
-    game.start()
+    game.prepare_start()
     setup_and_assert_current_player(1, game, human_player_2)
     setup_and_assert_current_player(2, game, player)
 
@@ -128,6 +129,7 @@ def test_recalculate_host_with_no_players(game):
 def test_can_current_player_take_turn(game, player, human_player_2):
     game.join(player)
     game.join(human_player_2)
+    game.prepare_start()
     game.start()
     game.current_player = human_player_2
     game.turn_time_left = 10
@@ -138,7 +140,7 @@ def test_can_current_player_take_turn(game, player, human_player_2):
 def test_can_current_player_take_turn_with_no_time_left(game, player, human_player_2):
     game.join(player)
     game.join(human_player_2)
-    game.start()
+    game.prepare_start()
     game.current_player = human_player_2
     game.turn_time_left = 0
     pytest.raises(ValidationError, game.can_take_turn, human_player_2.session_key)
@@ -147,7 +149,7 @@ def test_can_current_player_take_turn_with_no_time_left(game, player, human_play
 def test_can_current_player_take_turn_when_game_status_is_not_playing(game, player, human_player_2):
     game.join(player)
     game.join(human_player_2)
-    game.start()
+    game.prepare_start()
     game.current_player = human_player_2
     game.turn_time_left = 10
     game.status = GameStatus.WAITING

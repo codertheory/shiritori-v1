@@ -11,6 +11,7 @@ def test_play_game(game: Game, sample_words: list[str]) -> None:
     player = game.join("John")
     player2 = game.join("Jane")
     # Start the game
+    game.prepare_start()
     game.start()
     # Take a turn
     turn_orders = [player, player2, player, player2]

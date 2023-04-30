@@ -99,7 +99,6 @@ def test_start_game_view_as_host(drf: APIClient, unstarted_game: Game):
     assert response.status_code == 204
 
     game.refresh_from_db()
-    assert game.status == GameStatus.PLAYING
     assert game.current_player == player
     assert game.current_turn == 0
     assert game.word_count == 0
@@ -143,7 +142,6 @@ def test_start_game_view_with_settings(drf: APIClient, unstarted_game: Game):
     )
     assert response.status_code == 204
     game.refresh_from_db()
-    assert game.status == GameStatus.PLAYING
     assert game.current_player == player
     assert {
         "locale": game.settings.locale,

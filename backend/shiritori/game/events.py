@@ -10,9 +10,14 @@ __all__ = (
     "send_lobby_update",
     "send_game_updated",
     "send_game_timer_updated",
+    "send_game_start_countdown_start",
+    "send_game_start_countdown",
+    "send_game_start_countdown_cancel",
+    "send_game_start_countdown_end",
     "send_player_joined",
     "send_player_left",
     "send_player_updated",
+    "send_player_disconnected",
     "send_turn_taken",
 )
 
@@ -102,5 +107,55 @@ def send_turn_taken(game_id: str, word: typing.Union["GameWord", dict]):
         {
             "type": "turn_taken",
             "data": word,
+        },
+    )
+
+
+def send_player_disconnected(game_id: str, player_id: str):
+    send_message_to_layer(
+        game_id,
+        {
+            "type": "player_disconnected",
+            "data": player_id,
+        },
+    )
+
+
+def send_game_start_countdown_start(game_id: str):
+    send_message_to_layer(
+        game_id,
+        {
+            "type": "game_start_countdown_start",
+            "data": None,
+        },
+    )
+
+
+def send_game_start_countdown(game_id: str, time_left: int):
+    send_message_to_layer(
+        game_id,
+        {
+            "type": "game_start_countdown",
+            "data": time_left,
+        },
+    )
+
+
+def send_game_start_countdown_cancel(game_id: str):
+    send_message_to_layer(
+        game_id,
+        {
+            "type": "game_start_countdown_cancel",
+            "data": None,
+        },
+    )
+
+
+def send_game_start_countdown_end(game_id: str):
+    send_message_to_layer(
+        game_id,
+        {
+            "type": "game_start_countdown_end",
+            "data": None,
         },
     )

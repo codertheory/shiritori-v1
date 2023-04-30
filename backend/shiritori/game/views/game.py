@@ -17,7 +17,7 @@ from shiritori.game.serializers import (
     ShiritoriGameSerializer,
     ShiritoriTurnSerializer,
 )
-from shiritori.game.tasks import game_worker_task
+from shiritori.game.tasks import start_game_task
 
 __all__ = ("GameViewSet",)
 
@@ -69,8 +69,8 @@ class GameViewSet(ReadOnlyModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         game_settings = serializer.save()
-        game.start(session_key, game_settings=game_settings)
-        game_worker_task.delay(game.id)
+        game.prepare_start(session_key, game_settings=game_settings)
+        start_game_task.delay(game.id)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=["post"], authentication_classes=[SessionAuthentication])
