@@ -77,17 +77,15 @@ class JoinGameSerializer(serializers.ModelSerializer):
 
 class ShiritoriGameSerializer(serializers.ModelSerializer):
     settings = ShiritoriGameSettingsSerializer()
-    player_count = serializers.IntegerField(read_only=True)
-    word_count = serializers.IntegerField(read_only=True)
-    longest_word = StringPrimaryKeyRelatedField(read_only=True, allow_null=True)
-    is_finished = serializers.BooleanField(read_only=True)
-    winner = StringPrimaryKeyRelatedField(read_only=True, allow_null=True)
-    current_player = StringPrimaryKeyRelatedField(read_only=True, allow_null=True)
-    turn_time_left = serializers.IntegerField(read_only=True)
     words = ShiritoriGameWordSerializer(many=True, read_only=True)
     players = ShiritoriPlayerSerializer(many=True, read_only=True)
-    current_round = serializers.IntegerField(read_only=True)
+    longest_word = StringPrimaryKeyRelatedField(read_only=True, allow_null=True)
+    winner = StringPrimaryKeyRelatedField(read_only=True, allow_null=True)
+    current_player = StringPrimaryKeyRelatedField(read_only=True, allow_null=True)
+    is_finished = serializers.BooleanField(read_only=True)
     max_turns = serializers.IntegerField(read_only=True)
+    player_count = serializers.IntegerField(read_only=True)
+    word_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Game

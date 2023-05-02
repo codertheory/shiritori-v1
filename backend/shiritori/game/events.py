@@ -7,6 +7,7 @@ if typing.TYPE_CHECKING:
     from shiritori.game.models import Game, GameWord, Player
 
 __all__ = (
+    "EventDict",
     "send_lobby_update",
     "send_game_updated",
     "send_game_timer_updated",
@@ -20,6 +21,25 @@ __all__ = (
     "send_player_disconnected",
     "send_turn_taken",
 )
+
+
+class EventDict(typing.TypedDict):
+    type: typing.Literal[
+        "game_created",
+        "game_updated",
+        "game_timer_updated",
+        "game_start_countdown_start",
+        "game_start_countdown",
+        "game_start_countdown_end",
+        "game_start_countdown_cancel",
+        "player_connected",
+        "player_disconnected",
+        "player_joined",
+        "player_updated",
+        "player_left",
+        "turn_taken",
+    ]
+    data: typing.Any
 
 
 def send_lobby_update(game: typing.Union["Game", dict]):

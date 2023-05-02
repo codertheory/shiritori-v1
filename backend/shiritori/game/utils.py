@@ -3,10 +3,12 @@ import string
 import time
 import typing
 import unicodedata
-from typing import TypedDict
 
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+
+if typing.TYPE_CHECKING:
+    from shiritori.game.events import EventDict
 
 LENGTH_MODIFIER = 1.25
 UNUSED_LETTER_MODIFIER = 1.5
@@ -36,25 +38,6 @@ def normalize_word(word: str | None) -> str:
     Normalize a word. This will lowercase the word and normalize the unicode.
     """
     return unicodedata.normalize("NFKC", word.lower()) if word else None
-
-
-class EventDict(TypedDict):
-    type: typing.Literal[
-        "game_created",
-        "game_updated",
-        "game_timer_updated",
-        "game_start_countdown_start",
-        "game_start_countdown",
-        "game_start_countdown_end",
-        "game_start_countdown_cancel",
-        "player_connected",
-        "player_disconnected",
-        "player_joined",
-        "player_updated",
-        "player_left",
-        "turn_taken",
-    ]
-    data: typing.Any
 
 
 def calculate_score(word: str | None, duration: int | float, unused_letter: bool = False) -> float:
@@ -95,7 +78,7 @@ def generate_random_letter():
     return random.choice(string.ascii_lowercase)
 
 
-def send_message_to_layer(channel_name: str, message: EventDict):
+def send_message_to_layer(channel_name: str, message: "EventDict"):
     """
     Send a message to a channel layer.
     :param channel_name: str - The channel name to send the message to.
@@ -104,7 +87,7 @@ def send_message_to_layer(channel_name: str, message: EventDict):
     return async_to_sync(asend_message_to_layer)(channel_name, message)
 
 
-async def asend_message_to_layer(channel_name: str, message: EventDict):
+async def asend_message_to_layer(channel_name: str, message: "EventDict"):
     """
     Send a message to a channel layer.
     :param channel_name: str - The channel name to send the message to.
