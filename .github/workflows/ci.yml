@@ -3,7 +3,9 @@ name: CI
 env:
     DJANGO_SETTINGS_MODULE: "config.settings.test"
     POETRY_VERSION: 1.4.1
-    PYTHON_VERSION: 3.11
+    PYTHON_VERSION: 3.11.3
+    NODE_VERSION: 19
+    PNPM_VERSION: 8.2.0
 
 on:
     pull_request:
@@ -17,13 +19,48 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
-    lint:
+    prepare:
+        runs-on: ubuntu-latest
+        outputs:
+            frontend-changed: ${{ steps.frontend-changed.outputs.changed }}
+            backend-changed: ${{ steps.backend-changed.outputs.changed }}
+        steps:
+            -   name: Checkout Code Repository
+                uses: actions/checkout@v3
+            -   name: Verify Changed files
+                uses: tj-actions/verify-changed-files@v14
+                id: verify-changed-files
+                with:
+                    files: |
+                        backend
+                        frontend
+
+
+            -   name: Run step only when any of the above files change.
+                if: steps.verify-changed-files.outputs.files_changed == 'true'
+                run: |
+                    echo "Changed files: ${{ steps.verify-changed-files.outputs.changed_files }}"
+
+
+            -   name: Check if frontend changed
+                id: frontend-changed
+                if: contains(steps.verify-changed-files.outputs.changed_files, 'frontend')
+                run: |
+                    echo "changed=true" >> "$GITHUB_OUTPUT"
+            -   name: Check if backend changed
+                id: backend-changed
+                if: contains(steps.verify-changed-files.outputs.changed_files, 'backend')
+                run: |
+                    echo "changed=true" >> "$GITHUB_OUTPUT"
+    lint-backend:
+        needs: prepare
+        if: needs.prepare.outputs.backend-changed == 'true'
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout Code Repository
                 uses: actions/checkout@v3
             -   name: Build
-                uses: ./.github/actions/build-action
+                uses: ./.github/actions/backend-action
             -   name: Ruff
                 run: |
                     ruff check --format=github $(git ls-files '*.py')
@@ -40,15 +77,29 @@ jobs:
     #                    cd backend
     #                    poetry run mypy $(git ls-files '*.py')
 
-    test:
-        needs: lint
+    lint-frontend:
+        needs: prepare
+        if: needs.prepare.outputs.frontend-changed == 'true'
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout Code Repository
+                uses: actions/checkout@v3
+            -   name: Build
+                uses: ./.github/actions/frontend-action
+            -   name: Lint
+                run: |
+                    cd frontend
+                    pnpm run lint
+    test-backend:
+        needs: lint-backend
+        if: needs.prepare.outputs.backend-changed == 'true'
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout Code Repository
                 uses: actions/checkout@v3
 
             -   name: Build
-                uses: ./.github/actions/build-action
+                uses: ./.github/actions/backend-action
             -   name: Run DB Migrations
                 run: |
                     cd backend

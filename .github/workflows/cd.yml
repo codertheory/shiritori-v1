@@ -12,7 +12,6 @@ on:
 
 jobs:
     deploy: # Build docker images and push to docker hub
-        needs: test
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout Code Repository
