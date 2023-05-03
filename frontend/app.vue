@@ -11,7 +11,7 @@
                 @click="globalStore.toggleRulesModal"
                 icon="pi pi-book"
                 severity="help"
-                aria-label="Bookmark"
+                aria-label="Game Rules"
                 size="small"
             />
         </div>
