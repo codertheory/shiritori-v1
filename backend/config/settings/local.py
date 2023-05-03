@@ -27,6 +27,13 @@ DATABASES = {
         },
     }
 }
+# IF YOU WANT TO USE SQLITE3 FOR DEVELOPMENT, UNCOMMENT THIS BLOCK
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
 
 # CACHES
 # ------------------------------------------------------------------------------
