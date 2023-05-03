@@ -4,7 +4,7 @@
             class="flex flex-grow-1 justify-center justify-content-center align-center align-items-center text-center"
         >
             Please note that this is a beta version of the website which is
-            still undergoing final testing before its official release.
+            still undergoing final testing before its official release. Thanks
         </div>
         <div class="flex flex-grow-0 justify-end align-content-end">
             <Button
