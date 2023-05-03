@@ -28,30 +28,31 @@ jobs:
             -   name: Checkout Code Repository
                 uses: actions/checkout@v3
                 with:
-                    fetch-depth: "2"  # OR "2" -> To retrieve the preceding commit.
+                    fetch-depth: 2  # OR "2" -> To retrieve the preceding commit.
 
             - name: Get changed files in the frontend folder
               id: changed-files-frontend
               uses: tj-actions/changed-files@v35
               with:
                 files: frontend/*.{js,ts,vue}
-
-            - name: Get changed files in the backend folder
-              id: changed-files-backend
-              uses: tj-actions/changed-files@v35
-              with:
-                files: backend/*.{js,ts,vue}
+#
+#            - name: Get changed files in the backend folder
+#              id: changed-files-backend
+#              uses: tj-actions/changed-files@v35
+#              with:
+#                files: backend/*.{py}
 
             -   name: Check if frontend changed
                 id: frontend-changed
                 if: steps.changed-files-frontend.outputs.any_changed == 'true'
                 run: |
                     echo "changed=true" >> "$GITHUB_OUTPUT"
-            -   name: Check if backend changed
-                id: backend-changed
-                if: steps.changed-files-backend.outputs.any_changed == 'true'
-                run: |
-                    echo "changed=true" >> "$GITHUB_OUTPUT"
+#
+#            -   name: Check if backend changed
+#                id: backend-changed
+#                if: steps.changed-files-backend.outputs.any_changed == 'true'
+#                run: |
+#                    echo "changed=true" >> "$GITHUB_OUTPUT"
     lint-backend:
         needs: prepare
         if: needs.prepare.outputs.backend-changed == 'true'
