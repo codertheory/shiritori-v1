@@ -5,7 +5,7 @@ env:
     POETRY_VERSION: 1.4.1
     PYTHON_VERSION: 3.11.3
     NODE_VERSION: 19
-    PNPM_VERSION: 8.2.0
+    PNPM_VERSION: 8.3.1
 
 on:
     pull_request:
@@ -22,37 +22,28 @@ jobs:
     prepare:
         runs-on: ubuntu-latest
         outputs:
-            frontend-changed: ${{ steps.frontend-changed.outputs.changed }}
-            backend-changed: ${{ steps.backend-changed.outputs.changed }}
+            frontend-changed: ${{ steps.changed-files-frontend.outputs.any_changed }}
+            backend-changed: ${{ steps.changed-files-backend.outputs.any_changed }}
         steps:
             -   name: Checkout Code Repository
                 uses: actions/checkout@v3
                 with:
                     fetch-depth: 2  # OR "2" -> To retrieve the preceding commit.
 
-            - name: Get changed files in the frontend folder
-              id: changed-files-frontend
-              uses: tj-actions/changed-files@v35
-              with:
-                files: frontend/*.{js,ts,vue}
-#
-#            - name: Get changed files in the backend folder
-#              id: changed-files-backend
-#              uses: tj-actions/changed-files@v35
-#              with:
-#                files: backend/*.{py}
+            -   name: Get changed files in the frontend folder
+                id: changed-files-frontend
+                uses: tj-actions/changed-files@v35
+                with:
+                    files: frontend/**
+                    since_last_remote_commit: true
 
-            -   name: Check if frontend changed
-                id: frontend-changed
-                if: steps.changed-files-frontend.outputs.any_changed == 'true'
-                run: |
-                    echo "changed=true" >> "$GITHUB_OUTPUT"
-#
-#            -   name: Check if backend changed
-#                id: backend-changed
-#                if: steps.changed-files-backend.outputs.any_changed == 'true'
-#                run: |
-#                    echo "changed=true" >> "$GITHUB_OUTPUT"
+            -   name: Get changed files in the backend folder
+                id: changed-files-backend
+                uses: tj-actions/changed-files@v35
+                with:
+                    files: backend/**
+                    since_last_remote_commit: true
+
     lint-backend:
         needs: prepare
         if: needs.prepare.outputs.backend-changed == 'true'
@@ -108,4 +99,4 @@ jobs:
             -   name: Lint
                 run: |
                     cd frontend
-                    pnpm run lint
+                    pnpm run lint:ci

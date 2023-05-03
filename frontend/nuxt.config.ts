@@ -27,6 +27,7 @@ export default defineNuxtConfig({
         strict: true,
         typeCheck: true,
     },
+    test: true,
     runtimeConfig: {
         public: {
             env: "dev",

@@ -44,6 +44,7 @@
         "generate": "nuxt generate",
         "generate-schema": "npx openapi-typescript ../backend/schema.yaml --output schema2.ts --path-params-as-types",
         "lint": "eslint  --fix --ext .js,.ts,.vue . && prettier --write . && vue-tsc --noEmit",
+        "lint:ci": "eslint --ext .js,.ts,.vue . && prettier --check . && vue-tsc --noEmit",
         "prettier": "prettier --write .",
         "postinstall": "nuxt prepare",
         "preview": "nuxt preview",
