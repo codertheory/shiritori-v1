@@ -36,7 +36,7 @@
         "*.{ts,vue}": [
             "eslint --fix",
             "prettier --write",
-            "vue-tsc --noEmit"
+            "nuxi typecheck"
         ]
     },
     "private": true,
