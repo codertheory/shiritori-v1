@@ -1,5 +1,7 @@
 {
     "devDependencies": {
+        "@histoire/plugin-nuxt": "^0.16.1",
+        "@histoire/plugin-vue": "^0.16.1",
         "@nuxt/devtools": "^0.2.5",
         "@nuxt/kit": "3.2.3",
         "@nuxt/test-utils": "^3.3.1",
@@ -48,6 +50,9 @@
         "prettier": "prettier --write .",
         "postinstall": "nuxt prepare",
         "preview": "nuxt preview",
-        "test": "nuxt test"
+        "test": "nuxt test",
+        "story:dev": "histoire dev",
+        "story:build": "histoire build",
+        "story:preview": "histoire preview --port 4567"
     }
 }

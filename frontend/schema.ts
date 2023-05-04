@@ -275,6 +275,13 @@ export interface operations {
     };
 }
 
+export type TimeLineWord = Pick<
+    components["schemas"]["ShiritoriGameWord"],
+    "score" | "word"
+> & {
+    playerName: string;
+};
+
 export const gameSettingsSchema = z.object({
     locale: z.literal("en").default("en"),
     wordLength: z.number().min(3).max(5).default(3),

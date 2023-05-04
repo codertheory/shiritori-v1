@@ -1,12 +1,12 @@
 <template>
-    <Timeline :value="gameStore.words">
+    <Timeline :value="words">
         <template #opposite="slotProps">
             <div
                 class="flex flex-row justify-content-start align-items-end pt-sm"
             >
-                <span class="font-bold text-primary">{{
-                    getPlayerName(slotProps.item)
-                }}</span>
+                <span class="font-bold text-primary">
+                    {{ slotProps.item.playerName }}
+                </span>
             </div>
         </template>
         <template #marker="slotProps">
@@ -27,18 +27,15 @@
 </template>
 
 <script setup lang="ts">
-    import { useGameStore } from "~/stores/useGameStore";
-    import { components } from "~/schema";
+    import { PropType } from "vue";
+    import { TimeLineWord } from "~/schema";
 
-    const gameStore = useGameStore();
-
-    const getPlayerName = (
-        word: components["schemas"]["ShiritoriGameWord"]
-    ) => {
-        return gameStore.getPlayer(
-            typeof word.playerId === "string" ? word.playerId : ""
-        )?.name;
-    };
+    defineProps({
+        words: {
+            type: Array as PropType<TimeLineWord[]>,
+            required: true,
+        },
+    });
 </script>
 
 <style scoped>

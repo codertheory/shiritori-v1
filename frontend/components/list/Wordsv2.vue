@@ -2,11 +2,15 @@
     <Card>
         <template #title>Words Used</template>
         <template #content>
-            <ListItemGameWord />
+            <ListItemGameWord :words="gameStore.wordsTimeLine" />
         </template>
     </Card>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+    import { useGameStore } from "~/stores/useGameStore";
+
+    const gameStore = useGameStore();
+</script>
 
 <style scoped></style>

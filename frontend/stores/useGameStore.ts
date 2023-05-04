@@ -1,6 +1,11 @@
 import { computed, ref } from "vue";
 import { defineStore } from "pinia";
-import { components, createGameSchema, gameSettingsSchema } from "~/schema";
+import {
+    components,
+    createGameSchema,
+    gameSettingsSchema,
+    TimeLineWord,
+} from "~/schema";
 import { useSocketStore } from "~/stores/useSocketStore";
 import { useApi } from "~/composeables/useApi";
 import { Writeable } from "zod";
@@ -101,12 +106,30 @@ export const useGameStore = defineStore("game", () => {
         return [...players.value].sort((a, b) => b.score - a.score);
     });
 
+    const wordsTimeLine = computed((): TimeLineWord[] => {
+        return (
+            game.value?.words.map((w) => {
+                return {
+                    word: w.word ?? "",
+                    score: w.score ?? 0,
+                    playerName: getPlayerNameFromWord(w) ?? "",
+                };
+            }) ?? ([] as TimeLineWord[])
+        );
+    });
+
     const isPlayerCurrent = (playerId: string) => {
         return playerId === currentPlayer.value?.id;
     };
 
     const getPlayer = (playerId: string) => {
         return players.value.find((p) => p.id === playerId);
+    };
+
+    const getPlayerNameFromWord = (
+        word: components["schemas"]["ShiritoriGameWord"]
+    ) => {
+        return getPlayer(word.playerId)?.name;
     };
 
     const getPlayerIndex = (playerId: string) => {
@@ -333,8 +356,10 @@ export const useGameStore = defineStore("game", () => {
         canStart,
         winner,
         leaderboard,
+        wordsTimeLine,
         isPlayerCurrent,
         getPlayer,
+        getPlayerNameFromWord,
         getPlayerWords,
         createGame,
         joinGame,

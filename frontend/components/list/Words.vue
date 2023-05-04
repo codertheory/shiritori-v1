@@ -9,7 +9,7 @@
             <h2 class="mt-0">Words Used</h2>
         </div>
         <divider class="mt-0" />
-        <ListItemGameWord />
+        <ListItemGameWord :words="gameStore.wordsTimeLine" />
     </Sidebar>
 </template>
 
@@ -18,6 +18,9 @@
     import { useGlobalStore } from "~/stores/useGlobalStore";
     import { SidebarProps } from "primevue/sidebar";
     import { useDevice } from "#imports";
+    import { useGameStore } from "~/stores/useGameStore";
+
+    const gameStore = useGameStore();
 
     const globalStore = useGlobalStore();
 
