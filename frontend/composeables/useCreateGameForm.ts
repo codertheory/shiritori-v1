@@ -1,4 +1,4 @@
-import { toFormValidator } from "@vee-validate/zod";
+import { toTypedSchema } from "@vee-validate/zod";
 import { useGameStore } from "~/stores/useGameStore";
 import { navigateTo } from "@typed-router";
 import { createGameSchema, gameSettingsSchema } from "~/schema";
@@ -6,7 +6,7 @@ import { getSubmitFn } from "~/utils/getSubmitFn";
 
 export const useCreateGameForm = () => {
     const { handleCreateGame } = useGameStore();
-    const validationSchema = toFormValidator(createGameSchema);
+    const validationSchema = toTypedSchema(createGameSchema);
     const initialValues = gameSettingsSchema.parse({});
     const onSubmit = getSubmitFn(createGameSchema, async (values) => {
         try {

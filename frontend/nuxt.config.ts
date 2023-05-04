@@ -6,7 +6,6 @@ export default defineNuxtConfig({
         "@nuxt/devtools",
         "@pinia/nuxt",
         "nuxt-typed-router",
-        "@nuxtjs/device",
         "@nuxtjs/eslint-module",
     ],
     css: [
@@ -34,7 +33,7 @@ export default defineNuxtConfig({
             apiHost: "dev.shiritoriwithfriends.com",
         },
     },
-    eslint: {
-        lintOnStart: false,
-    },
+    // eslint: {
+    //     lintOnStart: false,
+    // },
 });
