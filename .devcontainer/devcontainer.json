@@ -13,7 +13,10 @@
 		},
 		"ghcr.io/devcontainers-contrib/features/actionlint:1": {},
 		"ghcr.io/devcontainers-contrib/features/pre-commit:2": {},
-		"ghcr.io/devcontainers-contrib/features/redis-homebrew:1": {}
+		"ghcr.io/devcontainers-contrib/features/redis-homebrew:1": {},
+        "ghcr.io/devcontainers/features/sshd:1": {
+            "version": "latest"
+        }
 	},
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
