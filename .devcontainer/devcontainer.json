@@ -42,10 +42,7 @@
 	},
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": {
-		"backend": ["cd","backend","&&", "poetry", "install"],
-		"frontend": ["cd","frontend","&&", "pnpm", "install"]
-	},
+	"postCreateCommand": "bash build.sh",
 
 	// Configure tool-specific properties.
 	// "customizations": {},
