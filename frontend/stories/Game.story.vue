@@ -19,6 +19,7 @@
 
     function setupLobby({ app }: { app: import("vue").App }) {
         // noinspection TypeScriptValidateTypes - this is a hack to get the historie to work
+        // @ts-ignore
         app.config.globalProperties.$route = { params: { id: "abcd" } };
     }
 </script>
