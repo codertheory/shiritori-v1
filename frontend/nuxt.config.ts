@@ -15,7 +15,7 @@ export default defineNuxtConfig({
         "primeflex/primeflex.css",
     ],
     build: {
-        transpile: ["primevue"],
+        transpile: ["nuxt", "primevue"],
     },
     primevue: {
         config: {
