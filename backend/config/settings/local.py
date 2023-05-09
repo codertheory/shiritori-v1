@@ -17,23 +17,23 @@ ALLOWED_HOSTS = ["*"]
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 # Set a postgresql database for development
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": env("POSTGRES_DB", default="shiritori"),
-        "OPTIONS": {
-            "service": "my_service",
-            "passfile": ".my_pgpass",
-        },
-    }
-}
-# IF YOU WANT TO USE SQLITE3 FOR DEVELOPMENT, UNCOMMENT THIS BLOCK
 # DATABASES = {
 #     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": env("POSTGRES_DB", default="shiritori"),
+#         "OPTIONS": {
+#             "service": "my_service",
+#             "passfile": ".my_pgpass",
+#         },
 #     }
 # }
+# IF YOU WANT TO USE SQLITE3 FOR DEVELOPMENT, UNCOMMENT THIS BLOCK
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",  # noqa F405
+    }
+}
 
 # CACHES
 # ------------------------------------------------------------------------------
@@ -50,10 +50,6 @@ CACHES = {
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
 EMAIL_BACKEND = env("DJANGO_EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend")
 
-# django-extensions
-# ------------------------------------------------------------------------------
-# https://django-extensions.readthedocs.io/en/latest/installation_instructions.html#configuration
-INSTALLED_APPS += ["django_extensions"]  # noqa F405
 # Celery
 # ------------------------------------------------------------------------------
 
@@ -65,7 +61,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
+            "hosts": [env("REDIS_URL", default="redis://localhost:6379")],
         },
     },
 }
@@ -79,6 +75,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://dev.shiritoriwithfriends.com:8000",
     "http://dev.shiritoriwithfriends.com",
 ]
+CORS_ALLOWED_ORIGINS.extend(env.list("CORS_ALLOWED_ORIGINS", default=[]))
 
-SESSION_COOKIE_DOMAIN = "dev.shiritoriwithfriends.com"
+SESSION_COOKIE_DOMAIN = env.str("SESSION_COOKIE_DOMAIN", default="dev.shiritoriwithfriends.com")
 CORS_ALLOW_CREDENTIALS = True
