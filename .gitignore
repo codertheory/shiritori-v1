@@ -348,3 +348,4 @@ schema.yml
 /backend/.my_pgpass
 .ruff_cache/
 /.idea/shelf/**
+/.vscode/settings.json

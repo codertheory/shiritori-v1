@@ -17,7 +17,8 @@
     import Finished from "~/layouts/finished.vue";
     import Playing from "~/layouts/playing.vue";
 
-    function setupLobby({ app }) {
+    function setupLobby({ app }: { app: import("vue").App }) {
+        // noinspection TypeScriptValidateTypes - this is a hack to get the historie to work
         app.config.globalProperties.$route = { params: { id: "abcd" } };
     }
 </script>

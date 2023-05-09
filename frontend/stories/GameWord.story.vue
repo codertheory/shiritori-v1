@@ -1,9 +1,9 @@
 <template>
     <Story title="Game Word List">
         <template #controls>
-            Word: <HstText v-model="wordForm.word" /> Score:
-            <HstNumber v-model="wordForm.score" />
-            Player Name: <HstText v-model="wordForm.playerName" />
+            <HstText v-model="wordForm.word" title="Word" />
+            <HstNumber v-model="wordForm.score" title="Score" />
+            <HstText v-model="wordForm.playerName" title="Player Name" />
             <HstButton @click="addWord(wordForm)">Add Word</HstButton>
             <HstButton @click="removeLastWord()">Remove Last Word</HstButton>
         </template>
