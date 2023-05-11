@@ -5,6 +5,7 @@ export const useConfig = () => {
     const config = useRuntimeConfig();
 
     const isProduction = computed(() => process.env.NODE_ENV === "production");
+    const isTest = computed(() => config.public.env === "test");
 
     const baseURL = computed(() => {
         const schema = isProduction.value ? "https" : "http";
@@ -18,6 +19,7 @@ export const useConfig = () => {
 
     return {
         isProduction,
+        isTest,
         baseURL,
         wsURL,
     };

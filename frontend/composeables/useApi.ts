@@ -31,7 +31,7 @@ export type client = {
 };
 
 export const useApi = () => {
-    const { baseURL, isProduction } = useConfig();
+    const { baseURL, isProduction, isTest } = useConfig();
 
     const useApiFetch = async <key extends keyof operations>(
         path: apiPath,
@@ -67,9 +67,10 @@ export const useApi = () => {
                 ...options,
                 // This only exists because of a bug that
                 // locally this singular get function breaks
-                baseURL: isProduction.value
-                    ? baseURL.value
-                    : "http://127.0.0.1:8000",
+                baseURL:
+                    isProduction.value || isTest.value
+                        ? baseURL.value
+                        : "http://127.0.0.1:8000",
             });
         },
         apiGameJoinCreate: async (pathParameters, options) => {

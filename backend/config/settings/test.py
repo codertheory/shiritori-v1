@@ -42,3 +42,7 @@ DATABASES = {
     #     "NAME": env("POSTGRES_DB", default="shiritori"),
     # }
 }
+# Allow all hosts for testing purposes
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+SESSION_COOKIE_DOMAIN = None

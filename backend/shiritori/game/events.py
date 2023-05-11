@@ -108,7 +108,7 @@ def send_player_updated(game_id: str, player: typing.Union["Player", dict]):
     )
 
 
-def send_player_left(game_id: str, player_id: str):
+def send_player_left(game_id: str | typing.SupportsInt, player_id: str):
     send_message_to_layer(
         game_id,
         {

@@ -1,7 +1,13 @@
+import asyncio
+import contextlib
+import os
+import random
+
 import pytest
 import pytest_asyncio
 from asgiref.sync import sync_to_async
 from channels.testing import WebsocketCommunicator
+from django.conf import settings
 from django.db.models.signals import post_delete, post_save
 from pytest_factoryboy import register
 from pytest_mock import MockerFixture
@@ -10,6 +16,16 @@ from rest_framework.test import APIClient
 from shiritori.game.consumers import GameConsumer, GameLobbyConsumer
 from shiritori.game.models import Game, GameSettings, GameStatus
 from shiritori.game.tests.factories import GameFactory, PlayerFactory, WordFactory
+
+
+# function executed right after test items collected but before test run
+def pytest_collection_modifyitems(config, items):
+    if not config.getoption("-m"):
+        skip_me = pytest.mark.skip(reason="use `-m e2e` to run this test")
+        for item in items:
+            if "e2e" in item.keywords:
+                item.add_marker(skip_me)
+
 
 # Constants
 SAMPLE_WORDS = [
@@ -107,3 +123,57 @@ def mock_shuffle(request: pytest.FixtureRequest, mocker: MockerFixture):
         import random
 
         random.seed(42)
+
+
+@pytest_asyncio.fixture(name="live_nuxt_client")
+async def launch_live_nuxt_client():
+    async def generate_nuxt_client(server_port):
+        port = random.randint(8000, 9000)
+        env_vars = {
+            "NUXT_PORT": str(port),
+            "NUXT_PUBLIC_API_HOST": f"localhost:{server_port}",
+            "NUXT_PUBLIC_ENV": "test",
+        }
+
+        frontend_directory = settings.BASE_DIR.parent / "frontend"
+        proc = await asyncio.create_subprocess_exec(
+            "pnpm",
+            "run",
+            "dev",
+            "--port",
+            str(port),
+            cwd=frontend_directory,
+            env={**os.environ, **env_vars},
+            stderr=None,
+            stdout=None,
+        )
+        await asyncio.sleep(3)  # Wait for nuxt to start
+        return proc, port
+
+    return generate_nuxt_client
+
+
+@pytest_asyncio.fixture(name="puppeteer_browser")
+async def puppeteer_browser(live_server, live_nuxt_client):
+    # TODO: Use https://github.com/luizyao/pytest-pyppeteer
+    os.environ.setdefault("PYPPETEER_CHROMIUM_REVISION", "1140660")
+    from pyppeteer import launch
+
+    browser = await launch(
+        {
+            "headless": "new",
+            "defaultViewport": {
+                "width": 1920,
+                "height": 1080,
+            },
+        }
+    )
+    proc, port = await live_nuxt_client(live_server.thread.port)
+    page = (await browser.pages())[0]
+    await page.goto(f"http://localhost:{port}")
+    yield browser, page
+    await browser.close()
+    if proc is not None:
+        with contextlib.suppress(TypeError):
+            await proc.terminate()
+            await proc.communicate()

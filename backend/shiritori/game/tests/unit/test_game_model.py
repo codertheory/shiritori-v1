@@ -38,19 +38,13 @@ def test_join_started_game(started_game):
 def test_leave_game(game, player):
     game.join(player)
     game.leave(player)
-    assert game.player_count == 0
-    assert game.players.count() == 0
-    assert game.host is None
-    assert game.status == GameStatus.FINISHED
+    assert game.id is None  # Instance is deleted
 
 
 def test_leave_game_by_session_key(game, player):
     game.join(player)
     game.leave(player.session_key)
-    assert game.player_count == 0
-    assert game.players.count() == 0
-    assert game.host is None
-    assert game.status == GameStatus.FINISHED
+    assert game.id is None  # Instance is deleted
 
 
 def test_host_leaving_properly_deletes_and_recalculates(started_game):
@@ -61,9 +55,7 @@ def test_host_leaving_properly_deletes_and_recalculates(started_game):
     assert started_game.player_count == 1
     assert started_game.players.first() == player2
     started_game.leave(player2)
-    assert started_game.host is None
-    assert started_game.player_count == 0
-    assert started_game.status == GameStatus.FINISHED
+    assert started_game.id is None
 
 
 def test_start_game_with_one_player(game, player):
@@ -281,3 +273,12 @@ def test_shuffle_player_order_with_less_than_two_players(game_factory, player_fa
     game.player_set.add(player_factory())
     with pytest.raises(ValidationError):
         game.shuffle_player_order()
+
+
+def test_player_delete_updates_current_player(started_game):
+    first_player, next_player = started_game.players
+    started_game.current_player = next_player
+    started_game.leave(first_player)
+    assert started_game.current_player == next_player
+    assert started_game.players.count() == 1
+    assert started_game.players.first() == next_player

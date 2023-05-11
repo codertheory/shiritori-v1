@@ -1,3 +1,4 @@
+import contextlib
 import random
 from collections.abc import Iterable
 from typing import Optional, Union
@@ -199,20 +200,25 @@ class Game(AbstractModel):
 
     def leave(self, player: Union["Player", str]) -> None:
         """Remove a player from the game."""
-        if isinstance(player, str):
-            player = self.player_set.get(session_key=player)
-        player.delete()
-        if player.is_host:
-            try:
-                self.recalculate_host()
-            except ValidationError:
-                self.status = GameStatus.FINISHED
-        if self.status == GameStatus.PLAYING:
-            try:
-                self.calculate_current_player(save=False)
-            except ValidationError:
-                self.status = GameStatus.FINISHED
-        self.save(update_fields=["status"])
+        with transaction.atomic():
+            if isinstance(player, str):
+                player = self.player_set.get(session_key=player)
+            with contextlib.suppress(Exception):
+                player.delete()
+            if player.is_host:
+                try:
+                    self.recalculate_host()
+                except ValidationError:
+                    self.status = GameStatus.FINISHED
+            if self.status == GameStatus.PLAYING:
+                try:
+                    self.calculate_current_player(save=False)
+                except ValidationError:
+                    self.status = GameStatus.FINISHED
+            if self.player_count == 0:
+                self.delete()
+            else:
+                self.save(update_fields=["status"])
 
     def prepare_start(
         self, session_key: str = None, game_settings: Optional["GameSettings"] = None, *, save: bool = True

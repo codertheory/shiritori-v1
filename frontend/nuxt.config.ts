@@ -33,7 +33,7 @@ export default defineNuxtConfig({
             apiHost: "dev.shiritoriwithfriends.com",
         },
     },
-    // eslint: {
-    //     lintOnStart: false,
-    // },
+    eslint: {
+        lintOnStart: false,
+    },
 });
