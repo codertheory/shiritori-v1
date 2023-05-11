@@ -55,6 +55,7 @@ jobs:
                 uses: ./.github/actions/backend-action
             -   name: Ruff
                 run: |
+                    cd backend
                     poetry run ruff check --format=github $(git ls-files '*.py')
             -   name: Black
                 run: |
