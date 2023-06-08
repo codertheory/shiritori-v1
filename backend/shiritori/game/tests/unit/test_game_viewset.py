@@ -196,6 +196,7 @@ def test_get_game_view(drf: APIClient, finished_game: Game):
             {"word": word.word, "score": word.score, "duration": word.duration, "player_id": word.player.id}
             for word in game.words.all()
         ],
+        "used_letters": list(game.used_letters),
     }
     assert response.data == expected_result
 

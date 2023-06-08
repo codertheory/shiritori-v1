@@ -86,6 +86,7 @@ class ShiritoriGameSerializer(serializers.ModelSerializer):
     max_turns = serializers.IntegerField(read_only=True)
     player_count = serializers.IntegerField(read_only=True)
     word_count = serializers.IntegerField(read_only=True)
+    used_letters = serializers.ListField(child=serializers.CharField(), read_only=True)
 
     class Meta:
         model = Game

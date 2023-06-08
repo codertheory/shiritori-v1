@@ -145,7 +145,7 @@ class Game(AbstractModel):
         return self.settings.max_turns * self.player_count
 
     @property
-    def used_letters(self) -> "QuerySet[str]":
+    def used_letters(self) -> QuerySet[str]:
         return (
             self.gameword_set.annotate(
                 last_letter=Right("word", 1),

@@ -282,3 +282,16 @@ def test_player_delete_updates_current_player(started_game):
     assert started_game.current_player == next_player
     assert started_game.players.count() == 1
     assert started_game.players.first() == next_player
+
+
+def test_used_letters_returns_empty_list_when_no_words(started_game):
+    # assert an empty queryset is returned
+    assert started_game.used_letters.exists() is False
+
+
+def test_used_letters_returns_list_of_used_letters(started_game, sample_words):
+    started_game.turn_time_left = 10
+    session_key = started_game.current_player.session_key
+    started_game.take_turn(session_key, sample_words[0])
+    assert "t" in started_game.used_letters
+    assert list(started_game.used_letters) == ["t"]
