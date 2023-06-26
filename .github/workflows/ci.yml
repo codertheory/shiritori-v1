@@ -32,14 +32,14 @@ jobs:
 
             -   name: Get changed files in the frontend folder
                 id: changed-files-frontend
-                uses: tj-actions/changed-files@v35
+                uses: tj-actions/changed-files@v37
                 with:
                     files: frontend/**
                     since_last_remote_commit: true
 
             -   name: Get changed files in the backend folder
                 id: changed-files-backend
-                uses: tj-actions/changed-files@v35
+                uses: tj-actions/changed-files@v37
                 with:
                     files: backend/**
                     since_last_remote_commit: true
