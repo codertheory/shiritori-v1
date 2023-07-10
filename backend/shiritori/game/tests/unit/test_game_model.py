@@ -50,6 +50,7 @@ def test_leave_game_by_session_key(game, player):
 def test_host_leaving_properly_deletes_and_recalculates(started_game):
     player = started_game.players.first()
     player2 = started_game.players.last()
+    player.delete()
     started_game.leave(player)
     assert started_game.host == player2
     assert started_game.player_count == 1

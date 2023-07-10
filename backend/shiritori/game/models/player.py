@@ -93,3 +93,11 @@ class Player(AbstractModel, NanoIdModel):
         :return: Optional[Player] - The player with the session key.
         """
         return cls.objects.filter(game_id=game_id, session_key=session_key).first()
+
+    def leave(self):
+        """
+        Leave the game.
+        """
+        self.is_connected = False
+        self.save()
+        self.game.leave(self)

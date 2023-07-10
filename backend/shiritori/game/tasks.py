@@ -55,7 +55,7 @@ def load_dictionary_task(locale: str = "en"):
 def player_disconnect_task(player_id: str):
     time.sleep(5 if settings.DEBUG else 60)
     if player := Player.objects.filter(id=player_id, is_connected=False).first():
-        player.delete()
+        player.leave()
 
 
 @shared_task(

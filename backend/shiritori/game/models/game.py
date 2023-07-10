@@ -198,8 +198,14 @@ class Game(AbstractModel):
         player.save(update_fields=["name", "game", "type", "session_key", "is_host"])
         return player
 
-    def leave(self, player: Union["Player", str]) -> None:
-        """Remove a player from the game."""
+    def leave(self, player: Union["Player", str], *, was_deleted: bool = False) -> None:
+        """
+        Remove a player from the game.
+
+        player: Union[Player, str] - The player to remove.
+        was_deleted: bool - Whether the player was already deleted or not.
+
+        """
         with transaction.atomic():
             if isinstance(player, str):
                 player = self.player_set.get(session_key=player)
@@ -325,13 +331,14 @@ class Game(AbstractModel):
         """
         host = self.host
         players = self.players
+        first_player = players.first()
 
         # If no players raise ValidationError
         if not players.exists():
             raise ValidationError("Cannot recalculate host when there are no players.")
 
         if not host:
-            if first := self.players.first():
+            if first := first_player:
                 first.is_host = True
                 if save:
                     first.save(update_fields=["is_host"])
